@@ -2,6 +2,5 @@
 RESEND_API_KEY=
 EMAIL_FROM=Alba Pura <pedidos@tudominio.pe>
 CONTACT_TO=
-BANK_INFO=
 CULQI_PUBLIC_KEY=pk_test_
 CULQI_SECRET_KEY=sk_test_

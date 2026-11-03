@@ -15,7 +15,7 @@ npm run deploy               # publica el Worker
 npm run db:migrate:remote    # aplica migraciones nuevas en la D1 real
 ```
 
-Secretos (nunca en el repositorio): `wrangler secret put RESEND_API_KEY | CULQI_PUBLIC_KEY | CULQI_SECRET_KEY | BANK_INFO | CONTACT_TO`.
+Secretos (nunca en el repositorio): `wrangler secret put RESEND_API_KEY | CULQI_PUBLIC_KEY | CULQI_SECRET_KEY | CONTACT_TO`.
 Variables no secretas en `wrangler.jsonc` (`APP_URL` = dirección pública de la tienda).
 
 ## Notas

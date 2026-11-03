@@ -1,11 +1,9 @@
 import { z } from "zod";
 import { regions } from "@/checkout";
 import { currentUser } from "@/server/auth";
-import { orderEmail, sendEmail } from "@/server/email";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
 import { createOrder, OrderError } from "@/server/orders";
 import { culqiConfigured, culqiKeys } from "@/server/culqi";
-import { appUrl } from "@/server/site";
 
 const schema = z
   .object({
@@ -16,7 +14,7 @@ const schema = z
       .max(20),
     gift: z.boolean(),
     shippingMethod: z.enum(["standard", "express", "pickup"]),
-    payment: z.enum(["culqi", "transfer"]),
+    payment: z.literal("culqi"),
     address: z.object({
       name: z.string().trim().min(2, "Escribe tu nombre.").max(80),
       lastName: z.string().trim().max(80).default(""),
@@ -44,7 +42,7 @@ export async function POST(req: Request) {
   if (!rateLimit(`order:${clientIp(req)}`, 20, 60 * 60_000)) return fail("Demasiados pedidos seguidos. Espera unos minutos.", 429);
   const body = await parseBody(req, schema);
   if (!body.ok) return body.res;
-  if (body.data.payment === "culqi" && !culqiConfigured()) return fail("El pago con tarjeta o Yape todavía no está disponible. Elige transferencia o escríbenos por WhatsApp.", 503);
+  if (!culqiConfigured()) return fail("El pago en línea todavía no está disponible. Escríbenos por WhatsApp para completar tu pedido.", 503);
   const user = await currentUser();
 
   let order;
@@ -54,21 +52,6 @@ export async function POST(req: Request) {
     if (e instanceof OrderError) return fail(e.message, e.status);
     console.error("Error al crear el pedido", e);
     return fail("No pudimos crear el pedido. Inténtalo de nuevo.", 500);
-  }
-
-  const view = `${appUrl()}/pedido/${order.id}?t=${order.publicToken}`;
-
-  if (body.data.payment === "transfer") {
-    const mail = orderEmail({
-      id: order.id,
-      name: body.data.address.name,
-      items: order.lines,
-      total: order.total,
-      url: view,
-      transferInfo: process.env.BANK_INFO ?? "Datos bancarios por confirmar",
-    });
-    void sendEmail({ to: body.data.email, ...mail });
-    return json({ id: order.id, token: order.publicToken }, 201);
   }
 
   // Pago con tarjeta o Yape: el pedido queda pendiente y el navegador abre el checkout de Culqi.

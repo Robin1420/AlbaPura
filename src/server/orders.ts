@@ -15,7 +15,7 @@ export type NewOrderInput = {
   items: { slug: string; qty: number }[];
   gift: boolean;
   shippingMethod: ShippingMethod;
-  payment: "culqi" | "transfer";
+  payment: "culqi";
   address: Address;
 };
 
@@ -61,7 +61,7 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
   const gift = input.gift ? GIFT_PRICE : 0;
   const total = subtotal + shipping + gift;
   const publicToken = randomBytes(18).toString("base64url");
-  const status: OrderStatus = input.payment === "transfer" ? "awaiting_transfer" : "pending_payment";
+  const status: OrderStatus = "pending_payment";
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const id = `AP-${randomInt(10000, 99999)}`;

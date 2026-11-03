@@ -21,6 +21,6 @@ export async function GET(req: Request, ctx: RouteCtx) {
   if (!allowed) return fail("Pedido no encontrado.", 404);
   return json({
     order: serializeOrder(found.o, found.items),
-    bankInfo: found.o.status === "awaiting_transfer" ? (process.env.BANK_INFO ?? null) : null,
+    bankInfo: null,
   });
 }
