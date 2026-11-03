@@ -6,7 +6,7 @@ import { db, orderEvents, orders } from "@/server/db";
 import { orderEmail, sendEmail } from "@/server/email";
 import { fail, json, parseBody, sameOrigin } from "@/server/http";
 import { adminLabel as statusLabel, cancelOrder, getOrder, logEvent, serializeOrder, transitions } from "@/server/orders";
-import { appUrl } from "@/server/transbank";
+import { appUrl } from "@/server/site";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -18,7 +18,8 @@ async function detail(id: string) {
     order: { ...serializeOrder(found.o, found.items), statusLabel: statusLabel[found.o.status] },
     trackingCode: found.o.trackingCode,
     paidAt: found.o.paidAt ? new Date(found.o.paidAt * 1000).toISOString() : null,
-    webpayAuthCode: found.o.webpayAuthCode,
+    paymentAuth: found.o.paymentAuth,
+    paymentRef: found.o.paymentRef,
     allowed: transitions[found.o.status].map((s) => ({ status: s, label: statusLabel[s] })),
     events: events.map((e) => ({ actor: e.actor, action: e.action, at: new Date(e.createdAt * 1000).toISOString() })).reverse(),
   };

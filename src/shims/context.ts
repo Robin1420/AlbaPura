@@ -9,8 +9,9 @@ export type Env = {
   CONTACT_TO?: string;
   EMAIL_FROM?: string;
   RESEND_API_KEY?: string;
-  TBK_COMMERCE_CODE?: string;
-  TBK_API_KEY?: string;
+  /** Culqi: llave pública (pk_test_… / pk_live_…) y secreta (sk_…). */
+  CULQI_PUBLIC_KEY?: string;
+  CULQI_SECRET_KEY?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   /** Correos (separados por coma) que entran como administradores. */

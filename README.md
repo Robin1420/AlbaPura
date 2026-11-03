@@ -15,14 +15,14 @@ npm run deploy               # publica el Worker
 npm run db:migrate:remote    # aplica migraciones nuevas en la D1 real
 ```
 
-Secretos (nunca en el repositorio): `wrangler secret put RESEND_API_KEY | TBK_COMMERCE_CODE | TBK_API_KEY | BANK_INFO | CONTACT_TO`.
+Secretos (nunca en el repositorio): `wrangler secret put RESEND_API_KEY | CULQI_PUBLIC_KEY | CULQI_SECRET_KEY | BANK_INFO | CONTACT_TO`.
 Variables no secretas en `wrangler.jsonc` (`APP_URL` = dirección pública de la tienda).
 
 ## Notas
 - D1 no tiene transacciones interactivas: pedidos, cancelaciones y devolución de stock usan `db.batch` (`src/server/orders.ts`).
 - Las contraseñas usan scrypt; en el plan gratuito de Workers (10 ms de CPU) un inicio de sesión puede superar el límite. Si falla, usar el plan de pago o cambiar a PBKDF2.
 - El límite de intentos (`rateLimit`) está en memoria de cada instancia: es una defensa débil. Para algo serio, usar reglas de Rate Limiting de Cloudflare.
-- Webpay es de Transbank (Chile). Para Perú conviene cambiarlo por Niubiz, Culqi o Mercado Pago; hoy sin credenciales Webpay responde 502 y se paga por transferencia.
+- Pagos con tarjeta y Yape: Culqi (`src/server/culqi.ts`). `POST /api/orders` con `payment: "culqi"` crea el pedido pendiente; el navegador abre el checkout de Culqi con la llave pública y `POST /api/payments/culqi/charge` cobra con la llave secreta usando el monto del pedido. Llaves `pk_test_/sk_test_` no cobran de verdad; `pk_live_/sk_live_` sí.
 
 ## Ingreso con Google
 Solo hay inicio de sesión con Google (OAuth con código + PKCE, `src/server/google.ts`). Rutas: `GET /api/auth/google/start` y `GET /api/auth/google/callback`.

@@ -21,5 +21,5 @@
   }
   // R2 (fotos subidas): cuando esté activo en la cuenta, crear el bucket y agregar
   //   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "alba-pura-media" }]
-  // Secretos (wrangler secret put): GOOGLE_CLIENT_SECRET, RESEND_API_KEY, TBK_COMMERCE_CODE, TBK_API_KEY, BANK_INFO, CONTACT_TO
+  // Secretos (wrangler secret put): GOOGLE_CLIENT_SECRET, RESEND_API_KEY, CULQI_PUBLIC_KEY, CULQI_SECRET_KEY, BANK_INFO, CONTACT_TO
 }

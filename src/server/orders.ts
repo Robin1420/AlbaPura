@@ -15,7 +15,7 @@ export type NewOrderInput = {
   items: { slug: string; qty: number }[];
   gift: boolean;
   shippingMethod: ShippingMethod;
-  payment: "webpay" | "transfer";
+  payment: "culqi" | "transfer";
   address: Address;
 };
 
@@ -27,7 +27,7 @@ export class OrderError extends Error {
 
 const PENDING_MINUTES = 45;
 
-/** Libera el stock de pedidos con tarjeta que nunca se pagaron (el cliente cerró la ventana de Webpay). */
+/** Libera el stock de pedidos con tarjeta que nunca se pagaron (el cliente cerró el checkout de pago). */
 export async function expireStaleOrders() {
   const cutoff = Math.floor(Date.now() / 1000) - PENDING_MINUTES * 60;
   const stale = await db
@@ -141,7 +141,7 @@ export async function getOrder(id: string) {
   return { o, items };
 }
 
-/** Vista pública del pedido (sin el token ni datos de Webpay). */
+/** Vista pública del pedido (sin el token ni datos del pago). */
 export function serializeOrder(o: typeof orders.$inferSelect, items: (typeof orderItems.$inferSelect)[]) {
   return {
     id: o.id,

@@ -26,7 +26,8 @@ import * as r23 from "./routes/me/route";
 import * as r24 from "./routes/me/profile/route";
 import * as r25 from "./routes/newsletter/route";
 import * as r26 from "./routes/orders/route";
-import * as r27 from "./routes/payments/webpay/return/route";
+import * as r27 from "./routes/payments/config/route";
+import * as r28 from "./routes/payments/culqi/charge/route";
 
 export type Handler = (req: Request, ctx: { params: Promise<Record<string, string>> }) => Response | Promise<Response>;
 export const routes: { pattern: string; methods: Partial<Record<string, Handler>> }[] = [
@@ -57,5 +58,6 @@ export const routes: { pattern: string; methods: Partial<Record<string, Handler>
   { pattern: "/api/me/profile", methods: r24 as never },
   { pattern: "/api/newsletter", methods: r25 as never },
   { pattern: "/api/orders", methods: r26 as never },
-  { pattern: "/api/payments/webpay/return", methods: r27 as never },
+  { pattern: "/api/payments/config", methods: r27 as never },
+  { pattern: "/api/payments/culqi/charge", methods: r28 as never },
 ];

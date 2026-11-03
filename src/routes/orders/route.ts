@@ -1,12 +1,11 @@
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { regions } from "@/checkout";
 import { currentUser } from "@/server/auth";
-import { db, orders } from "@/server/db";
 import { orderEmail, sendEmail } from "@/server/email";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
-import { createOrder, OrderError, releaseOrder } from "@/server/orders";
-import { appUrl, webpay } from "@/server/transbank";
+import { createOrder, OrderError } from "@/server/orders";
+import { culqiConfigured, culqiKeys } from "@/server/culqi";
+import { appUrl } from "@/server/site";
 
 const schema = z
   .object({
@@ -17,7 +16,7 @@ const schema = z
       .max(20),
     gift: z.boolean(),
     shippingMethod: z.enum(["standard", "express", "pickup"]),
-    payment: z.enum(["webpay", "transfer"]),
+    payment: z.enum(["culqi", "transfer"]),
     address: z.object({
       name: z.string().trim().min(2, "Escribe tu nombre.").max(80),
       lastName: z.string().trim().max(80).default(""),
@@ -45,6 +44,7 @@ export async function POST(req: Request) {
   if (!rateLimit(`order:${clientIp(req)}`, 20, 60 * 60_000)) return fail("Demasiados pedidos seguidos. Espera unos minutos.", 429);
   const body = await parseBody(req, schema);
   if (!body.ok) return body.res;
+  if (body.data.payment === "culqi" && !culqiConfigured()) return fail("El pago con tarjeta o Yape todavía no está disponible. Elige transferencia o escríbenos por WhatsApp.", 503);
   const user = await currentUser();
 
   let order;
@@ -71,13 +71,7 @@ export async function POST(req: Request) {
     return json({ id: order.id, token: order.publicToken }, 201);
   }
 
-  try {
-    const tx = await webpay().create(order.id, order.id, order.total, `${appUrl()}/api/payments/webpay/return`);
-    await db.update(orders).set({ webpayToken: tx.token }).where(eq(orders.id, order.id));
-    return json({ id: order.id, token: order.publicToken, webpay: { url: tx.url, token: tx.token } }, 201);
-  } catch (e) {
-    console.error("Webpay no pudo iniciar la transacción", e);
-    await releaseOrder(order.id, "failed");
-    return fail("No pudimos conectar con Webpay. Inténtalo de nuevo o paga por transferencia.", 502);
-  }
+  // Pago con tarjeta o Yape: el pedido queda pendiente y el navegador abre el checkout de Culqi.
+  // El cobro se hace en /api/payments/culqi/charge con el monto de este pedido.
+  return json({ id: order.id, token: order.publicToken, total: order.total, culqi: { publicKey: culqiKeys().pk } }, 201);
 }
