@@ -1,4 +1,3 @@
-import "server-only";
 
 export type ImageInfo = { ext: "jpg" | "png" | "webp"; mime: string; width: number; height: number };
 

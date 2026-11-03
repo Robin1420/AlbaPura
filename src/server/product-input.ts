@@ -1,4 +1,3 @@
-import "server-only";
 import { z } from "zod";
 
 /** Solo se aceptan fotos subidas desde el panel o las que ya vienen en /public/img. */

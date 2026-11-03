@@ -1,7 +1,5 @@
-import "server-only";
 import { asc, eq } from "drizzle-orm";
-import { cacheLife, cacheTag } from "next/cache";
-import type { Catalog, Product } from "@/lib/products";
+import type { Catalog, Product } from "@/types";
 import { badges as badgesTable, categories as categoriesTable, db, products as productsTable } from "./db";
 
 /**
@@ -9,10 +7,6 @@ import { badges as badgesTable, categories as categoriesTable, db, products as p
  * Se guarda en caché con la etiqueta "catalog"; el panel la invalida al guardar cualquier cambio.
  */
 export async function getCatalog(): Promise<Catalog> {
-  "use cache";
-  cacheTag("catalog");
-  cacheLife("minutes");
-
   const cats = await db.select().from(categoriesTable).where(eq(categoriesTable.active, true)).orderBy(asc(categoriesTable.sortOrder), asc(categoriesTable.name));
   const rows = await db.select().from(productsTable).where(eq(productsTable.active, true)).orderBy(asc(productsTable.sortOrder), asc(productsTable.name));
   const badgeRows = await db.select().from(badgesTable).where(eq(badgesTable.active, true));

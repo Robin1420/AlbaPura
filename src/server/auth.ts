@@ -1,8 +1,7 @@
-import "server-only";
 import { createHash, randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import { eq, lt } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies } from "@/shims/cookies";
 import { db, sessions, users } from "./db";
 import { json } from "./http";
 
@@ -41,7 +40,7 @@ export async function startSession(userId: string) {
   (await cookies()).set(COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     path: "/",
     maxAge: SESSION_DAYS * 86400,
   });

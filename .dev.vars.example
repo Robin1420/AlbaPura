@@ -1,0 +1,7 @@
+# Copia a .dev.vars para desarrollo local (wrangler dev). En producción se usan secretos: wrangler secret put NOMBRE
+RESEND_API_KEY=
+EMAIL_FROM=Alba Pura <pedidos@tudominio.pe>
+CONTACT_TO=
+BANK_INFO=
+TBK_COMMERCE_CODE=
+TBK_API_KEY=

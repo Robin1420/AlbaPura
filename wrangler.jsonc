@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alba-pura-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "alias": { "server-only": "./src/shims/empty.ts" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "alba-pura-db",
+      "database_id": "c7a641ec-467d-4eed-9bdf-e948e8128bab",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "APP_URL": "https://alba-pura-web.workers.dev"
+  }
+  // R2 (fotos subidas): cuando esté activo en la cuenta, crear el bucket y agregar
+  //   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "alba-pura-media" }]
+  // Secretos (wrangler secret put): RESEND_API_KEY, TBK_COMMERCE_CODE, TBK_API_KEY, BANK_INFO, CONTACT_TO
+}
