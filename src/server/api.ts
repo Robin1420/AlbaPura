@@ -11,5 +11,10 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
   } catch {
     // fuera de Cloudflare (next dev sin el contexto): se usa la URL
   }
-  return fetch(`${(process.env.API_URL ?? "https://alba-pura-api.robinzon-1420.workers.dev").replace(/\/$/, "")}${path}`, init);
+  const res = await fetch(`${(process.env.API_URL ?? "https://alba-pura-api.robinzon-1420.workers.dev").replace(/\/$/, "")}${path}`, init);
+  // Node ya descomprimió el cuerpo: si se reenvía content-encoding, el navegador intenta descomprimirlo otra vez y falla
+  const headers = new Headers(res.headers);
+  headers.delete("content-encoding");
+  headers.delete("content-length");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }

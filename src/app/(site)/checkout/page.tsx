@@ -126,8 +126,8 @@ function CheckoutForm() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="mx-auto max-w-[1440px] px-6 pb-24 pt-48 lg:px-20">
-        <h1 className="text-[clamp(40px,6vw,80px)] font-semibold tracking-[-0.04em]">No hay nada que pagar</h1>
+      <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
+        <h1 className="text-[clamp(30px,6vw,80px)] font-semibold tracking-[-0.04em]">No hay nada que pagar</h1>
         <p className="mt-4 max-w-[46ch] text-[20px] text-muted">Tu carrito está vacío. Añade un producto para continuar con el pago.</p>
         <ButtonLink href="/tienda" size="lg" className="mt-8">Explorar la tienda</ButtonLink>
       </div>
@@ -136,9 +136,9 @@ function CheckoutForm() {
 
   return (
     <>
-      <header className="bg-dawn grain pb-12 pt-44">
+      <header className="bg-dawn grain pb-10 pt-36 sm:pb-12 sm:pt-44">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h1 className="text-[clamp(44px,6vw,88px)] font-semibold tracking-[-0.04em]">Finalizar compra</h1>
+          <h1 className="text-[clamp(34px,6vw,88px)] font-semibold tracking-[-0.04em]">Finalizar compra</h1>
           <p className="mt-3 text-[20px] italic text-muted">
             {account.user ? `Hola, ${account.user.name.split(" ")[0]}.` : <>¿Ya tienes cuenta? <Link href="/cuenta/ingresar" className="text-ink-900 underline underline-offset-4">Ingresa</Link> para llenar tus datos más rápido.</>}
           </p>

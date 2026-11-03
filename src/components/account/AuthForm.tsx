@@ -57,7 +57,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           Lo natural no es una moda, es volver a lo esencial.
         </p>
       </div>
-      <div className="flex items-center justify-center px-6 pb-20 pt-44 lg:pt-32">
+      <div className="flex items-center justify-center px-5 pb-16 pt-36 sm:px-6 sm:pb-20 sm:pt-44 lg:pt-32">
         <Suspense fallback={<div className="h-64 w-full max-w-[460px]" aria-busy="true" />}>
           <Card mode={mode} />
         </Suspense>

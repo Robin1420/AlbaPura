@@ -50,9 +50,9 @@ export default async function Home() {
       <CinematicHero />
 
       <section className="screen" aria-labelledby="cat-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
           <h2 id="cat-title" className="max-w-[16ch] text-[clamp(32px,min(5vw,8svh),64px)]">Cuatro líneas, una misma idea</h2>
-          <ul className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 md:mt-[clamp(1.5rem,5svh,3.5rem)] lg:grid-cols-4">
+          <ul className="mt-7 grid grid-cols-2 gap-x-4 gap-y-7 sm:mt-10 sm:gap-x-8 sm:gap-y-10 md:mt-[clamp(1.5rem,5svh,3.5rem)] lg:grid-cols-4">
             {categories.map((c, i) => (
               <li key={c.name} className={i % 2 === 1 ? "[@media(min-height:860px)]:lg:mt-10" : ""}>
                 <Link href={`/categoria/${c.slug}`} className="group block">
@@ -62,8 +62,8 @@ export default async function Home() {
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>
                     </span>
                   </div>
-                  <p className="mt-3 font-display text-[clamp(18px,3svh,22px)] font-medium">{c.name}</p>
-                  <p className="text-[15px] italic text-faint">{c.count} producto{c.count === 1 ? "" : "s"}</p>
+                  <p className="mt-2.5 font-display text-[16px] font-medium leading-tight sm:text-[19px] md:text-[clamp(18px,3svh,22px)]">{c.name}</p>
+                  <p className="text-[13px] italic text-faint sm:text-[15px]">{c.count} producto{c.count === 1 ? "" : "s"}</p>
                 </Link>
               </li>
             ))}
@@ -72,7 +72,7 @@ export default async function Home() {
       </section>
 
       <section className="bg-meadow grain screen" aria-labelledby="feat-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 id="feat-title" className="max-w-[18ch] text-[clamp(28px,min(4.2vw,6.5svh),56px)]">Los primeros productos de Alba Pura</h2>
@@ -80,7 +80,7 @@ export default async function Home() {
             </div>
             <ButtonLink href="/tienda" variant="primary">Ver toda la tienda</ButtonLink>
           </div>
-          <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-[clamp(1rem,3svh,2.5rem)] lg:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-9 sm:mt-10 sm:gap-x-8 sm:gap-y-12 md:mt-[clamp(1rem,3svh,2.5rem)] lg:grid-cols-4">
             {products.slice(0, 4).map((p) => (
               <ProductCard key={p.slug} product={p} compact />
             ))}
@@ -89,7 +89,7 @@ export default async function Home() {
       </section>
 
       <section className="screen" aria-labelledby="story-title">
-        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-6 py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">
+        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">
           <div className="lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
             <ParallaxArch src="/img/products/miel-de-abeja-pura.jpg" alt="Frasco de miel de Alba Pura con tapa de madera y cuchara" seal="Hecho en Lima" />
           </div>
@@ -114,7 +114,7 @@ export default async function Home() {
       </section>
 
       <section className="bg-dawn grain screen" aria-labelledby="pilot-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
           <div className="mx-auto max-w-[900px] text-center">
             <h2 id="pilot-title" className="text-[clamp(30px,min(4.5vw,7.5svh),56px)]">Sé de las primeras personas en probar Alba Pura</h2>
             <p className="mx-auto mt-4 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">

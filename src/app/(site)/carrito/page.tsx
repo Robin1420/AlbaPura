@@ -2,7 +2,7 @@
 
 import { AnimatePresence, m } from "motion/react";
 import Link from "next/link";
-import { useCart } from "@/components/cart/CartProvider";
+import { GIFT_PRICE, useCart } from "@/components/cart/CartProvider";
 import { ProductArt } from "@/components/product/ProductArt";
 import { CheckoutSteps } from "@/components/site/CheckoutSteps";
 import { ButtonLink } from "@/components/ui/Button";
@@ -13,9 +13,9 @@ export default function CartPage() {
 
   return (
     <>
-      <header className="bg-dawn grain pb-12 pt-44">
+      <header className="bg-dawn grain pb-10 pt-36 sm:pb-12 sm:pt-44">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h1 className="text-[clamp(48px,7vw,96px)] font-semibold tracking-[-0.04em]">Tu carrito</h1>
+          <h1 className="text-[clamp(34px,7vw,96px)] font-semibold tracking-[-0.04em]">Tu carrito</h1>
           <p className="mt-3 text-[20px] italic text-muted">{cart.count === 0 ? "Aún no has elegido nada." : `${cart.count} producto${cart.count === 1 ? "" : "s"}`}</p>
           {cart.items.length > 0 && <CheckoutSteps current={0} />}
         </div>
@@ -79,7 +79,7 @@ export default function CartPage() {
                   <span className="block font-display text-[18px] font-medium">Envolver para regalo</span>
                   <span className="block text-[16px] text-muted">Caja magnética, papel de semillas y tarjeta escrita a mano.</span>
                 </span>
-                <span className="font-display text-[16px] font-medium">+{money(2500)}</span>
+                <span className="font-display text-[16px] font-medium">+{money(GIFT_PRICE)}</span>
               </label>
 
               <Link href="/tienda" className="mt-8 inline-block font-display text-[16px] font-medium underline underline-offset-4">Seguir comprando</Link>

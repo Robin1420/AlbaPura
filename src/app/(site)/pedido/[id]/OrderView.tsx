@@ -42,8 +42,8 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
 
   if (data === "missing") {
     return (
-      <div className="mx-auto max-w-[1440px] px-6 pb-24 pt-48 lg:px-20">
-        <h1 className="text-[clamp(40px,6vw,80px)] font-semibold tracking-[-0.04em]">No encontramos este pedido</h1>
+      <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
+        <h1 className="text-[clamp(30px,6vw,80px)] font-semibold tracking-[-0.04em]">No encontramos este pedido</h1>
         <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Revisa que el enlace esté completo o ingresa a tu cuenta para ver tus pedidos.</p>
         <ButtonLink href="/cuenta" size="lg" className="mt-8">Ir a mi cuenta</ButtonLink>
       </div>
@@ -67,7 +67,7 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
 
   return (
     <>
-      <header className="bg-dawn pb-16 pt-44">
+      <header className="bg-dawn pb-10 pt-36 sm:pb-16 sm:pt-44">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
           <p className={`inline-flex items-center gap-3 rounded-full py-1.5 pl-2 pr-4 font-display text-[14px] font-medium ${failed ? "bg-danger text-white" : "bg-ink-800 text-dew-50"}`}>
             <span className={`grid size-6 place-items-center rounded-full ${failed ? "bg-white text-danger" : "bg-leaf-500 text-ink-900"}`} aria-hidden>
@@ -75,7 +75,7 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
             </span>
             Pedido {order.id}: {order.statusLabel.toLowerCase()}
           </p>
-          <h1 className="mt-6 max-w-[16ch] text-[clamp(44px,6.5vw,96px)] font-semibold tracking-[-0.04em]">{heading}</h1>
+          <h1 className="mt-6 max-w-[16ch] text-[clamp(34px,6.5vw,96px)] font-semibold tracking-[-0.04em]">{heading}</h1>
           <p className="mt-4 max-w-[52ch] text-[20px] text-muted">{lead}</p>
         </div>
       </header>

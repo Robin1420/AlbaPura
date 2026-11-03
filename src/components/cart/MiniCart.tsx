@@ -29,19 +29,19 @@ export function MiniCart() {
       <div
         role="status"
         aria-live="polite"
-        className={`fixed bottom-6 left-1/2 z-[70] -translate-x-1/2 transition-all duration-500 ease-out-expo ${
+        className={`fixed bottom-4 left-1/2 z-[70] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 transition-all sm:bottom-6 sm:w-auto sm:max-w-none duration-500 ease-out-expo ${
           cart.toast && !cart.open ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
         }`}
       >
-        <div className="flex items-center gap-4 rounded-xl border border-line bg-dew-50 px-5 py-3 shadow-[0_24px_60px_rgba(8,24,15,.18)]">
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-dew-50 px-4 py-3 sm:gap-4 sm:px-5 shadow-[0_24px_60px_rgba(8,24,15,.18)]">
           <span className="grid size-7 place-items-center rounded-full bg-ink-800 text-dew-50" aria-hidden>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
           </span>
-          <div className="leading-tight">
+          <div className="min-w-0 flex-1 leading-tight sm:flex-none">
             <p className="font-display text-[15px] font-medium">Añadido a tu carrito</p>
-            <p className="text-[14px] italic text-muted">{cart.toast}</p>
+            <p className="truncate text-[14px] italic text-muted">{cart.toast}</p>
           </div>
-          <button onClick={() => cart.setOpen(true)} className="ml-2 font-display text-[14px] font-medium text-leaf-600 underline-offset-4 hover:underline">
+          <button onClick={() => cart.setOpen(true)} className="shrink-0 font-display text-[14px] font-medium text-leaf-600 underline-offset-4 hover:underline">
             Ver carrito
           </button>
         </div>
@@ -56,7 +56,7 @@ export function MiniCart() {
           aria-modal="true"
           aria-label="Tu carrito"
           tabIndex={-1}
-          className={`absolute right-0 top-0 flex h-full w-full max-w-[480px] flex-col rounded-l-[28px] bg-dew-50 px-8 py-8 shadow-[0_24px_60px_rgba(8,24,15,.18)] transition-transform duration-500 ease-out-expo outline-none ${
+          className={`absolute right-0 top-0 flex h-full w-full max-w-[480px] flex-col rounded-l-[28px] bg-dew-50 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_24px_60px_rgba(8,24,15,.18)] transition-transform duration-500 ease-out-expo outline-none ${
             cart.open ? "translate-x-0" : "translate-x-full"
           }`}
         >

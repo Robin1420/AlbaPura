@@ -51,7 +51,7 @@ export function Catalog({ initialCategory, products, categories }: { initialCate
             </div>
           </LayoutGroup>
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-            <label className="relative min-w-0 flex-1 sm:flex-none">
+            <label className="relative w-full sm:w-auto">
               <span className="sr-only">Buscar en la tienda</span>
               <svg className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar" className="h-10 w-full rounded-full border border-line bg-white/70 pl-10 pr-4 font-display text-[15px] outline-none transition-[width] duration-300 focus:ring-2 focus:ring-leaf-500/50 sm:w-40 sm:focus:w-56" />
@@ -70,7 +70,7 @@ export function Catalog({ initialCategory, products, categories }: { initialCate
 
       <p className="mt-6 text-[15px] italic text-faint" aria-live="polite">Mostrando {list.length} de {products.length} productos</p>
 
-      <m.div layout className="mt-8 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+      <m.div layout className="mt-6 grid grid-cols-2 gap-x-4 gap-y-9 sm:mt-8 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3">
         <AnimatePresence mode="popLayout" initial={false}>
           {list.map((p, i) => (
             <m.div key={p.slug} layout="position" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>

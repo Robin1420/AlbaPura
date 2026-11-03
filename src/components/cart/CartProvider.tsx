@@ -16,7 +16,7 @@ type Action =
   | { type: "clear" };
 
 const KEY = "alba-pura-cart";
-const GIFT_PRICE = 2500;
+export const GIFT_PRICE = 8;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {

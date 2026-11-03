@@ -33,8 +33,8 @@ function Account() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-[1440px] px-6 pb-24 pt-48 lg:px-20">
-        <h1 className="text-[clamp(40px,6vw,80px)] font-semibold tracking-[-0.04em]">Tu cuenta</h1>
+      <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
+        <h1 className="text-[clamp(30px,6vw,80px)] font-semibold tracking-[-0.04em]">Tu cuenta</h1>
         <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Ingresa con tu cuenta de Google para ver tus pedidos y favoritos.</p>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/cuenta/ingresar" size="lg">Ingresar con Google</ButtonLink>
@@ -48,10 +48,10 @@ function Account() {
 
   return (
     <>
-      <header className="bg-dawn pb-10 pt-44">
+      <header className="bg-dawn pb-8 pt-36 sm:pb-10 sm:pt-44">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-end justify-between gap-6 px-6 lg:px-20">
           <div>
-            <h1 className="text-[clamp(44px,6vw,88px)] font-semibold tracking-[-0.04em]">Hola, {user.name.split(" ")[0]}.</h1>
+            <h1 className="text-[clamp(34px,6vw,88px)] font-semibold tracking-[-0.04em]">Hola, {user.name.split(" ")[0]}.</h1>
             <p className="mt-2 text-[20px] italic text-muted">{user.email}</p>
           </div>
           {user.role === "admin" && <ButtonLink href="/admin" variant="accent" size="lg">Ir al panel de administración</ButtonLink>}
@@ -103,7 +103,7 @@ function Account() {
                 <ButtonLink href="/tienda" className="mt-6">Explorar la tienda</ButtonLink>
               </div>
             ) : (
-              <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-4">
                 {favs.map((p) => <ProductCard key={p.slug} product={p} />)}
               </div>
             )}
