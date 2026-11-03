@@ -100,7 +100,7 @@ export default function CartPage() {
               <ButtonLink href="/checkout" variant="accent" size="lg" className="mt-6 w-full">Ir a pagar</ButtonLink>
               <WhatsAppOrderButton className="mt-3 w-full" />
               <ul className="mt-6 grid gap-2 text-[15px] text-dew-200/80">
-                {["Pago por transferencia, Yape o Plin", "Entrega en Lima Metropolitana y Callao", "Te respondemos por WhatsApp ante cualquier duda"].map((t) => (
+                {["Pago seguro con tarjeta o Yape", "Entrega en Lima Metropolitana y Callao", "Te respondemos por WhatsApp ante cualquier duda"].map((t) => (
                   <li key={t} className="flex items-center gap-2.5">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-leaf-400" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
                     {t}

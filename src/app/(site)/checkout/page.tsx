@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { WhatsAppOrderButton } from "@/components/cart/WhatsAppButtons";
 import { useAccount } from "@/components/account/AccountProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import { ProductArt } from "@/components/product/ProductArt";
@@ -14,7 +15,6 @@ import { regions, shippingCost, shippingOptions, validateAddress, validateContac
 import { openCulqi } from "@/lib/culqi";
 import { money } from "@/lib/products";
 
-type Payment = "culqi" | "transfer";
 type Pending = { id: string; token: string; publicKey: string; total: number; sig: string };
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
@@ -62,16 +62,10 @@ function CheckoutForm() {
   }, [profile]);
 
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<Payment>("transfer");
-  // Tarjeta o Yape solo aparece cuando la API tiene Culqi configurado
-  const [culqiOn, setCulqiOn] = useState(false);
+  // Culqi (tarjeta y Yape) es la única forma de pago. Hasta que la API lo tenga configurado, se ofrece pedir por WhatsApp.
+  const [culqiOn, setCulqiOn] = useState<boolean | null>(null);
   useEffect(() => {
-    void api<{ culqi: boolean }>("/api/payments/config").then((r) => {
-      if (r.ok && r.data.culqi) {
-        setCulqiOn(true);
-        setPayment("culqi");
-      }
-    });
+    void api<{ culqi: boolean }>("/api/payments/config").then((r) => setCulqiOn(r.ok && r.data.culqi));
   }, []);
   // Pedido ya creado y pendiente de pago: permite reintentar sin crear otro
   const [pendingOrder, setPendingOrder] = useState<Pending | null>(null);
@@ -100,7 +94,7 @@ function CheckoutForm() {
       return;
     }
 
-    if (payment === "culqi" && pending) {
+    if (pending) {
       void pay(pending);
       return;
     }
@@ -113,7 +107,7 @@ function CheckoutForm() {
         items: cart.items.map(({ product, qty }) => ({ slug: product.slug, qty })),
         gift: cart.gift,
         shippingMethod: shipping,
-        payment,
+        payment: "culqi",
         address: addr,
       },
     });
@@ -125,13 +119,14 @@ function CheckoutForm() {
       if (f) form.current?.querySelector<HTMLElement>(`[name="${f}"]`)?.focus();
       return;
     }
-    if (r.data.culqi) {
-      const p: Pending = { id: r.data.id, token: r.data.token, publicKey: r.data.culqi.publicKey, total: r.data.total ?? total, sig };
-      setPendingOrder(p);
-      void pay(p);
+    if (!r.data.culqi) {
+      setBusy(false);
+      setFormError("No pudimos iniciar el pago. Inténtalo de nuevo o escríbenos por WhatsApp.");
       return;
     }
-    router.push(`/pedido/${r.data.id}?t=${r.data.token}&pago=transferencia`);
+    const p: Pending = { id: r.data.id, token: r.data.token, publicKey: r.data.culqi.publicKey, total: r.data.total ?? total, sig };
+    setPendingOrder(p);
+    void pay(p);
   }
 
   /** Abre el pago seguro de Culqi; con el token que entrega, la API cobra el pedido. */
@@ -238,35 +233,29 @@ function CheckoutForm() {
           </Section>
 
           <Section n={3} title="Pago">
-            <div role="radiogroup" aria-label="Forma de pago" className="grid gap-3">
-              {culqiOn && (
-                <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${payment === "culqi" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
-                  <input type="radio" name="payment" checked={payment === "culqi"} onChange={() => setPayment("culqi")} className="size-5 accent-ink-800" />
-                  <span className="flex-1">
-                    <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
-                    <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners y Yape. Pago inmediato y seguro con Culqi.</span>
-                  </span>
-                </label>
-              )}
-              <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${payment === "transfer" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
-                <input type="radio" name="payment" checked={payment === "transfer"} onChange={() => setPayment("transfer")} className="size-5 accent-ink-800" />
-                <span className="flex-1">
-                  <span className="block font-display text-[17px] font-medium">Transferencia, Yape o Plin</span>
-                  <span className="block text-[15px] italic text-faint">Preparamos tu pedido cuando recibimos el pago</span>
-                </span>
-              </label>
-            </div>
-            <p className="rounded-lg bg-dew-100 p-4 text-[17px] text-muted">
-              {payment === "culqi"
-                ? "Pagas en una ventana segura de Culqi. Tus datos de tarjeta no pasan por nuestro sitio."
-                : "Al confirmar te mostramos los datos para pagar y te los enviamos por correo. Escribe el número de pedido al hacer el pago."}
-            </p>
+            {culqiOn === false ? (
+              <div className="grid gap-4 rounded-lg bg-dew-100 p-5">
+                <p className="font-display text-[19px] font-medium">El pago en línea estará disponible muy pronto.</p>
+                <p className="text-[17px] text-muted">Mientras tanto, envíanos tu pedido por WhatsApp y te ayudamos a completarlo.</p>
+                <WhatsAppOrderButton className="w-full sm:w-fit" />
+              </div>
+            ) : (
+              <>
+                <div className="rounded-lg border border-ink-800 bg-dew-100 p-4 ring-1 ring-ink-800">
+                  <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
+                  <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners y Yape. Pago inmediato y seguro con Culqi.</span>
+                </div>
+                <p className="rounded-lg bg-dew-100 p-4 text-[17px] text-muted">Pagas en una ventana segura de Culqi. Los datos de tu tarjeta no pasan por nuestro sitio.</p>
+              </>
+            )}
           </Section>
 
           {formError && <p role="alert" className="rounded-md bg-peach-100 px-4 py-3 text-[17px] text-danger">{formError}</p>}
-          <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-fit sm:min-w-72">
-            {busy ? (payment === "culqi" ? "Procesando tu pago…" : "Procesando tu pedido…") : payment === "culqi" ? (pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`) : `Confirmar pedido por ${money(total)}`}
-          </Button>
+          {culqiOn !== false && (
+            <Button type="submit" size="lg" disabled={busy || culqiOn === null} className="w-full sm:w-fit sm:min-w-72">
+              {busy ? "Procesando tu pago…" : pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`}
+            </Button>
+          )}
           <p className="flex items-center gap-2 text-[15px] italic text-faint">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
             Tus datos viajan cifrados. <Link href="/carrito" className="not-italic underline underline-offset-4">Volver al carrito</Link>
