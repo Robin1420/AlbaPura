@@ -8,7 +8,7 @@ type Batch = Parameters<typeof db.batch>[0];
 /** Aplica varias escrituras de golpe (D1 las ejecuta como una sola transacción). */
 const run = (q: unknown[]) => db.batch(q as unknown as Batch) as unknown as Promise<unknown[]>;
 
-export const GIFT_PRICE = 2500;
+export const GIFT_PRICE = 8;
 
 export type NewOrderInput = {
   email: string;
