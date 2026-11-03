@@ -3,6 +3,7 @@
 import { AnimatePresence, m } from "motion/react";
 import Link from "next/link";
 import { GIFT_PRICE, useCart } from "@/components/cart/CartProvider";
+import { WhatsAppOrderButton } from "@/components/cart/WhatsAppButtons";
 import { ProductArt } from "@/components/product/ProductArt";
 import { CheckoutSteps } from "@/components/site/CheckoutSteps";
 import { ButtonLink } from "@/components/ui/Button";
@@ -97,8 +98,9 @@ export default function CartPage() {
                 <span className="font-display text-[38px] font-medium tracking-[-0.04em]">{money(cart.total)}</span>
               </div>
               <ButtonLink href="/checkout" variant="accent" size="lg" className="mt-6 w-full">Ir a pagar</ButtonLink>
+              <WhatsAppOrderButton className="mt-3 w-full" />
               <ul className="mt-6 grid gap-2 text-[15px] text-dew-200/80">
-                {["Pago por transferencia, Yape o Plin", "Entrega en Lima Metropolitana y Callao", "Te respondemos por correo ante cualquier duda"].map((t) => (
+                {["Pago por transferencia, Yape o Plin", "Entrega en Lima Metropolitana y Callao", "Te respondemos por WhatsApp ante cualquier duda"].map((t) => (
                   <li key={t} className="flex items-center gap-2.5">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-leaf-400" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
                     {t}

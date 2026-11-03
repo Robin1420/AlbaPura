@@ -1,5 +1,6 @@
 import { CartProvider } from "@/components/cart/CartProvider";
 import { MiniCart } from "@/components/cart/MiniCart";
+import { WhatsAppFloat } from "@/components/cart/WhatsAppButtons";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 
@@ -14,6 +15,7 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
       <main>{children}</main>
       <Footer />
       <MiniCart />
+      <WhatsAppFloat />
     </CartProvider>
   );
 }

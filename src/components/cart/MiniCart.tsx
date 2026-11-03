@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { money } from "@/lib/products";
 import { ButtonLink } from "@/components/ui/Button";
 import { useCart } from "./CartProvider";
+import { WhatsAppOrderButton } from "./WhatsAppButtons";
 import { ProductArt } from "@/components/product/ProductArt";
 
 export function MiniCart() {
@@ -107,6 +108,7 @@ export function MiniCart() {
                 <p className="mt-1 text-[14px] italic text-faint">El envío se calcula al pagar.</p>
                 <div className="mt-5 grid gap-2">
                   <ButtonLink href="/checkout" variant="primary" size="lg" onClick={() => cart.setOpen(false)}>Ir a pagar</ButtonLink>
+                  <WhatsAppOrderButton />
                   <ButtonLink href="/carrito" variant="ghost" onClick={() => cart.setOpen(false)}>Ver carrito completo</ButtonLink>
                 </div>
               </div>
