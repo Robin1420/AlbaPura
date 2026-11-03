@@ -11,6 +11,10 @@ export type Env = {
   RESEND_API_KEY?: string;
   TBK_COMMERCE_CODE?: string;
   TBK_API_KEY?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  /** Correos (separados por coma) que entran como administradores. */
+  ADMIN_EMAILS?: string;
 };
 
 export type Store = {

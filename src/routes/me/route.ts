@@ -12,5 +12,5 @@ export async function GET() {
   const mine = await db.select().from(orders).where(eq(orders.userId, user.id)).orderBy(desc(orders.createdAt)).limit(50);
   const items = mine.length ? await db.select().from(orderItems).where(inArray(orderItems.orderId, mine.map((o) => o.id))) : [];
   const withItems = mine.map((o) => serializeOrder(o, items.filter((i) => i.orderId === o.id)));
-  return json({ user: { name: user.name, email: user.email, role: user.role }, favorites: favs.map((f) => f.slug), orders: withItems });
+  return json({ user: { name: user.name, email: user.email, role: user.role, picture: user.picture, phone: user.phone, addressLine: user.addressLine, district: user.district, region: user.region, profileComplete: user.profileComplete }, favorites: favs.map((f) => f.slug), orders: withItems });
 }

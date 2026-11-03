@@ -7,8 +7,16 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
-  passwordHash: text("password_hash").notNull(),
+  /** Identificador estable de la cuenta de Google ("sub"): el inicio de sesión es solo con Google. */
+  googleSub: text("google_sub").unique(),
+  picture: text("picture"),
   role: text("role").$type<"customer" | "admin">().notNull().default("customer"),
+  /** Datos del cliente: se completan después del primer ingreso con Google. */
+  phone: text("phone"),
+  addressLine: text("address_line"),
+  district: text("district"),
+  region: text("region"),
+  profileCompletedAt: integer("profile_completed_at"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
 });
 

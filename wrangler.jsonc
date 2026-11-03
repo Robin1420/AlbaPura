@@ -15,9 +15,11 @@
   ],
   "vars": {
     "ENVIRONMENT": "production",
+    "GOOGLE_CLIENT_ID": "291993266127-lmvu9rt1gnsbfq2nnmf5lt2lll3njbhb.apps.googleusercontent.com",
+    "ADMIN_EMAILS": "robinzon.1420@gmail.com",
     "APP_URL": "https://alba-pura-web.robinzon-1420.workers.dev"
   }
   // R2 (fotos subidas): cuando esté activo en la cuenta, crear el bucket y agregar
   //   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "alba-pura-media" }]
-  // Secretos (wrangler secret put): RESEND_API_KEY, TBK_COMMERCE_CODE, TBK_API_KEY, BANK_INFO, CONTACT_TO
+  // Secretos (wrangler secret put): GOOGLE_CLIENT_SECRET, RESEND_API_KEY, TBK_COMMERCE_CODE, TBK_API_KEY, BANK_INFO, CONTACT_TO
 }

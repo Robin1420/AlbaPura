@@ -15,17 +15,18 @@ import * as r12 from "./routes/admin/products/route";
 import * as r13 from "./routes/admin/subscribers/route";
 import * as r14 from "./routes/admin/summary/route";
 import * as r15 from "./routes/admin/upload/route";
-import * as r16 from "./routes/auth/login/route";
-import * as r17 from "./routes/auth/logout/route";
-import * as r18 from "./routes/auth/register/route";
+import * as r16 from "./routes/auth/google/callback/route";
+import * as r17 from "./routes/auth/google/start/route";
+import * as r18 from "./routes/auth/logout/route";
 import * as r19 from "./routes/catalog/route";
 import * as r20 from "./routes/contact/route";
 import * as r21 from "./routes/favorites/route";
 import * as r22 from "./routes/health/route";
 import * as r23 from "./routes/me/route";
-import * as r24 from "./routes/newsletter/route";
-import * as r25 from "./routes/orders/route";
-import * as r26 from "./routes/payments/webpay/return/route";
+import * as r24 from "./routes/me/profile/route";
+import * as r25 from "./routes/newsletter/route";
+import * as r26 from "./routes/orders/route";
+import * as r27 from "./routes/payments/webpay/return/route";
 
 export type Handler = (req: Request, ctx: { params: Promise<Record<string, string>> }) => Response | Promise<Response>;
 export const routes: { pattern: string; methods: Partial<Record<string, Handler>> }[] = [
@@ -45,15 +46,16 @@ export const routes: { pattern: string; methods: Partial<Record<string, Handler>
   { pattern: "/api/admin/subscribers", methods: r13 as never },
   { pattern: "/api/admin/summary", methods: r14 as never },
   { pattern: "/api/admin/upload", methods: r15 as never },
-  { pattern: "/api/auth/login", methods: r16 as never },
-  { pattern: "/api/auth/logout", methods: r17 as never },
-  { pattern: "/api/auth/register", methods: r18 as never },
+  { pattern: "/api/auth/google/callback", methods: r16 as never },
+  { pattern: "/api/auth/google/start", methods: r17 as never },
+  { pattern: "/api/auth/logout", methods: r18 as never },
   { pattern: "/api/catalog", methods: r19 as never },
   { pattern: "/api/contact", methods: r20 as never },
   { pattern: "/api/favorites", methods: r21 as never },
   { pattern: "/api/health", methods: r22 as never },
   { pattern: "/api/me", methods: r23 as never },
-  { pattern: "/api/newsletter", methods: r24 as never },
-  { pattern: "/api/orders", methods: r25 as never },
-  { pattern: "/api/payments/webpay/return", methods: r26 as never },
+  { pattern: "/api/me/profile", methods: r24 as never },
+  { pattern: "/api/newsletter", methods: r25 as never },
+  { pattern: "/api/orders", methods: r26 as never },
+  { pattern: "/api/payments/webpay/return", methods: r27 as never },
 ];
