@@ -22,7 +22,7 @@ function Section({ n, title, children }: { n: number; title: string; children: R
     <fieldset className="grid gap-5 border-t border-ink-800 pt-6">
       <legend className="float-left mb-5 flex w-full items-baseline gap-4">
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-ink-800 font-display text-[14px] font-semibold text-dew-50">{n}</span>
-        <span className="font-display text-[26px] font-medium tracking-[-0.02em]">{title}</span>
+        <span data-step-title tabIndex={-1} className="font-display text-[26px] font-medium tracking-[-0.02em] outline-none">{title}</span>
       </legend>
       {children}
     </fieldset>
@@ -79,18 +79,54 @@ function CheckoutForm() {
   const sig = JSON.stringify([email.trim(), shipping, addr, cart.gift, cart.items.map(({ product, qty }) => [product.slug, qty])]);
   const pending = pendingOrder && pendingOrder.sig === sig ? pendingOrder : null;
 
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  function validateStep(s: 1 | 2): Errors {
+    if (s === 1) return validateContact(email);
+    if (shipping !== "pickup") return validateAddress(addr);
+    const e: Errors = {};
+    if (addr.name.trim().length < 2) e.name = "Escribe tu nombre.";
+    if (addr.phone.replace(/\D/g, "").length < 8) e.phone = "Escribe un teléfono de al menos 8 dígitos.";
+    return e;
+  }
+
+  function goTo(next: 1 | 2 | 3) {
+    setFormError("");
+    setStep(next);
+  }
+
+  // Al cambiar de paso se sube al inicio del formulario y el foco va al título del paso
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    form.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    form.current?.querySelector<HTMLElement>("[data-step-title]")?.focus({ preventScroll: true });
+  }, [step]);
+
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setFormError("");
-    const e: Errors = { ...validateContact(email), ...(shipping === "pickup" ? {} : validateAddress(addr)) };
-    if (shipping === "pickup") {
-      if (addr.name.trim().length < 2) e.name = "Escribe tu nombre.";
-      if (addr.phone.replace(/\D/g, "").length < 8) e.phone = "Escribe un teléfono de al menos 8 dígitos.";
+    // Pasos 1 y 2: se valida lo de ese paso y se avanza
+    if (step !== 3) {
+      const e = validateStep(step);
+      setErrors(e);
+      const first = Object.keys(e)[0];
+      if (first) {
+        form.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+        return;
+      }
+      goTo((step + 1) as 2 | 3);
+      return;
     }
-    setErrors(e);
-    const first = Object.keys(e)[0];
-    if (first) {
-      form.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+
+    // Paso 3: se revisa todo otra vez antes de crear el pedido
+    const e: Errors = { ...validateStep(1), ...validateStep(2) };
+    if (Object.keys(e).length) {
+      setErrors(e);
+      goTo(e.email ? 1 : 2);
       return;
     }
 
@@ -183,16 +219,19 @@ function CheckoutForm() {
           <p className="mt-3 text-[20px] italic text-muted">
             {account.user ? `Hola, ${account.user.name.split(" ")[0]}.` : <>¿Ya tienes cuenta? <Link href="/cuenta/ingresar" className="text-ink-900 underline underline-offset-4">Ingresa</Link> para llenar tus datos más rápido.</>}
           </p>
-          <CheckoutSteps current={1} />
+          <CheckoutSteps current={step - 1} steps={["Contacto", "Envío", "Pago"]} />
         </div>
       </header>
 
-      <form ref={form} onSubmit={submit} noValidate className="mx-auto grid max-w-[1440px] gap-14 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-20">
+      <form ref={form} onSubmit={submit} noValidate className="mx-auto grid scroll-mt-32 max-w-[1440px] gap-14 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-20">
         <div className="grid gap-12">
+          {step === 1 && (
           <Section n={1} title="Contacto">
             <Field label="Correo electrónico" name="email" type="email" autoComplete="email" placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} hint="Te enviaremos aquí la confirmación del pedido." />
           </Section>
+          )}
 
+          {step === 2 && (
           <Section n={2} title="Envío">
             <div role="radiogroup" aria-label="Método de envío" className="grid gap-3">
               {shippingOptions.map((o) => {
@@ -231,8 +270,24 @@ function CheckoutForm() {
               <Field label="Teléfono" name="phone" type="tel" autoComplete="tel" placeholder="987 654 321" value={addr.phone} onChange={set("phone")} error={errors.phone} />
             </div>
           </Section>
+          )}
 
+          {step === 3 && (
           <Section n={3} title="Pago">
+            <dl className="grid gap-4 rounded-lg border border-line p-4 text-[16px]">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0"><dt className="italic text-faint">Contacto</dt><dd className="break-all font-display font-medium">{email.trim()}</dd></div>
+                <button type="button" onClick={() => goTo(1)} className="shrink-0 font-display text-[14px] font-medium text-leaf-600 underline underline-offset-4">Cambiar</button>
+              </div>
+              <div className="flex items-start justify-between gap-4 border-t border-line pt-4">
+                <div className="min-w-0">
+                  <dt className="italic text-faint">Envío</dt>
+                  <dd className="font-display font-medium">{shippingOptions.find((o) => o.id === shipping)?.name}</dd>
+                  <dd className="text-muted">{shipping === "pickup" ? addr.name : `${addr.name} ${addr.lastName}, ${addr.line}, ${addr.comuna}`} · {addr.phone}</dd>
+                </div>
+                <button type="button" onClick={() => goTo(2)} className="shrink-0 font-display text-[14px] font-medium text-leaf-600 underline underline-offset-4">Cambiar</button>
+              </div>
+            </dl>
             {culqiOn === false ? (
               <div className="grid gap-4 rounded-lg bg-dew-100 p-5">
                 <p className="font-display text-[19px] font-medium">El pago en línea estará disponible muy pronto.</p>
@@ -249,13 +304,18 @@ function CheckoutForm() {
               </>
             )}
           </Section>
+          )}
 
           {formError && <p role="alert" className="rounded-md bg-peach-100 px-4 py-3 text-[17px] text-danger">{formError}</p>}
-          {culqiOn !== false && (
-            <Button type="submit" size="lg" disabled={busy || culqiOn === null} className="w-full sm:w-fit sm:min-w-72">
-              {busy ? "Procesando tu pago…" : pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`}
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {step > 1 && <Button type="button" variant="ghost" size="lg" onClick={() => goTo((step - 1) as 1 | 2)} disabled={busy}>Atrás</Button>}
+            {step < 3 && <Button type="submit" size="lg" className="w-full sm:w-fit sm:min-w-56">Continuar</Button>}
+            {step === 3 && culqiOn !== false && (
+              <Button type="submit" size="lg" disabled={busy || culqiOn === null} className="w-full sm:w-fit sm:min-w-72">
+                {busy ? "Procesando tu pago…" : pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`}
+              </Button>
+            )}
+          </div>
           <p className="flex items-center gap-2 text-[15px] italic text-faint">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
             Tus datos viajan cifrados. <Link href="/carrito" className="not-italic underline underline-offset-4">Volver al carrito</Link>

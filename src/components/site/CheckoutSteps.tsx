@@ -1,7 +1,7 @@
-const steps = ["Carrito", "Datos y envío", "Pago"];
+const defaultSteps = ["Carrito", "Datos y envío", "Pago"];
 
-/** Indicador de avance de la compra. `current` es 0, 1 o 2. */
-export function CheckoutSteps({ current }: { current: 0 | 1 | 2 }) {
+/** Indicador de avance de la compra. `current` es la posición (desde 0) del paso actual. */
+export function CheckoutSteps({ current, steps = defaultSteps }: { current: number; steps?: string[] }) {
   return (
     <ol aria-label="Pasos de la compra" className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-display text-[15px]">
       {steps.map((s, i) => (
