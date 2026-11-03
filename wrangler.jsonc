@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alba-pura-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "images": { "binding": "IMAGES" },
+  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV", "id": "d3eb8b50a5e64cc98b73d9cf5b400322" }],
+  // La API es otro Worker (rama backend): la tienda la llama por dentro de Cloudflare, sin salir a internet.
+  "services": [{ "binding": "API", "service": "alba-pura-api" }],
+  "vars": {
+    "APP_URL": "https://alba-pura-web.robinzon-1420.workers.dev"
+  }
+}
