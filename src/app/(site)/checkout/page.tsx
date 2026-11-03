@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import { ProductArt } from "@/components/product/ProductArt";
@@ -51,6 +51,23 @@ function CheckoutForm() {
     comuna: "",
     phone: "",
   });
+  // Cuando carga la sesión, se llenan los datos guardados en el perfil (solo los campos vacíos)
+  const profile = account.user;
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!profile || prefilled.current) return;
+    prefilled.current = true;
+    setEmail((v) => v || profile.email);
+    setAddr((a) => ({
+      name: a.name || profile.name.split(" ")[0],
+      lastName: a.lastName || profile.name.split(" ").slice(1).join(" "),
+      line: a.line || profile.addressLine || "",
+      region: a.region || profile.region || "",
+      comuna: a.comuna || profile.district || "",
+      phone: a.phone || profile.phone || "",
+    }));
+  }, [profile]);
+
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
   const [payment] = useState<Payment>("transfer");
   const [errors, setErrors] = useState<Errors>({});

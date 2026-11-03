@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
+import { ProfileForm } from "@/components/account/ProfileForm";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ButtonLink, Button } from "@/components/ui/Button";
 import { money } from "@/lib/products";
@@ -11,8 +13,20 @@ import { useCatalog } from "@/lib/useCatalog";
 type Tab = "pedidos" | "favoritos" | "datos";
 
 export default function AccountPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+      <Account />
+    </Suspense>
+  );
+}
+
+function Account() {
   const { ready, user, orders, favorites, logout } = useAccount();
-  const [tab, setTab] = useState<Tab>("pedidos");
+  const params = useSearchParams();
+  const completing = params.get("completar") === "1";
+  const rawNext = params.get("next");
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : undefined;
+  const [tab, setTab] = useState<Tab>(completing ? "datos" : "pedidos");
   const products = useCatalog()?.products ?? [];
 
   if (!ready) return <div className="min-h-[60vh]" aria-busy="true" />;
@@ -21,10 +35,9 @@ export default function AccountPage() {
     return (
       <div className="mx-auto max-w-[1440px] px-6 pb-24 pt-48 lg:px-20">
         <h1 className="text-[clamp(40px,6vw,80px)] font-semibold tracking-[-0.04em]">Tu cuenta</h1>
-        <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Ingresa para ver tus pedidos y favoritos, o crea una cuenta en un minuto.</p>
+        <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Ingresa con tu cuenta de Google para ver tus pedidos y favoritos.</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/cuenta/ingresar" size="lg">Ingresar</ButtonLink>
-          <ButtonLink href="/cuenta/registro" size="lg" variant="secondary">Crear cuenta</ButtonLink>
+          <ButtonLink href="/cuenta/ingresar" size="lg">Ingresar con Google</ButtonLink>
         </div>
       </div>
     );
@@ -98,11 +111,13 @@ export default function AccountPage() {
         )}
 
         {tab === "datos" && (
-          <section className="grid max-w-xl gap-6 py-10" aria-label="Mis datos">
-            <dl className="divide-y divide-line border-y border-line">
-              <div className="flex justify-between gap-4 py-4"><dt className="text-[17px] italic text-faint">Nombre</dt><dd className="font-display text-[17px] font-medium">{user.name}</dd></div>
-              <div className="flex justify-between gap-4 py-4"><dt className="text-[17px] italic text-faint">Correo</dt><dd className="font-display text-[17px] font-medium">{user.email}</dd></div>
-            </dl>
+          <section className="grid gap-6 py-10" aria-label="Mis datos">
+            {(completing || !user.profileComplete) && (
+              <p className="max-w-xl rounded-md bg-peach-100 px-4 py-3 text-[17px]">
+                {completing ? "¡Te damos la bienvenida! " : ""}Completa tu celular y dirección de entrega una sola vez; los usaremos en tus compras.
+              </p>
+            )}
+            <ProfileForm user={user} next={completing ? next ?? "/cuenta" : undefined} />
             {user.role === "admin" && <ButtonLink href="/admin" variant="accent" className="w-fit">Ir al panel de administración</ButtonLink>}
             <Button variant="secondary" onClick={logout} className="w-fit">Cerrar sesión</Button>
           </section>
