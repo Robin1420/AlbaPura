@@ -8,7 +8,7 @@ async function proxy(req: Request, ctx: RouteContext<"/api/[...path]">) {
   const { path } = await ctx.params;
   const url = new URL(req.url);
   const headers = new Headers(req.headers);
-  headers.set("x-forwarded-host", url.host);
+  headers.set("x-forwarded-host", req.headers.get("host") ?? url.host);
   headers.delete("host");
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
   const res = await apiFetch(`/api/${path.join("/")}${url.search}`, {

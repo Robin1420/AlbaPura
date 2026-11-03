@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import { ProductArt } from "@/components/product/ProductArt";
@@ -11,9 +11,11 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { api } from "@/lib/api";
 import { regions, shippingCost, shippingOptions, validateAddress, validateContact, type Errors, type ShippingMethod } from "@/lib/checkout";
+import { openCulqi } from "@/lib/culqi";
 import { money } from "@/lib/products";
 
-type Payment = "webpay" | "transfer";
+type Payment = "culqi" | "transfer";
+type Pending = { id: string; token: string; publicKey: string; total: number; sig: string };
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -27,20 +29,11 @@ function Section({ n, title, children }: { n: number; title: string; children: R
   );
 }
 
-/** Mensaje cuando el cliente vuelve de Webpay sin completar el pago. */
-function PaymentNotice() {
-  const pago = useSearchParams().get("pago");
-  if (!pago) return null;
-  const msg = pago === "anulado" ? "Anulaste el pago en Webpay. Tu carrito sigue intacto; puedes intentarlo de nuevo." : "No pudimos completar el pago. Tu carrito sigue intacto; inténtalo de nuevo.";
-  return <p role="alert" className="rounded-md bg-peach-100 px-4 py-3 text-[17px] text-danger">{msg}</p>;
-}
-
 function CheckoutForm() {
   const router = useRouter();
   const cart = useCart();
   const account = useAccount();
   const form = useRef<HTMLFormElement>(null);
-  const webpayForm = useRef<HTMLFormElement>(null);
 
   const [email, setEmail] = useState(account.user?.email ?? "");
   const [addr, setAddr] = useState({
@@ -69,14 +62,28 @@ function CheckoutForm() {
   }, [profile]);
 
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment] = useState<Payment>("transfer");
+  const [payment, setPayment] = useState<Payment>("transfer");
+  // Tarjeta o Yape solo aparece cuando la API tiene Culqi configurado
+  const [culqiOn, setCulqiOn] = useState(false);
+  useEffect(() => {
+    void api<{ culqi: boolean }>("/api/payments/config").then((r) => {
+      if (r.ok && r.data.culqi) {
+        setCulqiOn(true);
+        setPayment("culqi");
+      }
+    });
+  }, []);
+  // Pedido ya creado y pendiente de pago: permite reintentar sin crear otro
+  const [pendingOrder, setPendingOrder] = useState<Pending | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [wp, setWp] = useState<{ url: string; token: string } | null>(null);
 
   const shippingPrice = shippingCost(shipping);
   const total = cart.subtotal + cart.giftPrice + shippingPrice;
+  // El pedido pendiente solo se reutiliza si nada cambió desde que se creó (productos, envío, datos)
+  const sig = JSON.stringify([email.trim(), shipping, addr, cart.gift, cart.items.map(({ product, qty }) => [product.slug, qty])]);
+  const pending = pendingOrder && pendingOrder.sig === sig ? pendingOrder : null;
 
   async function submit(ev: FormEvent) {
     ev.preventDefault();
@@ -93,9 +100,14 @@ function CheckoutForm() {
       return;
     }
 
+    if (payment === "culqi" && pending) {
+      void pay(pending);
+      return;
+    }
+
     setBusy(true);
     // Solo se envían qué productos y cuántos: los precios y el stock los calcula el servidor
-    const r = await api<{ id: string; token: string; webpay?: { url: string; token: string } }>("/api/orders", {
+    const r = await api<{ id: string; token: string; total?: number; culqi?: { publicKey: string } }>("/api/orders", {
       body: {
         email: email.trim(),
         items: cart.items.map(({ product, qty }) => ({ slug: product.slug, qty })),
@@ -113,13 +125,47 @@ function CheckoutForm() {
       if (f) form.current?.querySelector<HTMLElement>(`[name="${f}"]`)?.focus();
       return;
     }
-    if (r.data.webpay) {
-      // Webpay exige un POST con token_ws; se envía un formulario oculto
-      setWp(r.data.webpay);
-      setTimeout(() => webpayForm.current?.submit(), 0);
+    if (r.data.culqi) {
+      const p: Pending = { id: r.data.id, token: r.data.token, publicKey: r.data.culqi.publicKey, total: r.data.total ?? total, sig };
+      setPendingOrder(p);
+      void pay(p);
       return;
     }
     router.push(`/pedido/${r.data.id}?t=${r.data.token}&pago=transferencia`);
+  }
+
+  /** Abre el pago seguro de Culqi; con el token que entrega, la API cobra el pedido. */
+  async function pay(p: Pending) {
+    setBusy(true);
+    setFormError("");
+    try {
+      await openCulqi({
+        publicKey: p.publicKey,
+        total: p.total,
+        email: email.trim(),
+        firstName: addr.name.trim(),
+        lastName: addr.lastName.trim(),
+        onToken: async (tokenId) => {
+          setBusy(true);
+          const r = await api("/api/payments/culqi/charge", { body: { orderId: p.id, token: p.token, tokenId } });
+          if (!r.ok) {
+            setBusy(false);
+            setFormError(r.error);
+            return;
+          }
+          router.push(`/pedido/${p.id}?t=${p.token}&pago=ok`);
+        },
+        onError: (message) => {
+          setBusy(false);
+          setFormError(message);
+        },
+      });
+      // El pago seguro se abrió: se vuelve a habilitar el botón por si la persona cierra la ventana
+      setBusy(false);
+    } catch (e) {
+      setBusy(false);
+      setFormError(e instanceof Error ? e.message : "No pudimos abrir el pago seguro.");
+    }
   }
 
   const set = (k: keyof typeof addr) => (e: { target: { value: string } }) => setAddr((a) => ({ ...a, [k]: e.target.value }));
@@ -148,8 +194,6 @@ function CheckoutForm() {
 
       <form ref={form} onSubmit={submit} noValidate className="mx-auto grid max-w-[1440px] gap-14 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-20">
         <div className="grid gap-12">
-          <Suspense fallback={null}><PaymentNotice /></Suspense>
-
           <Section n={1} title="Contacto">
             <Field label="Correo electrónico" name="email" type="email" autoComplete="email" placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} hint="Te enviaremos aquí la confirmación del pedido." />
           </Section>
@@ -194,18 +238,34 @@ function CheckoutForm() {
           </Section>
 
           <Section n={3} title="Pago">
-            <div className="rounded-lg border border-ink-800 bg-dew-100 p-4 ring-1 ring-ink-800">
-              <span className="block font-display text-[17px] font-medium">Transferencia, Yape o Plin</span>
-              <span className="block text-[15px] italic text-faint">Preparamos tu pedido cuando recibimos el pago</span>
+            <div role="radiogroup" aria-label="Forma de pago" className="grid gap-3">
+              {culqiOn && (
+                <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${payment === "culqi" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
+                  <input type="radio" name="payment" checked={payment === "culqi"} onChange={() => setPayment("culqi")} className="size-5 accent-ink-800" />
+                  <span className="flex-1">
+                    <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
+                    <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners y Yape. Pago inmediato y seguro con Culqi.</span>
+                  </span>
+                </label>
+              )}
+              <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${payment === "transfer" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
+                <input type="radio" name="payment" checked={payment === "transfer"} onChange={() => setPayment("transfer")} className="size-5 accent-ink-800" />
+                <span className="flex-1">
+                  <span className="block font-display text-[17px] font-medium">Transferencia, Yape o Plin</span>
+                  <span className="block text-[15px] italic text-faint">Preparamos tu pedido cuando recibimos el pago</span>
+                </span>
+              </label>
             </div>
             <p className="rounded-lg bg-dew-100 p-4 text-[17px] text-muted">
-              Al confirmar te mostramos los datos para pagar y te los enviamos por correo. Escribe el número de pedido al hacer el pago.
+              {payment === "culqi"
+                ? "Pagas en una ventana segura de Culqi. Tus datos de tarjeta no pasan por nuestro sitio."
+                : "Al confirmar te mostramos los datos para pagar y te los enviamos por correo. Escribe el número de pedido al hacer el pago."}
             </p>
           </Section>
 
           {formError && <p role="alert" className="rounded-md bg-peach-100 px-4 py-3 text-[17px] text-danger">{formError}</p>}
           <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-fit sm:min-w-72">
-            {busy ? "Procesando tu pedido…" : payment === "webpay" ? `Ir a pagar ${money(total)}` : `Confirmar pedido por ${money(total)}`}
+            {busy ? (payment === "culqi" ? "Procesando tu pago…" : "Procesando tu pedido…") : payment === "culqi" ? (pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`) : `Confirmar pedido por ${money(total)}`}
           </Button>
           <p className="flex items-center gap-2 text-[15px] italic text-faint">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
@@ -240,11 +300,6 @@ function CheckoutForm() {
         </aside>
       </form>
 
-      {wp && (
-        <form ref={webpayForm} action={wp.url} method="POST" className="hidden">
-          <input type="hidden" name="token_ws" value={wp.token} />
-        </form>
-      )}
     </>
   );
 }

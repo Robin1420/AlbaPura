@@ -10,11 +10,11 @@ import { money } from "@/lib/products";
 
 const stages = ["Confirmado", "Preparando", "En camino", "Entregado"] as const;
 const stageOf: Record<ApiOrder["status"], number> = { pending_payment: 0, awaiting_transfer: 0, failed: 0, cancelled: 0, paid: 1, preparing: 1, shipped: 2, delivered: 3 };
-const paymentLabel = { webpay: "Tarjeta (Webpay)", transfer: "Transferencia, Yape o Plin" } as const;
+const paymentLabel = { culqi: "Tarjeta o Yape", transfer: "Transferencia, Yape o Plin" } as const;
 
 type Loaded = { order: ApiOrder; bankInfo: string | null } | "missing";
 
-export function OrderView({ id, token, pago }: { id: string; token: string; pago: string }) {
+export function OrderView({ id, token }: { id: string; token: string; pago?: string }) {
   const cart = useCart();
   const [data, setData] = useState<Loaded | null>(null);
   const cleared = useRef(false);
@@ -58,9 +58,7 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
 
   const heading = failed ? "No se completó el pago." : transfer ? `Casi listo, ${first}.` : `Gracias por tu compra, ${first}.`;
   const lead = failed
-    ? pago === "anulado"
-      ? "Anulaste el pago en Webpay. No se hizo ningún cargo."
-      : "Webpay no pudo procesar el pago y no se hizo ningún cargo. Puedes intentarlo de nuevo."
+    ? "No se hizo ningún cargo. Puedes volver a la tienda e intentarlo de nuevo."
     : transfer
       ? "Para confirmar tu pedido, transfiere el total con los datos de abajo. Te los enviamos también a tu correo."
       : `Te enviamos la confirmación a ${order.email}. Te escribiremos para coordinar la entrega.`;
