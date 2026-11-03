@@ -48,7 +48,7 @@ export function MiniCart() {
       </div>
 
       {/* Drawer */}
-      <div className={`fixed inset-0 z-[80] transition-opacity duration-300 ${cart.open ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!cart.open} inert={!cart.open}>
+      <div className={`fixed inset-0 z-[80] overflow-hidden transition-opacity duration-300 ${cart.open ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!cart.open} inert={!cart.open}>
         <button aria-label="Cerrar carrito" className="absolute inset-0 bg-ink-900/55" onClick={() => cart.setOpen(false)} tabIndex={-1} />
         <div
           ref={panel}
