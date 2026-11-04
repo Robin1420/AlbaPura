@@ -64,8 +64,12 @@ function CheckoutForm() {
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
   // Culqi (tarjeta y Yape) es la única forma de pago. Hasta que la API lo tenga configurado, se ofrece pedir por WhatsApp.
   const [culqiOn, setCulqiOn] = useState<boolean | null>(null);
+  const [qrOn, setQrOn] = useState(false); // el QR de billeteras móviles se enciende aparte, desde la API
   useEffect(() => {
-    void api<{ culqi: boolean }>("/api/payments/config").then((r) => setCulqiOn(r.ok && r.data.culqi));
+    void api<{ culqi: boolean; qr?: boolean }>("/api/payments/config").then((r) => {
+      setCulqiOn(r.ok && r.data.culqi);
+      setQrOn(r.ok && Boolean(r.data.qr));
+    });
   }, []);
   // Forma de pago: tarjeta o Yape (ventana de Culqi) o QR de billetera móvil (se muestra en esta página)
   const [method, setMethod] = useState<"card" | "qr">("card");
@@ -83,7 +87,7 @@ function CheckoutForm() {
   const pending = pendingOrder && pendingOrder.sig === sig ? pendingOrder : null;
   const qrActive = qr && pending && qr.orderId === pending.id ? qr : null;
   // Las billeteras móviles (QR) solo aceptan montos de S/ 6 a S/ 500
-  const qrAllowed = total >= 6 && total <= 500;
+  const qrAllowed = qrOn && total >= 6 && total <= 500;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
@@ -225,9 +229,11 @@ function CheckoutForm() {
   async function pay(p: Pending) {
     setBusy(true);
     setFormError("");
+    const attempt = ++attemptRef.current;
     try {
-      await openCulqi({
+      const handle = await openCulqi({
         publicKey: p.publicKey,
+        order: qrOn && qrAllowed ? p.culqiOrder ?? undefined : undefined,
         total: p.total,
         email: email.trim(),
         firstName: addr.name.trim(),
@@ -250,6 +256,8 @@ function CheckoutForm() {
       });
       // El pago seguro se abrió: se vuelve a habilitar el botón por si la persona cierra la ventana
       setBusy(false);
+      // Si la ventana trae la pestaña de billeteras (QR), se espera a que el pago llegue
+      if (qrOn && qrAllowed && p.culqiOrder) void watchQr(p, handle, attempt);
     } catch (e) {
       setBusy(false);
       setFormError(e instanceof Error ? e.message : "No pudimos abrir el pago seguro.");
@@ -373,16 +381,16 @@ function CheckoutForm() {
                     <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${method === "card" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
                       <input type="radio" name="method" checked={method === "card"} onChange={() => setMethod("card")} className="size-5 accent-ink-800" />
                       <span className="flex-1">
-                        <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
-                        <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners o Yape con tu código. Pago inmediato.</span>
+                        <span className="block font-display text-[17px] font-medium">{qrAllowed ? "Tarjeta, Yape o QR" : "Tarjeta o Yape"}</span>
+                        <span className="block text-[15px] italic text-faint">{qrAllowed ? "Todo en la ventana de Culqi: tarjeta, Yape con tu código o el QR de tu billetera (pestaña «Billeteras digitales»)." : "Visa, Mastercard, American Express, Diners o Yape con tu código. Pago inmediato."}</span>
                       </span>
                     </label>
                     {qrAllowed && (
                       <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${method === "qr" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
                         <input type="radio" name="method" checked={method === "qr"} onChange={() => setMethod("qr")} className="size-5 accent-ink-800" />
                         <span className="flex-1">
-                          <span className="block font-display text-[17px] font-medium">QR de billetera móvil</span>
-                          <span className="block text-[15px] italic text-faint">Escanea con Yape, Plin, BBVA, Scotiabank y otras billeteras.</span>
+                          <span className="block font-display text-[17px] font-medium">QR en esta página</span>
+                          <span className="block text-[15px] italic text-faint">Escanea con Yape, Plin, BBVA, Scotiabank y otras billeteras, sin abrir otra ventana.</span>
                         </span>
                       </label>
                     )}
