@@ -2,6 +2,7 @@ import { randomBytes, randomInt } from "node:crypto";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { shippingCost, type ShippingMethod } from "@/checkout";
 import { changes } from "./http";
+import { stockEntry, unitCosts } from "./stock";
 import { db, orderEvents, orderItems, orders, products, type Address, type OrderStatus } from "./db";
 
 type Batch = Parameters<typeof db.batch>[0];
@@ -56,6 +57,7 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
     return { p, qty: i.qty };
   });
 
+  const costs = await unitCosts(slugs);
   const subtotal = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
   const shipping = shippingCost(input.shippingMethod);
   const gift = input.gift ? GIFT_PRICE : 0;
@@ -82,7 +84,7 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
           total,
           address: input.address,
         }),
-        db.insert(orderItems).values(lines.map((l) => ({ orderId: id, slug: l.p.slug, name: l.p.name, meta: l.p.meta, qty: l.qty, price: l.p.price }))),
+        db.insert(orderItems).values(lines.map((l) => ({ orderId: id, slug: l.p.slug, name: l.p.name, meta: l.p.meta, qty: l.qty, price: l.p.price, unitCost: costs.get(l.p.slug) ?? null }))),
         ...lines.map((l) =>
           db
             .update(products)
@@ -99,6 +101,7 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
         ]);
         throw new OrderError(`No hay stock suficiente de ${lines[failed].p.name}.`, 409);
       }
+      await run(lines.map((l) => stockEntry(l.p.slug, "sale_web", -l.qty, { ref: id, note: `Pedido web ${id}` }))).catch(() => undefined);
       return { id, publicToken, total, status, lines: lines.map((l) => ({ name: l.p.name, qty: l.qty, price: l.p.price })) };
     } catch (e) {
       if (e instanceof OrderError) throw e;
@@ -116,6 +119,7 @@ export async function releaseOrder(orderId: string, status: OrderStatus) {
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   await run([
     ...items.map((i) => db.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug))),
+    ...items.map((i) => stockEntry(i.slug, "return", i.qty, { ref: orderId, note: `Pedido ${orderId} no pagado` })),
     db.update(orders).set({ status }).where(and(eq(orders.id, orderId), eq(orders.status, o.status))),
   ]);
 }
@@ -181,6 +185,7 @@ export async function cancelOrder(orderId: string) {
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   await run([
     ...items.map((i) => db.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug))),
+    ...items.map((i) => stockEntry(i.slug, "return", i.qty, { ref: orderId, note: `Pedido ${orderId} cancelado` })),
     db.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId)),
   ]);
 }

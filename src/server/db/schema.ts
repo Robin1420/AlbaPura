@@ -101,6 +101,8 @@ export const orderItems = sqliteTable("order_items", {
   meta: text("meta").notNull(),
   qty: integer("qty").notNull(),
   price: integer("price").notNull(),
+  /** Costo de producir una unidad al momento de la venta (para la utilidad real). Vacío si el producto no tenía receta. */
+  unitCost: real("unit_cost"),
 });
 
 export const favorites = sqliteTable(
@@ -246,4 +248,65 @@ export const productionBatchItems = sqliteTable("production_batch_items", {
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+});
+
+export type StockMovementType = "production" | "sale_web" | "sale_manual" | "return" | "adjust_in" | "adjust_out";
+
+/** Historial del stock de cada producto terminado: producción, ventas, devoluciones y ajustes manuales. */
+export const stockMovements = sqliteTable("stock_movements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  productSlug: text("product_slug").notNull().references(() => products.slug, { onDelete: "cascade" }),
+  type: text("type").$type<StockMovementType>().notNull(),
+  /** Cambio de unidades (+ entra, − sale). */
+  qty: integer("qty").notNull(),
+  ref: text("ref"),
+  note: text("note"),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+});
+
+export type Channel = "whatsapp" | "instagram" | "facebook" | "tiktok" | "tienda" | "feria" | "b2b" | "otro";
+
+/** Ventas registradas a mano, fuera de la web: por WhatsApp, redes sociales, en tienda o feria, o a empresas (B2B). */
+export const sales = sqliteTable("sales", {
+  id: text("id").primaryKey(),
+  channel: text("channel").$type<Channel>().notNull(),
+  /** Detalle del canal (qué feria, qué cuenta, qué empresa referida…). */
+  channelNote: text("channel_note"),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  /** DNI o RUC. */
+  customerDoc: text("customer_doc"),
+  customerCompany: text("customer_company"),
+  payment: text("payment").$type<"efectivo" | "yape" | "plin" | "transferencia" | "tarjeta" | "credito" | "otro">().notNull(),
+  paid: integer("paid", { mode: "boolean" }).notNull().default(true),
+  paidAt: integer("paid_at"),
+  status: text("status").$type<"completed" | "cancelled">().notNull().default("completed"),
+  subtotal: real("subtotal").notNull(),
+  discount: real("discount").notNull().default(0),
+  /** Envío cobrado al cliente (no cuenta como ganancia). */
+  shipping: real("shipping").notNull().default(0),
+  total: real("total").notNull(),
+  costTotal: real("cost_total").notNull().default(0),
+  /** Falso si algún producto no tenía receta: la utilidad queda incompleta. */
+  costComplete: integer("cost_complete", { mode: "boolean" }).notNull().default(true),
+  /** Otros costos de la venta: comisión, envío que pagaste, etc. */
+  fee: real("fee").notNull().default(0),
+  profit: real("profit").notNull().default(0),
+  notes: text("notes"),
+  soldAt: integer("sold_at").notNull(),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+  cancelledAt: integer("cancelled_at"),
+});
+
+export const saleItems = sqliteTable("sale_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  saleId: text("sale_id").notNull().references(() => sales.id, { onDelete: "cascade" }),
+  productSlug: text("product_slug").notNull(),
+  name: text("name").notNull(),
+  qty: integer("qty").notNull(),
+  price: real("price").notNull(),
+  unitCost: real("unit_cost"),
 });

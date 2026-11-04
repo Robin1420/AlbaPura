@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidateTag } from "@/shims/cache";
 import { requireAdmin } from "@/server/auth";
 import { badges, categories, db, favorites, productionBatches, products } from "@/server/db";
+import { logManualAdjust } from "@/server/stock";
 import { fail, json, parseBody, sameOrigin } from "@/server/http";
 import { productInput } from "@/server/product-input";
 
@@ -38,6 +39,7 @@ export async function PUT(req: Request, ctx: RouteCtx) {
   const [cat] = await db.select({ slug: categories.slug }).from(categories).where(eq(categories.slug, d.categorySlug));
   if (!cat) return fail("La categoría elegida no existe.", 422, { categorySlug: "La categoría elegida no existe." });
 
+  const [prev] = await db.select({ stock: products.stock }).from(products).where(eq(products.slug, slug));
   const r = await db
     .update(products)
     .set({
@@ -60,6 +62,7 @@ export async function PUT(req: Request, ctx: RouteCtx) {
     })
     .where(eq(products.slug, slug));
   if (changes(r) === 0) return fail("Producto no encontrado.", 404);
+  if (prev) await logManualAdjust(slug, prev.stock, d.stock, auth.user.email);
   revalidateTag("catalog", { expire: 0 });
   return json({ slug });
 }
@@ -73,8 +76,10 @@ export async function PATCH(req: Request, ctx: RouteCtx) {
   if (!body.ok) return body.res;
   if (Object.keys(body.data).length === 0) return fail("No hay nada que cambiar.", 400);
   const { slug } = await ctx.params;
+  const [prev] = await db.select({ stock: products.stock }).from(products).where(eq(products.slug, slug));
   const r = await db.update(products).set(body.data).where(eq(products.slug, slug));
   if (changes(r) === 0) return fail("Producto no encontrado.", 404);
+  if (prev && body.data.stock !== undefined) await logManualAdjust(slug, prev.stock, body.data.stock, auth.user.email);
   revalidateTag("catalog", { expire: 0 });
   return json({ slug });
 }

@@ -1,5 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 import { loadSettings, type CostSettings } from "./costing";
+import { stockEntry } from "./stock";
 import { db, productionBatchItems, productionBatches, products, recipeItems, recipes, supplies, supplyMovements } from "./db";
 
 type Run = Parameters<typeof db.batch>[0];
@@ -67,6 +68,7 @@ export async function completeBatch(batchId: string, actor: string, force = fals
     );
   }
   ops.push(db.update(products).set({ stock: sql`${products.stock} + ${batch.qty}` }).where(eq(products.slug, batch.productSlug)));
+  ops.push(stockEntry(batch.productSlug, "production", batch.qty, { ref: batchId, note: `Producción ${batchId}`, actor }));
   await run(ops);
   return { id: batchId, costTotal: q.total, costUnit: q.unitCost };
 }

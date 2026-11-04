@@ -9,39 +9,43 @@ import * as r6 from "./routes/admin/orders/route";
 import * as r7 from "./routes/admin/production/route";
 import * as r8 from "./routes/admin/production/quote/route";
 import * as r9 from "./routes/admin/products/route";
-import * as r10 from "./routes/admin/subscribers/route";
-import * as r11 from "./routes/admin/summary/route";
-import * as r12 from "./routes/admin/supplies/route";
-import * as r13 from "./routes/admin/upload/route";
-import * as r14 from "./routes/auth/google/callback/route";
-import * as r15 from "./routes/auth/google/start/route";
-import * as r16 from "./routes/auth/logout/route";
-import * as r17 from "./routes/catalog/route";
-import * as r18 from "./routes/contact/route";
-import * as r19 from "./routes/favorites/route";
-import * as r20 from "./routes/health/route";
-import * as r21 from "./routes/me/route";
-import * as r22 from "./routes/me/profile/route";
-import * as r23 from "./routes/newsletter/route";
-import * as r24 from "./routes/orders/route";
-import * as r25 from "./routes/payments/config/route";
-import * as r26 from "./routes/payments/culqi/charge/route";
-import * as r27 from "./routes/payments/culqi/qr/route";
-import * as r28 from "./routes/payments/culqi/sync/route";
-import * as r29 from "./routes/payments/culqi/webhook/route";
-import * as r30 from "./routes/admin/badges/[slug]/route";
-import * as r31 from "./routes/admin/categories/[slug]/route";
-import * as r32 from "./routes/admin/costs/[slug]/route";
-import * as r33 from "./routes/admin/costs/[slug]/price/route";
-import * as r34 from "./routes/admin/media/[name]/route";
-import * as r35 from "./routes/admin/orders/[id]/route";
-import * as r36 from "./routes/admin/production/[id]/route";
-import * as r37 from "./routes/admin/products/[slug]/route";
-import * as r38 from "./routes/admin/supplies/[id]/route";
-import * as r39 from "./routes/admin/supplies/[id]/adjust/route";
-import * as r40 from "./routes/admin/supplies/[id]/purchase/route";
-import * as r41 from "./routes/media/[name]/route";
-import * as r42 from "./routes/orders/[id]/route";
+import * as r10 from "./routes/admin/profit/route";
+import * as r11 from "./routes/admin/sales/route";
+import * as r12 from "./routes/admin/stock/route";
+import * as r13 from "./routes/admin/subscribers/route";
+import * as r14 from "./routes/admin/summary/route";
+import * as r15 from "./routes/admin/supplies/route";
+import * as r16 from "./routes/admin/upload/route";
+import * as r17 from "./routes/auth/google/callback/route";
+import * as r18 from "./routes/auth/google/start/route";
+import * as r19 from "./routes/auth/logout/route";
+import * as r20 from "./routes/catalog/route";
+import * as r21 from "./routes/contact/route";
+import * as r22 from "./routes/favorites/route";
+import * as r23 from "./routes/health/route";
+import * as r24 from "./routes/me/route";
+import * as r25 from "./routes/me/profile/route";
+import * as r26 from "./routes/newsletter/route";
+import * as r27 from "./routes/orders/route";
+import * as r28 from "./routes/payments/config/route";
+import * as r29 from "./routes/payments/culqi/charge/route";
+import * as r30 from "./routes/payments/culqi/qr/route";
+import * as r31 from "./routes/payments/culqi/sync/route";
+import * as r32 from "./routes/payments/culqi/webhook/route";
+import * as r33 from "./routes/admin/badges/[slug]/route";
+import * as r34 from "./routes/admin/categories/[slug]/route";
+import * as r35 from "./routes/admin/costs/[slug]/route";
+import * as r36 from "./routes/admin/costs/[slug]/price/route";
+import * as r37 from "./routes/admin/media/[name]/route";
+import * as r38 from "./routes/admin/orders/[id]/route";
+import * as r39 from "./routes/admin/production/[id]/route";
+import * as r40 from "./routes/admin/products/[slug]/route";
+import * as r41 from "./routes/admin/sales/[id]/route";
+import * as r42 from "./routes/admin/supplies/[id]/route";
+import * as r43 from "./routes/admin/supplies/[id]/adjust/route";
+import * as r44 from "./routes/admin/supplies/[id]/purchase/route";
+import * as r45 from "./routes/media/[name]/route";
+import * as r46 from "./routes/orders/[id]/route";
 
 export type Handler = (req: Request, ctx: { params: Promise<Record<string, string>> }) => Response | Promise<Response>;
 export const routes: { pattern: string; methods: Partial<Record<string, Handler>> }[] = [
@@ -55,37 +59,41 @@ export const routes: { pattern: string; methods: Partial<Record<string, Handler>
   { pattern: "/api/admin/production", methods: r7 as never },
   { pattern: "/api/admin/production/quote", methods: r8 as never },
   { pattern: "/api/admin/products", methods: r9 as never },
-  { pattern: "/api/admin/subscribers", methods: r10 as never },
-  { pattern: "/api/admin/summary", methods: r11 as never },
-  { pattern: "/api/admin/supplies", methods: r12 as never },
-  { pattern: "/api/admin/upload", methods: r13 as never },
-  { pattern: "/api/auth/google/callback", methods: r14 as never },
-  { pattern: "/api/auth/google/start", methods: r15 as never },
-  { pattern: "/api/auth/logout", methods: r16 as never },
-  { pattern: "/api/catalog", methods: r17 as never },
-  { pattern: "/api/contact", methods: r18 as never },
-  { pattern: "/api/favorites", methods: r19 as never },
-  { pattern: "/api/health", methods: r20 as never },
-  { pattern: "/api/me", methods: r21 as never },
-  { pattern: "/api/me/profile", methods: r22 as never },
-  { pattern: "/api/newsletter", methods: r23 as never },
-  { pattern: "/api/orders", methods: r24 as never },
-  { pattern: "/api/payments/config", methods: r25 as never },
-  { pattern: "/api/payments/culqi/charge", methods: r26 as never },
-  { pattern: "/api/payments/culqi/qr", methods: r27 as never },
-  { pattern: "/api/payments/culqi/sync", methods: r28 as never },
-  { pattern: "/api/payments/culqi/webhook", methods: r29 as never },
-  { pattern: "/api/admin/badges/[slug]", methods: r30 as never },
-  { pattern: "/api/admin/categories/[slug]", methods: r31 as never },
-  { pattern: "/api/admin/costs/[slug]", methods: r32 as never },
-  { pattern: "/api/admin/costs/[slug]/price", methods: r33 as never },
-  { pattern: "/api/admin/media/[name]", methods: r34 as never },
-  { pattern: "/api/admin/orders/[id]", methods: r35 as never },
-  { pattern: "/api/admin/production/[id]", methods: r36 as never },
-  { pattern: "/api/admin/products/[slug]", methods: r37 as never },
-  { pattern: "/api/admin/supplies/[id]", methods: r38 as never },
-  { pattern: "/api/admin/supplies/[id]/adjust", methods: r39 as never },
-  { pattern: "/api/admin/supplies/[id]/purchase", methods: r40 as never },
-  { pattern: "/api/media/[name]", methods: r41 as never },
-  { pattern: "/api/orders/[id]", methods: r42 as never },
+  { pattern: "/api/admin/profit", methods: r10 as never },
+  { pattern: "/api/admin/sales", methods: r11 as never },
+  { pattern: "/api/admin/stock", methods: r12 as never },
+  { pattern: "/api/admin/subscribers", methods: r13 as never },
+  { pattern: "/api/admin/summary", methods: r14 as never },
+  { pattern: "/api/admin/supplies", methods: r15 as never },
+  { pattern: "/api/admin/upload", methods: r16 as never },
+  { pattern: "/api/auth/google/callback", methods: r17 as never },
+  { pattern: "/api/auth/google/start", methods: r18 as never },
+  { pattern: "/api/auth/logout", methods: r19 as never },
+  { pattern: "/api/catalog", methods: r20 as never },
+  { pattern: "/api/contact", methods: r21 as never },
+  { pattern: "/api/favorites", methods: r22 as never },
+  { pattern: "/api/health", methods: r23 as never },
+  { pattern: "/api/me", methods: r24 as never },
+  { pattern: "/api/me/profile", methods: r25 as never },
+  { pattern: "/api/newsletter", methods: r26 as never },
+  { pattern: "/api/orders", methods: r27 as never },
+  { pattern: "/api/payments/config", methods: r28 as never },
+  { pattern: "/api/payments/culqi/charge", methods: r29 as never },
+  { pattern: "/api/payments/culqi/qr", methods: r30 as never },
+  { pattern: "/api/payments/culqi/sync", methods: r31 as never },
+  { pattern: "/api/payments/culqi/webhook", methods: r32 as never },
+  { pattern: "/api/admin/badges/[slug]", methods: r33 as never },
+  { pattern: "/api/admin/categories/[slug]", methods: r34 as never },
+  { pattern: "/api/admin/costs/[slug]", methods: r35 as never },
+  { pattern: "/api/admin/costs/[slug]/price", methods: r36 as never },
+  { pattern: "/api/admin/media/[name]", methods: r37 as never },
+  { pattern: "/api/admin/orders/[id]", methods: r38 as never },
+  { pattern: "/api/admin/production/[id]", methods: r39 as never },
+  { pattern: "/api/admin/products/[slug]", methods: r40 as never },
+  { pattern: "/api/admin/sales/[id]", methods: r41 as never },
+  { pattern: "/api/admin/supplies/[id]", methods: r42 as never },
+  { pattern: "/api/admin/supplies/[id]/adjust", methods: r43 as never },
+  { pattern: "/api/admin/supplies/[id]/purchase", methods: r44 as never },
+  { pattern: "/api/media/[name]", methods: r45 as never },
+  { pattern: "/api/orders/[id]", methods: r46 as never },
 ];

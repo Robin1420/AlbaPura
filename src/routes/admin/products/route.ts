@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { revalidateTag } from "@/shims/cache";
 import { requireAdmin } from "@/server/auth";
 import { badges, categories, db, products } from "@/server/db";
+import { logManualAdjust } from "@/server/stock";
 import { fail, json, parseBody, sameOrigin } from "@/server/http";
 import { productInput } from "@/server/product-input";
 import { uniqueSlug } from "@/server/slug";
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
     art: d.art ?? null,
     sortOrder: d.sortOrder,
   });
+  if (d.stock > 0) await logManualAdjust(slug, 0, d.stock, auth.user.email, "Stock inicial");
   revalidateTag("catalog", { expire: 0 });
   return json({ slug }, 201);
 }
