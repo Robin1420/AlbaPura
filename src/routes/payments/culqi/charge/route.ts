@@ -3,10 +3,9 @@ import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { createCharge, culqiConfigured } from "@/server/culqi";
 import { db, orders } from "@/server/db";
-import { orderEmail, sendEmail } from "@/server/email";
 import { changes, clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
-import { getOrder, logEvent } from "@/server/orders";
-import { appUrl } from "@/server/site";
+import { getOrder } from "@/server/orders";
+import { markPaid } from "@/server/payments";
 
 const schema = z.object({
   orderId: z.string().regex(/^AP-\d{5}$/),
@@ -48,16 +47,6 @@ export async function POST(req: Request) {
     return fail(charge.message, charge.reason === "error" ? 502 : 402);
   }
 
-  await db.update(orders).set({ status: "paid", paidAt: Math.floor(Date.now() / 1000), paymentRef: charge.id, paymentAuth: charge.reference || null }).where(eq(orders.id, o.id));
-  await logEvent(o.id, "Culqi", `Pago aprobado (${charge.live ? "real" : "prueba"}): ${charge.id}`);
-
-  const mail = orderEmail({
-    id: o.id,
-    name: o.address.name,
-    items: found.items.map((i) => ({ name: i.name, qty: i.qty, price: i.price })),
-    total: o.total,
-    url: `${appUrl()}/pedido/${o.id}?t=${o.publicToken}`,
-  });
-  void sendEmail({ to: o.email, ...mail });
+  await markPaid(o.id, { ref: charge.id, auth: charge.reference || null, actor: "Culqi", note: `Pago aprobado con tarjeta o Yape (${charge.live ? "real" : "prueba"}): ${charge.id}` });
   return json({ ok: true, id: o.id, token: o.publicToken });
 }

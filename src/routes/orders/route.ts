@@ -3,7 +3,9 @@ import { regions } from "@/checkout";
 import { currentUser } from "@/server/auth";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
 import { createOrder, OrderError } from "@/server/orders";
-import { culqiConfigured, culqiKeys } from "@/server/culqi";
+import { eq } from "drizzle-orm";
+import { createCulqiOrder, culqiConfigured, culqiKeys } from "@/server/culqi";
+import { db, orders } from "@/server/db";
 
 const schema = z
   .object({
@@ -54,7 +56,12 @@ export async function POST(req: Request) {
     return fail("No pudimos crear el pedido. Inténtalo de nuevo.", 500);
   }
 
-  // Pago con tarjeta o Yape: el pedido queda pendiente y el navegador abre el checkout de Culqi.
-  // El cobro se hace en /api/payments/culqi/charge con el monto de este pedido.
-  return json({ id: order.id, token: order.publicToken, total: order.total, culqi: { publicKey: culqiKeys().pk } }, 201);
+  // La orden de Culqi permite además el QR de billeteras móviles (Yape, Plin…). Si falla, se paga con tarjeta o Yape.
+  const a = body.data.address;
+  const culqiOrder = await createCulqiOrder({ orderId: order.id, amountSoles: order.total, email: body.data.email, firstName: a.name, lastName: a.lastName, phone: a.phone });
+  if (culqiOrder) await db.update(orders).set({ culqiOrder }).where(eq(orders.id, order.id));
+
+  // El pedido queda pendiente y el navegador abre el checkout de Culqi.
+  // Tarjeta/Yape se cobran en /api/payments/culqi/charge; el QR se confirma con /sync o con el aviso (webhook).
+  return json({ id: order.id, token: order.publicToken, total: order.total, culqi: { publicKey: culqiKeys().pk, order: culqiOrder } }, 201);
 }

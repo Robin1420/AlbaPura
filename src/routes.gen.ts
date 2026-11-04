@@ -28,6 +28,9 @@ import * as r25 from "./routes/newsletter/route";
 import * as r26 from "./routes/orders/route";
 import * as r27 from "./routes/payments/config/route";
 import * as r28 from "./routes/payments/culqi/charge/route";
+import * as r29 from "./routes/payments/culqi/qr/route";
+import * as r30 from "./routes/payments/culqi/sync/route";
+import * as r31 from "./routes/payments/culqi/webhook/route";
 
 export type Handler = (req: Request, ctx: { params: Promise<Record<string, string>> }) => Response | Promise<Response>;
 export const routes: { pattern: string; methods: Partial<Record<string, Handler>> }[] = [
@@ -60,4 +63,7 @@ export const routes: { pattern: string; methods: Partial<Record<string, Handler>
   { pattern: "/api/orders", methods: r26 as never },
   { pattern: "/api/payments/config", methods: r27 as never },
   { pattern: "/api/payments/culqi/charge", methods: r28 as never },
+  { pattern: "/api/payments/culqi/qr", methods: r29 as never },
+  { pattern: "/api/payments/culqi/sync", methods: r30 as never },
+  { pattern: "/api/payments/culqi/webhook", methods: r31 as never },
 ];

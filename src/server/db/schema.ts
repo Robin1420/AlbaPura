@@ -81,6 +81,8 @@ export const orders = sqliteTable("orders", {
   paymentRef: text("payment_ref"),
   /** Código de referencia/autorización del cargo. */
   paymentAuth: text("payment_auth"),
+  /** Id de la orden en Culqi (ord_…): permite pagar con el QR de Yape, Plin y otras billeteras. */
+  culqiOrder: text("culqi_order"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
   paidAt: integer("paid_at"),
   trackingCode: text("tracking_code"),

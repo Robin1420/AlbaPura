@@ -12,6 +12,8 @@ export type Env = {
   /** Culqi: llave pública (pk_test_… / pk_live_…) y secreta (sk_…). */
   CULQI_PUBLIC_KEY?: string;
   CULQI_SECRET_KEY?: string;
+  /** Solo pruebas: dirección de un Culqi simulado. */
+  CULQI_API_URL?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   /** Correos (separados por coma) que entran como administradores. */
