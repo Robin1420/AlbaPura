@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { culqiConfigured, getCulqiOrder } from "@/server/culqi";
+import { culqiQrEnabled, getCulqiOrder } from "@/server/culqi";
 import { db, orders } from "@/server/db";
 import { markPaid } from "@/server/payments";
 
@@ -11,7 +11,7 @@ import { markPaid } from "@/server/payments";
  */
 export async function POST(req: Request) {
   const ok = () => Response.json({ ok: true }, { status: 200, headers: { "Cache-Control": "no-store" } });
-  if (!culqiConfigured()) return ok();
+  if (!culqiQrEnabled()) return ok();
 
   const raw = (await req.text().catch(() => "")).slice(0, 20_000);
   const id = /ord_(?:test|live)_[A-Za-z0-9]+/.exec(raw)?.[0];

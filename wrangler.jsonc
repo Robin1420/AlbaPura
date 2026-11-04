@@ -21,5 +21,6 @@
   }
   // R2 (fotos subidas): cuando esté activo en la cuenta, crear el bucket y agregar
   //   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "alba-pura-media" }]
+  // QR de billeteras móviles: apagado por defecto. Para encenderlo, agregar "CULQI_QR": "on" en vars (después de validarlo con un pago real).
   // Secretos (wrangler secret put): GOOGLE_CLIENT_SECRET, RESEND_API_KEY, CULQI_PUBLIC_KEY, CULQI_SECRET_KEY, CONTACT_TO
 }

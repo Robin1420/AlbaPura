@@ -12,6 +12,9 @@ export const culqiConfigured = () => {
   return Boolean(pk && sk && pk.startsWith("pk_") && sk.startsWith("sk_"));
 };
 
+/** El pago con QR de billeteras móviles se enciende con CULQI_QR=on (apagado por defecto hasta validarlo con un pago real). */
+export const culqiQrEnabled = () => culqiConfigured() && process.env.CULQI_QR === "on";
+
 export type CulqiCharge =
   | { ok: true; id: string; reference: string; live: boolean }
   | { ok: false; reason: "declined" | "needs_3ds" | "error"; message: string };

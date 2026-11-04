@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { culqiConfigured, culqiQr } from "@/server/culqi";
+import { culqiQrEnabled, culqiQr } from "@/server/culqi";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
 import { getOrder } from "@/server/orders";
 
@@ -10,7 +10,7 @@ const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(
 /** Genera (o recupera) el QR de pago de billeteras móviles del pedido. Se paga escaneándolo con Yape, Plin, etc. */
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return fail("Origen no permitido.", 403);
-  if (!culqiConfigured()) return fail("El pago en línea no está disponible.", 503);
+  if (!culqiQrEnabled()) return fail("El pago con QR no está disponible.", 503);
   if (!rateLimit(`qr:${clientIp(req)}`, 30, 15 * 60_000)) return fail("Demasiados intentos. Espera unos minutos.", 429);
   const body = await parseBody(req, schema);
   if (!body.ok) return body.res;

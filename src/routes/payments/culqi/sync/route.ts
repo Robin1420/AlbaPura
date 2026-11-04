@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { culqiConfigured, getCulqiOrder } from "@/server/culqi";
+import { culqiQrEnabled, getCulqiOrder } from "@/server/culqi";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
 import { getOrder } from "@/server/orders";
 import { markPaid } from "@/server/payments";
@@ -14,7 +14,7 @@ const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(
  */
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return fail("Origen no permitido.", 403);
-  if (!culqiConfigured()) return fail("El pago en línea no está disponible.", 503);
+  if (!culqiQrEnabled()) return fail("El pago con QR no está disponible.", 503);
   if (!rateLimit(`sync:${clientIp(req)}`, 400, 15 * 60_000)) return fail("Demasiadas consultas. Espera un momento.", 429);
   const body = await parseBody(req, schema);
   if (!body.ok) return body.res;

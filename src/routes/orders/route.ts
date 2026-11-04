@@ -4,7 +4,7 @@ import { currentUser } from "@/server/auth";
 import { clientIp, fail, json, parseBody, rateLimit, sameOrigin } from "@/server/http";
 import { createOrder, OrderError } from "@/server/orders";
 import { eq } from "drizzle-orm";
-import { createCulqiOrder, culqiConfigured, culqiKeys } from "@/server/culqi";
+import { createCulqiOrder, culqiConfigured, culqiKeys, culqiQrEnabled } from "@/server/culqi";
 import { db, orders } from "@/server/db";
 
 const schema = z
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
   // La orden de Culqi permite además el QR de billeteras móviles (Yape, Plin…). Si falla, se paga con tarjeta o Yape.
   const a = body.data.address;
-  const culqiOrder = await createCulqiOrder({ orderId: order.id, amountSoles: order.total, email: body.data.email, firstName: a.name, lastName: a.lastName, phone: a.phone });
+  const culqiOrder = !culqiQrEnabled() ? null : await createCulqiOrder({ orderId: order.id, amountSoles: order.total, email: body.data.email, firstName: a.name, lastName: a.lastName, phone: a.phone });
   if (culqiOrder) await db.update(orders).set({ culqiOrder }).where(eq(orders.id, order.id));
 
   // El pedido queda pendiente y el navegador abre el checkout de Culqi.

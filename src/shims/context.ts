@@ -14,6 +14,8 @@ export type Env = {
   CULQI_SECRET_KEY?: string;
   /** Solo pruebas: dirección de un Culqi simulado. */
   CULQI_API_URL?: string;
+  /** "on" enciende el QR de billeteras móviles. */
+  CULQI_QR?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   /** Correos (separados por coma) que entran como administradores. */
