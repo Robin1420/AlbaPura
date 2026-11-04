@@ -7,6 +7,7 @@ import { WhatsAppOrderButton } from "@/components/cart/WhatsAppButtons";
 import { useAccount } from "@/components/account/AccountProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import { ProductArt } from "@/components/product/ProductArt";
+import { QrPanel } from "@/components/checkout/QrPanel";
 import { CheckoutSteps } from "@/components/site/CheckoutSteps";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
@@ -73,7 +74,7 @@ function CheckoutForm() {
   }, []);
   // Forma de pago: tarjeta o Yape (ventana de Culqi) o QR de billetera móvil (se muestra en esta página)
   const [method, setMethod] = useState<"card" | "qr">("card");
-  const [qr, setQr] = useState<{ orderId: string; image: string; code: string | null } | null>(null);
+  const [qr, setQr] = useState<{ orderId: string; image: string; code: string | null; expiresAt: number | null } | null>(null);
   // Pedido ya creado y pendiente de pago: permite reintentar sin crear otro
   const [pendingOrder, setPendingOrder] = useState<Pending | null>(null);
   const [errors, setErrors] = useState<Errors>({});
@@ -197,13 +198,13 @@ function CheckoutForm() {
     }
     setBusy(true);
     const attempt = ++attemptRef.current;
-    const r = await api<{ qr: string; code: string | null }>("/api/payments/culqi/qr", { body: { orderId: p.id, token: p.token } });
+    const r = await api<{ qr: string; code: string | null; expiresAt: number | null }>("/api/payments/culqi/qr", { body: { orderId: p.id, token: p.token } });
     setBusy(false);
     if (!r.ok) {
       setFormError(r.error);
       return;
     }
-    setQr({ orderId: p.id, image: r.data.qr, code: r.data.code });
+    setQr({ orderId: p.id, image: r.data.qr, code: r.data.code, expiresAt: r.data.expiresAt });
     void watchQr(p, null, attempt);
   }
 
@@ -358,20 +359,7 @@ function CheckoutForm() {
             ) : (
               <>
                 {qrActive ? (
-                  <div className="grid justify-items-center gap-5 rounded-lg border border-ink-800 bg-dew-100 p-5 text-center ring-1 ring-ink-800">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrActive.image} alt="Código QR para pagar el pedido" width={220} height={220} className="mx-auto size-[220px] rounded-md bg-white p-2" />
-                    <div className="grid justify-items-center gap-2">
-                      <p className="font-display text-[20px] font-medium">Escanea y paga {money(pending?.total ?? total)}</p>
-                      <p className="text-[16px] text-muted">Abre Yape, Plin u otra billetera móvil, elige pagar con QR y escanea este código.</p>
-                      {qrActive.code && <p className="text-[15px] text-muted">Código de pago: <span className="font-display font-medium text-ink-900">{qrActive.code}</span></p>}
-                      <p role="status" className="mt-1 flex items-center gap-2 text-[15px] italic text-faint">
-                        <span className="size-2.5 animate-pulse rounded-full bg-leaf-500" aria-hidden="true" />
-                        Esperando tu pago… esta página se actualiza sola.
-                      </p>
-                      <button type="button" onClick={() => setQr(null)} className="w-fit font-display text-[14px] font-medium text-leaf-600 underline underline-offset-4">Elegir otra forma de pago</button>
-                    </div>
-                  </div>
+                  <QrPanel image={qrActive.image} code={qrActive.code} total={pending?.total ?? total} expiresAt={qrActive.expiresAt} onCancel={() => setQr(null)} />
                 ) : (
                   <div role="radiogroup" aria-label="Forma de pago" className="grid gap-3">
                     <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${method === "card" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
