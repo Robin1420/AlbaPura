@@ -13,7 +13,8 @@ type Detail = {
   order: ApiOrder;
   trackingCode: string | null;
   paidAt: string | null;
-  webpayAuthCode: string | null;
+  paymentAuth: string | null;
+  paymentRef: string | null;
   allowed: { status: string; label: string }[];
   events: { actor: string; action: string; at: string }[];
 };
@@ -109,7 +110,7 @@ export function OrderDetail({ id, inModal = false, onChanged }: { id: string; in
               <div><dt className="text-[15px] italic text-faint">Teléfono</dt><dd className="font-display text-[17px] font-medium">{o.address.phone}</dd></div>
               <div><dt className="text-[15px] italic text-faint">Envío</dt><dd className="font-display text-[17px] font-medium">{{ standard: "Delivery en Lima", express: "Delivery express", pickup: "Retiro en tienda" }[o.shippingMethod]}</dd></div>
               {o.shippingMethod !== "pickup" && <div className="sm:col-span-2"><dt className="text-[15px] italic text-faint">Dirección</dt><dd className="font-display text-[17px] font-medium">{o.address.line}, {o.address.comuna}, {o.address.region}</dd></div>}
-              <div><dt className="text-[15px] italic text-faint">Pago</dt><dd className="font-display text-[17px] font-medium">{o.payment === "webpay" ? "Webpay" : "Transferencia"}{data.webpayAuthCode ? `, autorización ${data.webpayAuthCode}` : ""}</dd></div>
+              <div><dt className="text-[15px] italic text-faint">Pago</dt><dd className="font-display text-[17px] font-medium">{o.payment === "culqi" ? "Tarjeta, Yape o QR (Culqi)" : "Transferencia"}{data.paymentAuth ? `, ref. ${data.paymentAuth}` : ""}</dd></div>
               <div><dt className="text-[15px] italic text-faint">Pagado</dt><dd className="font-display text-[17px] font-medium">{data.paidAt ? fmtDate(data.paidAt) : "Aún no"}</dd></div>
             </dl>
           </section>

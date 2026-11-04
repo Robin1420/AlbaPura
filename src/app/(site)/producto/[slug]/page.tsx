@@ -69,7 +69,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
   return (
     <>
       <JsonLd data={[productData, breadcrumbs([{ name: "Inicio", url: abs("/") }, { name: "Tienda", url: abs("/tienda") }, { name: p.category, url: abs(`/categoria/${p.categorySlug}`) }, { name: p.name, url: abs(`/producto/${p.slug}`) }])]} />
-      <div className="mx-auto max-w-[1440px] px-6 pt-36 lg:px-20 lg:pt-36">
+      <div className="mx-auto max-w-[1440px] px-5 pt-36 sm:px-6 sm:pt-36 lg:px-20 lg:pt-36">
         <nav aria-label="Ruta" className="text-[15px] italic text-faint">
           <Link href="/" className="hover:text-ink-900">Inicio</Link>, <Link href="/tienda" className="hover:text-ink-900">Tienda</Link>, <Link href={`/categoria/${p.categorySlug}`} className="hover:text-ink-900">{p.category}</Link>, <span className="text-ink-900 not-italic">{p.name}</span>
         </nav>
@@ -80,7 +80,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
 
         <div className="max-w-[560px]">
           {p.latin && <p className="text-[18px] italic text-leaf-600">{p.latin}</p>}
-          <h1 className="mt-2 text-[clamp(40px,5vw,68px)] font-semibold tracking-[-0.04em]">{p.name}</h1>
+          <h1 className="mt-2 text-[clamp(30px,5vw,68px)] font-semibold tracking-[-0.04em]">{p.name}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {p.reviews > 0 && <Stars value={p.rating} count={p.reviews} />}
             <span className="text-[15px] italic text-faint">{p.meta}</span>
@@ -164,7 +164,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
       <section className="bg-meadow grain screen py-16 md:py-0">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
           <h2 className="text-[clamp(30px,min(4vw,6.5svh),52px)]">También te puede gustar</h2>
-          <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-6 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-8 sm:gap-y-14 md:mt-6 lg:grid-cols-3">
             {related.map((r) => <ProductCard key={r.slug} product={r} compact />)}
           </div>
         </div>

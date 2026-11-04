@@ -69,6 +69,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Si algo se sale del ancho, se recorta en vez de agrandar la página (en el celular la "aleja") */
+  overflow-x: clip;
 }
 
 body {
@@ -78,6 +80,7 @@ body {
   font-size: 18px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4 {

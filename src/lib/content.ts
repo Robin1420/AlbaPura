@@ -85,8 +85,8 @@ export const faqs: { group: string; items: { q: string; a: string }[] }[] = [
   {
     group: "Pagos",
     items: [
-      { q: "¿Qué medios de pago aceptan?", a: "Transferencia bancaria, Yape y Plin. Al confirmar tu pedido te mostramos los datos y te los enviamos por correo. Preparamos tu pedido cuando recibimos el pago." },
-      { q: "¿Aceptan tarjeta de crédito o débito?", a: "Todavía no. Estamos en fase de prueba y evaluando sumar el pago con tarjeta más adelante." },
+      { q: "¿Qué medios de pago aceptan?", a: "Tarjetas Visa, Mastercard, American Express y Diners, Yape, o el QR de tu billetera móvil (Yape, Plin y otras). Pagas de forma segura con Culqi y los datos de tu tarjeta no pasan por nuestro sitio. Preparamos tu pedido cuando se confirma el pago." },
+      { q: "¿Puedo pagar por transferencia o por WhatsApp?", a: "Por ahora el pago se hace con tarjeta o Yape en la tienda. Si tienes dudas o prefieres que te ayudemos con tu pedido, escríbenos por WhatsApp." },
     ],
   },
   {

@@ -6,7 +6,7 @@ import { faqs } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
-  description: "Respuestas sobre entregas en Lima, pagos con Yape, Plin y transferencia, cambios y sobre nuestros productos orgánicos.",
+  description: "Respuestas sobre entregas en Lima, pagos con tarjeta y Yape, cambios y sobre nuestros productos orgánicos.",
   alternates: { canonical: "/preguntas-frecuentes" },
 };
 

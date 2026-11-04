@@ -2,19 +2,21 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// Webpay recibe un formulario POST desde el checkout: su dominio debe estar permitido en form-action.
+// Culqi (tarjeta y Yape) carga su script y su ventana de pago desde *.culqi.com
+const culqi = "https://*.culqi.com";
 const csp = [
   "default-src 'self'",
   // Next inyecta pequeños scripts en línea para hidratar; 'unsafe-eval' solo en desarrollo (recarga en caliente)
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+  `script-src 'self' 'unsafe-inline' ${culqi}${isDev ? " 'unsafe-eval'" : ""}`,
+  `style-src 'self' 'unsafe-inline' ${culqi}`,
+  `img-src 'self' data: blob: ${culqi} https://*.pagoefectivo.pe https://lh3.googleusercontent.com`,
+  `font-src 'self' data: ${culqi}`,
+  `connect-src 'self' ${culqi}${isDev ? " ws: wss:" : ""}`,
+  `frame-src ${culqi}`,
   "media-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self' https://webpay3g.transbank.cl https://webpay3gint.transbank.cl",
+  "form-action 'self'",
   "frame-ancestors 'none'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
@@ -37,8 +39,6 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
   turbopack: {
     rules: {
       "*.css": {

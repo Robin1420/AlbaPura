@@ -46,10 +46,10 @@ async function Article({ params }: { params: PageProps<"/diario/[slug]">["params
   return (
     <article>
       <JsonLd data={[articleData, breadcrumbs([{ name: "Inicio", url: abs("/") }, { name: "Diario", url: abs("/diario") }, { name: post.title, url: abs(`/diario/${post.slug}`) }])]} />
-      <header className="bg-dawn pb-14 pt-44">
+      <header className="bg-dawn pb-10 pt-36 sm:pb-14 sm:pt-44">
         <div className="mx-auto max-w-[900px] px-6">
           <Link href="/diario" className="text-[17px] italic text-muted underline-offset-4 hover:underline">Volver al diario</Link>
-          <h1 className="mt-6 text-[clamp(38px,6vw,76px)] font-semibold tracking-[-0.04em]">{post.title}</h1>
+          <h1 className="mt-6 text-[clamp(30px,6vw,76px)] font-semibold tracking-[-0.04em]">{post.title}</h1>
           <p className="mt-5 text-[18px] italic text-muted">{post.topic}, {formatDate(post.date)}, {post.minutes} min de lectura</p>
         </div>
       </header>

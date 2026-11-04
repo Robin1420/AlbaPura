@@ -3,6 +3,8 @@ import { posts } from "@/lib/content";
 import { abs } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { products, categories } = await getCatalog();
   const fixed: [string, number, MetadataRoute.Sitemap[number]["changeFrequency"]][] = [
