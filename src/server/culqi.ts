@@ -74,14 +74,27 @@ export const walletRange = { min: 6, max: 500 };
 
 type OrderResponse = { object?: string; id?: string; state?: string; amount?: number; order_number?: string; paid_at?: number | null };
 
-async function culqiFetch(method: "GET" | "POST", path: string, body?: unknown): Promise<{ ok: boolean; status: number; data: OrderResponse & { merchant_message?: string } }> {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Llama a Culqi. Si responde con un error 5xx o no responde, reintenta (el ambiente de pruebas falla de vez en cuando). */
+async function culqiFetch(method: "GET" | "POST", path: string, body?: unknown, tries = 1): Promise<{ ok: boolean; status: number; data: OrderResponse & { merchant_message?: string } }> {
   const { sk } = culqiKeys();
-  const res = await fetch(`${API}${path}`, {
-    method,
-    headers: { Authorization: `Bearer ${sk}`, "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  return { ok: res.ok, status: res.status, data: (await res.json().catch(() => ({}))) as OrderResponse };
+  let last: { ok: boolean; status: number; data: OrderResponse & { merchant_message?: string } } | null = null;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const res = await fetch(`${API}${path}`, {
+        method,
+        headers: { Authorization: `Bearer ${sk}`, "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      last = { ok: res.ok, status: res.status, data: (await res.json().catch(() => ({}))) as OrderResponse };
+      if (res.status < 500) return last;
+    } catch (e) {
+      if (i === tries - 1) throw e;
+    }
+    if (i < tries - 1) await sleep(500 * (i + 1));
+  }
+  return last as NonNullable<typeof last>;
 }
 
 /**
@@ -109,7 +122,7 @@ export async function createCulqiOrder(i: { orderId: string; amountSoles: number
       },
       expiration_date: Math.floor(Date.now() / 1000) + (i.minutes ?? 40) * 60,
       confirm: false, // el checkout de Culqi la confirma al elegir el medio de pago
-    });
+    }, 3);
     if (r.ok && r.data.id) return r.data.id;
     console.error("Culqi no creó la orden", r.status, r.data.merchant_message);
   } catch (e) {
@@ -129,6 +142,36 @@ export async function getCulqiOrder(id: string): Promise<CulqiOrderState | null>
     return { state: r.data.state ?? "", amount: r.data.amount ?? 0, orderNumber: r.data.order_number ?? null, paid: r.data.state === "paid" };
   } catch (e) {
     console.error("Culqi no respondió al consultar la orden", e);
+    return null;
+  }
+}
+
+export type CulqiQr = { qr: string; code: string | null; expiresAt: number | null; paid: boolean };
+
+/**
+ * Deja lista la orden para pagar con QR: si todavía está "created" la confirma en Culqi (eso genera el QR de
+ * PagoEfectivo) y devuelve la imagen del QR y el código de pago.
+ */
+export async function culqiQr(id: string): Promise<CulqiQr | { error: string } | null> {
+  if (!/^ord_(test|live)_[A-Za-z0-9]+$/.test(id)) return null;
+  try {
+    let r = await culqiFetch("GET", `/orders/${id}`, undefined, 3);
+    if (!r.ok) return null;
+    if (r.data.state === "created") {
+      r = await culqiFetch("POST", `/orders/${id}/confirm`, {}, 3);
+      // Si Culqi falló pero la confirmación sí se aplicó, la orden ya tiene su QR: se recupera
+      if (!r.ok) {
+        const again = await culqiFetch("GET", `/orders/${id}`, undefined, 2);
+        if (again.ok && again.data.state === "pending") r = again;
+      }
+    }
+    const d = r.data as OrderResponse & { qr?: string | null; payment_code?: string | null; expiration_date?: number | null; user_message?: string };
+    if (!r.ok) return { error: d.user_message ?? "No pudimos generar el QR." };
+    if (d.state === "paid") return { qr: d.qr ?? "", code: d.payment_code ?? null, expiresAt: null, paid: true };
+    if (!d.qr || d.state === "expired") return { error: "El QR venció o no está disponible. Elige otra forma de pago." };
+    return { qr: d.qr, code: d.payment_code ?? null, expiresAt: d.expiration_date ?? null, paid: false };
+  } catch (e) {
+    console.error("Culqi no respondió al generar el QR", e);
     return null;
   }
 }
