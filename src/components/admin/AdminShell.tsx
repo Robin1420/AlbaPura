@@ -16,6 +16,8 @@ const nav = [
   { href: "/admin", label: "Resumen", icon: icon("M4 13h6V4H4v9Zm0 7h6v-3H4v3Zm10 0h6v-9h-6v9Zm0-16v3h6V4h-6Z") },
   { href: "/admin/pedidos", label: "Pedidos", icon: icon("M6 7h12l-1 13H7L6 7Zm3 0a3 3 0 0 1 6 0") },
   { href: "/admin/productos", label: "Productos", icon: icon("M12 3 4 7v10l8 4 8-4V7l-8-4Zm0 9L4 7m8 5 8-5m-8 5v9") },
+  { href: "/admin/ventas", label: "Ventas", icon: icon("M3 17l6-6 4 4 8-8m0 0h-5m5 0v5") },
+  { href: "/admin/inventario", label: "Inventario", icon: icon("M3 7l9-4 9 4v10l-9 4-9-4V7Zm9 4v10m0-10L3 7m9 4 9-4") },
   { href: "/admin/costos", label: "Costos", icon: icon("M12 3v18m4-14.5C15 5.5 13.8 5 12 5c-2 0-3.5 1-3.5 2.5S10 10 12 10.5s3.5 1 3.5 3S14 17 12 17c-1.8 0-3.2-.5-4-1.5") },
   { href: "/admin/produccion", label: "Producción", icon: icon("M3 21V10l6 3V9l6 3V5h6v16H3Zm5 0v-4m4 4v-4m4 4v-4") },
   { href: "/admin/insumos", label: "Insumos", icon: icon("M4 8h16l-1.5 11a1 1 0 0 1-1 .9h-11a1 1 0 0 1-1-.9L4 8Zm2-4h12l2 4H4l2-4Zm4 7v4m4-4v4") },
