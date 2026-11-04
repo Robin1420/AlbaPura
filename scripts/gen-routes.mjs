@@ -15,7 +15,7 @@ const files = [];
 
 const entries = files
   .map((p) => path.relative(root, path.dirname(p)).split(path.sep).join("/"))
-  .sort((a, b) => b.split("[").length - a.split("[").length || a.localeCompare(b));
+  .sort((a, b) => a.split("[").length - b.split("[").length || a.localeCompare(b));
 
 const lines = [
   "// Archivo generado por scripts/gen-routes.mjs. No se edita a mano.",
