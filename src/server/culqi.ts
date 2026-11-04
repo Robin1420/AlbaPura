@@ -87,7 +87,11 @@ async function culqiFetch(method: "GET" | "POST", path: string, body?: unknown):
  */
 export async function createCulqiOrder(i: { orderId: string; amountSoles: number; email: string; firstName: string; lastName: string; phone: string; minutes?: number }) {
   if (i.amountSoles < walletRange.min || i.amountSoles > walletRange.max) return null;
-  const digits = i.phone.replace(/\D/g, "");
+  // Culqi exige el teléfono (entre 6 y 15 caracteres con el +): se normaliza a +51 y 9 dígitos si viene con código de país
+  let digits = i.phone.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("51")) digits = digits.slice(2);
+  if (digits.length > 12) digits = digits.slice(-9);
+  const phone = `+51${digits}`;
   try {
     const r = await culqiFetch("POST", "/orders", {
       amount: Math.round(i.amountSoles * 100),
@@ -98,7 +102,7 @@ export async function createCulqiOrder(i: { orderId: string; amountSoles: number
         first_name: (i.firstName || "Cliente").slice(0, 50),
         last_name: (i.lastName || "Alba Pura").slice(0, 50),
         email: i.email,
-        ...(digits.length === 9 ? { phone_number: `+51${digits}` } : {}),
+        phone_number: phone,
       },
       expiration_date: Math.floor(Date.now() / 1000) + (i.minutes ?? 40) * 60,
       confirm: false, // el checkout de Culqi la confirma al elegir el medio de pago
