@@ -40,6 +40,8 @@ function load(): Promise<CulqiCtor> {
 
 export type CulqiOpen = {
   publicKey: string;
+  /** Orden de Culqi (ord_…): con ella el checkout agrega el QR de billeteras móviles. */
+  order?: string;
   /** Total en soles enteros. */
   total: number;
   email: string;
@@ -50,11 +52,12 @@ export type CulqiOpen = {
   onError: (message: string) => void;
 };
 
-export async function openCulqi(o: CulqiOpen) {
+/** Abre el checkout y devuelve un control para cerrarlo (por ejemplo cuando el pago con QR ya se confirmó). */
+export async function openCulqi(o: CulqiOpen): Promise<{ close: () => void }> {
   const Culqi = await load();
-  const methods = { tarjeta: true, yape: true, billetera: false, bancaMovil: false, agente: false, cuotealo: false };
+  const methods = { tarjeta: true, yape: true, billetera: Boolean(o.order), bancaMovil: false, agente: false, cuotealo: false };
   const instance = new Culqi(o.publicKey, {
-    settings: { title: "Alba Pura", currency: "PEN", amount: o.total * 100 }, // Culqi usa céntimos
+    settings: { title: "Alba Pura", currency: "PEN", amount: o.total * 100, ...(o.order ? { order: o.order } : {}) }, // Culqi usa céntimos
     client: { email: o.email, firstName: o.firstName, lastName: o.lastName },
     options: { lang: "es", installments: false, modal: true, paymentMethods: methods, paymentMethodsSort: Object.keys(methods) },
     appearance: {
@@ -68,9 +71,12 @@ export async function openCulqi(o: CulqiOpen) {
       const id = instance.token.id;
       instance.close();
       o.onToken(id);
+    } else if (instance.order) {
+      // Con el QR de billeteras la ventana debe seguir abierta: el pago se confirma aparte (ver la consulta del checkout)
     } else if (instance.error) {
       o.onError(instance.error.user_message || "No pudimos procesar los datos. Revisa la tarjeta o el código de Yape.");
     }
   };
   instance.open();
+  return { close: () => instance.close() };
 }

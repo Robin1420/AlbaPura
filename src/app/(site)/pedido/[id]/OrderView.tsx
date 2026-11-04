@@ -10,7 +10,7 @@ import { money } from "@/lib/products";
 
 const stages = ["Confirmado", "Preparando", "En camino", "Entregado"] as const;
 const stageOf: Record<ApiOrder["status"], number> = { pending_payment: 0, awaiting_transfer: 0, failed: 0, cancelled: 0, paid: 1, preparing: 1, shipped: 2, delivered: 3 };
-const paymentLabel = { culqi: "Tarjeta o Yape", transfer: "Transferencia, Yape o Plin" } as const;
+const paymentLabel = { culqi: "Tarjeta, Yape o QR", transfer: "Transferencia, Yape o Plin" } as const;
 
 type Loaded = { order: ApiOrder; bankInfo: string | null } | "missing";
 

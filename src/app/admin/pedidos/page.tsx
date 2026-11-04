@@ -55,7 +55,7 @@ export default function Orders() {
                   <td className="px-5 py-4"><button type="button" onClick={() => setOpenId(o.id)} className="font-display text-[16px] font-medium underline-offset-4 hover:underline">{o.id}</button><span className="block text-[13px] italic text-faint">{fmtDate(o.createdAt)}</span></td>
                   <td className="px-5 py-4 text-[16px]">{o.customer}<span className="block text-[13px] italic text-faint">{o.email}</span></td>
                   <td className="px-5 py-4"><span className={`rounded-full px-3 py-1 font-display text-[13px] font-medium ${tone(o.status)}`}>{o.statusLabel}</span></td>
-                  <td className="px-5 py-4 text-[15px] text-muted">{o.payment === "culqi" ? "Tarjeta / Yape" : "Transferencia"}</td>
+                  <td className="px-5 py-4 text-[15px] text-muted">{o.payment === "culqi" ? "Tarjeta / Yape / QR" : "Transferencia"}</td>
                   <td className="px-5 py-4 text-right font-display text-[16px] font-medium">{money(o.total)}</td>
                 </tr>
               ))}

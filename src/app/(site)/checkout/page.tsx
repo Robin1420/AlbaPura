@@ -15,7 +15,7 @@ import { regions, shippingCost, shippingOptions, validateAddress, validateContac
 import { openCulqi } from "@/lib/culqi";
 import { money } from "@/lib/products";
 
-type Pending = { id: string; token: string; publicKey: string; total: number; sig: string };
+type Pending = { id: string; token: string; publicKey: string; culqiOrder: string | null; total: number; sig: string };
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -67,6 +67,9 @@ function CheckoutForm() {
   useEffect(() => {
     void api<{ culqi: boolean }>("/api/payments/config").then((r) => setCulqiOn(r.ok && r.data.culqi));
   }, []);
+  // Forma de pago: tarjeta o Yape (ventana de Culqi) o QR de billetera móvil (se muestra en esta página)
+  const [method, setMethod] = useState<"card" | "qr">("card");
+  const [qr, setQr] = useState<{ orderId: string; image: string; code: string | null } | null>(null);
   // Pedido ya creado y pendiente de pago: permite reintentar sin crear otro
   const [pendingOrder, setPendingOrder] = useState<Pending | null>(null);
   const [errors, setErrors] = useState<Errors>({});
@@ -78,8 +81,20 @@ function CheckoutForm() {
   // El pedido pendiente solo se reutiliza si nada cambió desde que se creó (productos, envío, datos)
   const sig = JSON.stringify([email.trim(), shipping, addr, cart.gift, cart.items.map(({ product, qty }) => [product.slug, qty])]);
   const pending = pendingOrder && pendingOrder.sig === sig ? pendingOrder : null;
+  const qrActive = qr && pending && qr.orderId === pending.id ? qr : null;
+  // Las billeteras móviles (QR) solo aceptan montos de S/ 6 a S/ 500
+  const qrAllowed = total >= 6 && total <= 500;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Cada intento de pago tiene un número: al cambiar, la consulta del intento anterior se detiene
+  const attemptRef = useRef(0);
+  useEffect(() => {
+    const ref = attemptRef;
+    return () => {
+      ref.current += 1;
+    };
+  }, []);
 
   function validateStep(s: 1 | 2): Errors {
     if (s === 1) return validateContact(email);
@@ -131,13 +146,13 @@ function CheckoutForm() {
     }
 
     if (pending) {
-      void pay(pending);
+      void go(pending);
       return;
     }
 
     setBusy(true);
     // Solo se envían qué productos y cuántos: los precios y el stock los calcula el servidor
-    const r = await api<{ id: string; token: string; total?: number; culqi?: { publicKey: string } }>("/api/orders", {
+    const r = await api<{ id: string; token: string; total?: number; culqi?: { publicKey: string; order: string | null } }>("/api/orders", {
       body: {
         email: email.trim(),
         items: cart.items.map(({ product, qty }) => ({ slug: product.slug, qty })),
@@ -160,9 +175,49 @@ function CheckoutForm() {
       setFormError("No pudimos iniciar el pago. Inténtalo de nuevo o escríbenos por WhatsApp.");
       return;
     }
-    const p: Pending = { id: r.data.id, token: r.data.token, publicKey: r.data.culqi.publicKey, total: r.data.total ?? total, sig };
+    const p: Pending = { id: r.data.id, token: r.data.token, publicKey: r.data.culqi.publicKey, culqiOrder: r.data.culqi.order, total: r.data.total ?? total, sig };
     setPendingOrder(p);
-    void pay(p);
+    void go(p);
+  }
+
+  const go = (p: Pending) => (method === "qr" ? showQr(p) : pay(p));
+
+  /** Pide a la API el QR de pago y empieza a esperar que el cliente lo escanee y pague. */
+  async function showQr(p: Pending) {
+    setFormError("");
+    if (!p.culqiOrder) {
+      setBusy(false);
+      setFormError("El pago con QR no está disponible ahora. Paga con tarjeta o Yape.");
+      return;
+    }
+    setBusy(true);
+    const attempt = ++attemptRef.current;
+    const r = await api<{ qr: string; code: string | null }>("/api/payments/culqi/qr", { body: { orderId: p.id, token: p.token } });
+    setBusy(false);
+    if (!r.ok) {
+      setFormError(r.error);
+      return;
+    }
+    setQr({ orderId: p.id, image: r.data.qr, code: r.data.code });
+    void watchQr(p, null, attempt);
+  }
+
+  /** Mientras el cliente paga con el QR, se le pregunta a la API (y ella a Culqi) si el pago ya llegó. */
+  async function watchQr(p: Pending, handle: { close: () => void } | null, attempt: number) {
+    const until = Date.now() + 20 * 60_000;
+    while (attemptRef.current === attempt && Date.now() < until) {
+      await new Promise((r) => setTimeout(r, 4000));
+      if (attemptRef.current !== attempt) return;
+      const r = await api<{ status: string }>("/api/payments/culqi/sync", { body: { orderId: p.id, token: p.token } });
+      if (!r.ok) continue;
+      if (r.data.status === "paid") {
+        attemptRef.current += 1;
+        handle?.close();
+        router.push(`/pedido/${p.id}?t=${p.token}&pago=ok`);
+        return;
+      }
+      if (r.data.status === "expired" || r.data.status === "closed") return;
+    }
   }
 
   /** Abre el pago seguro de Culqi; con el token que entrega, la API cobra el pedido. */
@@ -177,6 +232,7 @@ function CheckoutForm() {
         firstName: addr.name.trim(),
         lastName: addr.lastName.trim(),
         onToken: async (tokenId) => {
+          attemptRef.current += 1; // pago con tarjeta o Yape: ya no hace falta consultar el QR
           setBusy(true);
           const r = await api("/api/payments/culqi/charge", { body: { orderId: p.id, token: p.token, tokenId } });
           if (!r.ok) {
@@ -296,11 +352,42 @@ function CheckoutForm() {
               </div>
             ) : (
               <>
-                <div className="rounded-lg border border-ink-800 bg-dew-100 p-4 ring-1 ring-ink-800">
-                  <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
-                  <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners y Yape. Pago inmediato y seguro con Culqi.</span>
-                </div>
-                <p className="rounded-lg bg-dew-100 p-4 text-[17px] text-muted">Pagas en una ventana segura de Culqi. Los datos de tu tarjeta no pasan por nuestro sitio.</p>
+                {qrActive ? (
+                  <div className="grid justify-items-center gap-5 rounded-lg border border-ink-800 bg-dew-100 p-5 text-center ring-1 ring-ink-800">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qrActive.image} alt="Código QR para pagar el pedido" width={220} height={220} className="mx-auto size-[220px] rounded-md bg-white p-2" />
+                    <div className="grid justify-items-center gap-2">
+                      <p className="font-display text-[20px] font-medium">Escanea y paga {money(pending?.total ?? total)}</p>
+                      <p className="text-[16px] text-muted">Abre Yape, Plin u otra billetera móvil, elige pagar con QR y escanea este código.</p>
+                      {qrActive.code && <p className="text-[15px] text-muted">Código de pago: <span className="font-display font-medium text-ink-900">{qrActive.code}</span></p>}
+                      <p role="status" className="mt-1 flex items-center gap-2 text-[15px] italic text-faint">
+                        <span className="size-2.5 animate-pulse rounded-full bg-leaf-500" aria-hidden="true" />
+                        Esperando tu pago… esta página se actualiza sola.
+                      </p>
+                      <button type="button" onClick={() => setQr(null)} className="w-fit font-display text-[14px] font-medium text-leaf-600 underline underline-offset-4">Elegir otra forma de pago</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div role="radiogroup" aria-label="Forma de pago" className="grid gap-3">
+                    <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${method === "card" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
+                      <input type="radio" name="method" checked={method === "card"} onChange={() => setMethod("card")} className="size-5 accent-ink-800" />
+                      <span className="flex-1">
+                        <span className="block font-display text-[17px] font-medium">Tarjeta o Yape</span>
+                        <span className="block text-[15px] italic text-faint">Visa, Mastercard, American Express, Diners o Yape con tu código. Pago inmediato.</span>
+                      </span>
+                    </label>
+                    {qrAllowed && (
+                      <label className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${method === "qr" ? "border-ink-800 bg-dew-100 ring-1 ring-ink-800" : "border-line hover:border-line-strong"}`}>
+                        <input type="radio" name="method" checked={method === "qr"} onChange={() => setMethod("qr")} className="size-5 accent-ink-800" />
+                        <span className="flex-1">
+                          <span className="block font-display text-[17px] font-medium">QR de billetera móvil</span>
+                          <span className="block text-[15px] italic text-faint">Escanea con Yape, Plin, BBVA, Scotiabank y otras billeteras.</span>
+                        </span>
+                      </label>
+                    )}
+                  </div>
+                )}
+                <p className="rounded-lg bg-dew-100 p-4 text-[17px] text-muted">Pagas de forma segura con Culqi. Los datos de tu tarjeta no pasan por nuestro sitio.</p>
               </>
             )}
           </Section>
@@ -310,9 +397,9 @@ function CheckoutForm() {
           <div className="flex flex-wrap items-center gap-3">
             {step > 1 && <Button type="button" variant="ghost" size="lg" onClick={() => goTo((step - 1) as 1 | 2)} disabled={busy}>Atrás</Button>}
             {step < 3 && <Button type="submit" size="lg" className="w-full sm:w-fit sm:min-w-56">Continuar</Button>}
-            {step === 3 && culqiOn !== false && (
+            {step === 3 && culqiOn !== false && !qrActive && (
               <Button type="submit" size="lg" disabled={busy || culqiOn === null} className="w-full sm:w-fit sm:min-w-72">
-                {busy ? "Procesando tu pago…" : pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`}
+                {busy ? "Procesando tu pago…" : method === "qr" ? "Generar QR de pago" : pending ? `Reintentar el pago de ${money(total)}` : `Pagar ${money(total)}`}
               </Button>
             )}
           </div>

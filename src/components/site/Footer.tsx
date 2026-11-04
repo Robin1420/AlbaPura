@@ -35,7 +35,7 @@ export async function Footer() {
       </div>
       <div className="mx-auto flex max-w-[1440px] flex-wrap justify-between gap-2 border-t border-white/12 px-5 py-5 text-[13px] sm:gap-3 sm:px-6 sm:py-6 sm:text-[14px] italic text-dew-200/60 lg:px-20">
         <span>© 2026 Alba Pura. Lima, Perú.</span>
-        <span>Pago con tarjeta o Yape</span>
+        <span>Pago con tarjeta, Yape o QR</span>
       </div>
       <p aria-hidden className="pointer-events-none select-none whitespace-nowrap text-center font-[family-name:var(--font-heading)] text-[min(14vw,240px)] font-medium uppercase leading-[0.8] tracking-[0.06em] text-white/[0.05] translate-y-[8%]">
         ALBA PURA
