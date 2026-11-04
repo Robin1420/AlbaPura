@@ -3,7 +3,7 @@ import type { RouteCtx } from "@/shims/route";
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "@/shims/cache";
 import { requireAdmin } from "@/server/auth";
-import { badges, categories, db, favorites, products } from "@/server/db";
+import { badges, categories, db, favorites, productionBatches, products } from "@/server/db";
 import { fail, json, parseBody, sameOrigin } from "@/server/http";
 import { productInput } from "@/server/product-input";
 
@@ -85,6 +85,9 @@ export async function DELETE(req: Request, ctx: RouteCtx) {
   const auth = await requireAdmin();
   if ("res" in auth) return auth.res;
   const { slug } = await ctx.params;
+  // Un producto con lotes de producción guarda su historial de costos: no se borra, se oculta
+  const batch = await db.select({ id: productionBatches.id }).from(productionBatches).where(eq(productionBatches.productSlug, slug)).limit(1);
+  if (batch.length) return fail("Este producto tiene lotes de producción registrados, así que no se puede eliminar. Si no quieres venderlo, cámbialo a “Oculto”.", 409);
   await db.delete(favorites).where(eq(favorites.slug, slug));
   const r = await db.delete(products).where(eq(products.slug, slug));
   if (changes(r) === 0) return fail("Producto no encontrado.", 404);
