@@ -1,0 +1,6 @@
+# Copia a .dev.vars para desarrollo local (wrangler dev). En producción se usan secretos: wrangler secret put NOMBRE
+RESEND_API_KEY=
+EMAIL_FROM=Alba Pura <pedidos@tudominio.pe>
+CONTACT_TO=
+CULQI_PUBLIC_KEY=pk_test_
+CULQI_SECRET_KEY=sk_test_

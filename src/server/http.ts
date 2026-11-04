@@ -1,9 +1,7 @@
-import "server-only";
-import { NextResponse } from "next/server";
 import type { z } from "zod";
 
 export function json(data: unknown, status = 200) {
-  return NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
+  return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 }
 
 export function fail(message: string, status = 400, fields?: Record<string, string>) {
@@ -25,8 +23,11 @@ export function sameOrigin(req: Request) {
   }
 }
 
+/** Filas cambiadas por una escritura en D1. */
+export const changes = (r: unknown) => (r as { meta?: { changes?: number } })?.meta?.changes ?? 0;
+
 export function clientIp(req: Request) {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  return req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
 }
 
 const buckets = new Map<string, { n: number; reset: number }>();

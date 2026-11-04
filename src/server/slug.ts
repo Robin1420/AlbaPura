@@ -1,4 +1,3 @@
-import "server-only";
 
 /** "Aceite de oliva extra" → "aceite-de-oliva-extra" (sin tildes ni símbolos). */
 export function slugify(text: string) {

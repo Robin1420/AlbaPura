@@ -1,0 +1,46 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+
+export type Env = {
+  DB: D1Database;
+  /** Fotos subidas desde el panel (R2). Opcional hasta que R2 esté activo en la cuenta. */
+  MEDIA?: R2Bucket;
+  APP_URL?: string;
+  BANK_INFO?: string;
+  CONTACT_TO?: string;
+  EMAIL_FROM?: string;
+  RESEND_API_KEY?: string;
+  /** Culqi: llave pública (pk_test_… / pk_live_…) y secreta (sk_…). */
+  CULQI_PUBLIC_KEY?: string;
+  CULQI_SECRET_KEY?: string;
+  /** Solo pruebas: dirección de un Culqi simulado. */
+  CULQI_API_URL?: string;
+  /** "on" enciende el QR de billeteras móviles. */
+  CULQI_QR?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  /** Correos (separados por coma) que entran como administradores. */
+  ADMIN_EMAILS?: string;
+};
+
+export type Store = {
+  req: Request;
+  env: Env;
+  ctx: ExecutionContext;
+  /** Cabeceras Set-Cookie que se agregan a la respuesta. */
+  setCookies: string[];
+};
+
+export const als = new AsyncLocalStorage<Store>();
+
+export function store(): Store {
+  const s = als.getStore();
+  if (!s) throw new Error("Fuera de una petición.");
+  return s;
+}
+
+/** Deja que una tarea (por ejemplo enviar un correo) termine después de responder. */
+export function background(p: Promise<unknown>) {
+  const s = als.getStore();
+  if (s) s.ctx.waitUntil(p.catch((e) => console.error("Tarea en segundo plano falló", e)));
+  return p;
+}

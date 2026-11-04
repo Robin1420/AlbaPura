@@ -7,8 +7,16 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
-  passwordHash: text("password_hash").notNull(),
+  /** Identificador estable de la cuenta de Google ("sub"): el inicio de sesión es solo con Google. */
+  googleSub: text("google_sub").unique(),
+  picture: text("picture"),
   role: text("role").$type<"customer" | "admin">().notNull().default("customer"),
+  /** Datos del cliente: se completan después del primer ingreso con Google. */
+  phone: text("phone"),
+  addressLine: text("address_line"),
+  district: text("district"),
+  region: text("region"),
+  profileCompletedAt: integer("profile_completed_at"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
 });
 
@@ -63,14 +71,18 @@ export const orders = sqliteTable("orders", {
   email: text("email").notNull(),
   status: text("status").$type<OrderStatus>().notNull(),
   shippingMethod: text("shipping_method").$type<"standard" | "express" | "pickup">().notNull(),
-  payment: text("payment").$type<"webpay" | "transfer">().notNull(),
+  payment: text("payment").$type<"culqi" | "transfer">().notNull(),
   subtotal: integer("subtotal").notNull(),
   shipping: integer("shipping").notNull(),
   gift: integer("gift").notNull().default(0),
   total: integer("total").notNull(),
   address: text("address", { mode: "json" }).$type<Address>().notNull(),
-  webpayToken: text("webpay_token"),
-  webpayAuthCode: text("webpay_auth_code"),
+  /** Id del cargo en Culqi (chr_…). */
+  paymentRef: text("payment_ref"),
+  /** Código de referencia/autorización del cargo. */
+  paymentAuth: text("payment_auth"),
+  /** Id de la orden en Culqi (ord_…): permite pagar con el QR de Yape, Plin y otras billeteras. */
+  culqiOrder: text("culqi_order"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
   paidAt: integer("paid_at"),
   trackingCode: text("tracking_code"),

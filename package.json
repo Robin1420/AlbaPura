@@ -1,40 +1,28 @@
 {
-  "name": "alba-pura",
+  "name": "alba-pura-api",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "dev:lan": "next dev -H 0.0.0.0",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "db:push": "drizzle-kit push",
-    "db:seed": "tsx --env-file=.env.local scripts/seed.ts",
-    "db:studio": "drizzle-kit studio",
-    "check:prod": "tsx scripts/check-prod.mts",
-    "admin:create": "tsx --env-file=.env.local scripts/make-admin.mts"
+    "routes": "node scripts/gen-routes.mjs",
+    "dev": "npm run routes && wrangler dev",
+    "deploy": "npm run routes && wrangler deploy",
+    "typecheck": "npm run routes && tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:remote": "wrangler d1 migrations apply alba-pura-db --remote",
+    "db:migrate:local": "wrangler d1 migrations apply alba-pura-db --local"
   },
   "dependencies": {
-    "@libsql/client": "^0.18.0",
     "drizzle-orm": "^0.45.4",
-    "motion": "^14.9.0",
-    "next": "16.4.3",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "server-only": "^0.0.1",
-    "transbank-sdk": "^6.1.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
+    "@cloudflare/workers-types": "^5.20261103.1",
+    "@libsql/client": "^0.18.0",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.11",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.3",
-    "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.157.0"
   }
 }

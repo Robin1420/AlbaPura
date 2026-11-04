@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alba-pura-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "alias": { "server-only": "./src/shims/empty.ts" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "alba-pura-db",
+      "database_id": "c7a641ec-467d-4eed-9bdf-e948e8128bab",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "GOOGLE_CLIENT_ID": "291993266127-lmvu9rt1gnsbfq2nnmf5lt2lll3njbhb.apps.googleusercontent.com",
+    "ADMIN_EMAILS": "robinzon.1420@gmail.com",
+    "APP_URL": "https://alba-pura-web.robinzon-1420.workers.dev"
+  }
+  // R2 (fotos subidas): cuando esté activo en la cuenta, crear el bucket y agregar
+  //   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "alba-pura-media" }]
+  // QR de billeteras móviles: apagado por defecto. Para encenderlo, agregar "CULQI_QR": "on" en vars (después de validarlo con un pago real).
+  // Secretos (wrangler secret put): GOOGLE_CLIENT_SECRET, RESEND_API_KEY, CULQI_PUBLIC_KEY, CULQI_SECRET_KEY, CONTACT_TO
+}

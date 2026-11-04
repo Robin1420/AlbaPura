@@ -1,17 +1,21 @@
-import "server-only";
 import { randomBytes, randomInt } from "node:crypto";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
-import { shippingCost, type ShippingMethod } from "@/lib/checkout";
+import { shippingCost, type ShippingMethod } from "@/checkout";
+import { changes } from "./http";
 import { db, orderEvents, orderItems, orders, products, type Address, type OrderStatus } from "./db";
 
-export const GIFT_PRICE = 2500;
+type Batch = Parameters<typeof db.batch>[0];
+/** Aplica varias escrituras de golpe (D1 las ejecuta como una sola transacción). */
+const run = (q: unknown[]) => db.batch(q as unknown as Batch) as unknown as Promise<unknown[]>;
+
+export const GIFT_PRICE = 8;
 
 export type NewOrderInput = {
   email: string;
   items: { slug: string; qty: number }[];
   gift: boolean;
   shippingMethod: ShippingMethod;
-  payment: "webpay" | "transfer";
+  payment: "culqi";
   address: Address;
 };
 
@@ -23,7 +27,7 @@ export class OrderError extends Error {
 
 const PENDING_MINUTES = 45;
 
-/** Libera el stock de pedidos con tarjeta que nunca se pagaron (el cliente cerró la ventana de Webpay). */
+/** Libera el stock de pedidos con tarjeta que nunca se pagaron (el cliente cerró el checkout de pago). */
 export async function expireStaleOrders() {
   const cutoff = Math.floor(Date.now() / 1000) - PENDING_MINUTES * 60;
   const stale = await db
@@ -57,13 +61,14 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
   const gift = input.gift ? GIFT_PRICE : 0;
   const total = subtotal + shipping + gift;
   const publicToken = randomBytes(18).toString("base64url");
-  const status: OrderStatus = input.payment === "transfer" ? "awaiting_transfer" : "pending_payment";
+  const status: OrderStatus = "pending_payment";
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const id = `AP-${randomInt(10000, 99999)}`;
     try {
-      await db.transaction(async (tx) => {
-        await tx.insert(orders).values({
+      // D1 no tiene transacciones interactivas: todo va en un lote que se aplica entero o no se aplica.
+      const results = await run([
+        db.insert(orders).values({
           id,
           publicToken,
           userId,
@@ -76,16 +81,24 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
           gift,
           total,
           address: input.address,
-        });
-        await tx.insert(orderItems).values(lines.map((l) => ({ orderId: id, slug: l.p.slug, name: l.p.name, meta: l.p.meta, qty: l.qty, price: l.p.price })));
-        for (const l of lines) {
-          const r = await tx
+        }),
+        db.insert(orderItems).values(lines.map((l) => ({ orderId: id, slug: l.p.slug, name: l.p.name, meta: l.p.meta, qty: l.qty, price: l.p.price }))),
+        ...lines.map((l) =>
+          db
             .update(products)
             .set({ stock: sql`${products.stock} - ${l.qty}` })
-            .where(and(eq(products.slug, l.p.slug), gte(products.stock, l.qty)));
-          if (r.rowsAffected === 0) throw new OrderError(`No hay stock suficiente de ${l.p.name}.`, 409);
-        }
-      });
+            .where(and(eq(products.slug, l.p.slug), gte(products.stock, l.qty))),
+        ),
+      ]);
+      // Si algún producto no tenía stock su UPDATE no cambió nada: se deshace lo que sí se aplicó.
+      const failed = lines.findIndex((_, i) => changes(results[2 + i]) === 0);
+      if (failed >= 0) {
+        await run([
+          ...lines.flatMap((l, i) => (changes(results[2 + i]) > 0 ? [db.update(products).set({ stock: sql`${products.stock} + ${l.qty}` }).where(eq(products.slug, l.p.slug))] : [])),
+          db.delete(orders).where(eq(orders.id, id)),
+        ]);
+        throw new OrderError(`No hay stock suficiente de ${lines[failed].p.name}.`, 409);
+      }
       return { id, publicToken, total, status, lines: lines.map((l) => ({ name: l.p.name, qty: l.qty, price: l.p.price })) };
     } catch (e) {
       if (e instanceof OrderError) throw e;
@@ -98,13 +111,13 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
 
 /** Devuelve el stock reservado cuando el pago falla o se anula. */
 export async function releaseOrder(orderId: string, status: OrderStatus) {
-  await db.transaction(async (tx) => {
-    const [o] = await tx.select({ status: orders.status }).from(orders).where(eq(orders.id, orderId));
-    if (!o || o.status === "cancelled" || o.status === "failed" || o.status === "paid") return;
-    const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId));
-    for (const i of items) await tx.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug));
-    await tx.update(orders).set({ status }).where(eq(orders.id, orderId));
-  });
+  const [o] = await db.select({ status: orders.status }).from(orders).where(eq(orders.id, orderId));
+  if (!o || o.status === "cancelled" || o.status === "failed" || o.status === "paid") return;
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  await run([
+    ...items.map((i) => db.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug))),
+    db.update(orders).set({ status }).where(and(eq(orders.id, orderId), eq(orders.status, o.status))),
+  ]);
 }
 
 export const statusLabel: Record<OrderStatus, string> = {
@@ -128,7 +141,7 @@ export async function getOrder(id: string) {
   return { o, items };
 }
 
-/** Vista pública del pedido (sin el token ni datos de Webpay). */
+/** Vista pública del pedido (sin el token ni datos del pago). */
 export function serializeOrder(o: typeof orders.$inferSelect, items: (typeof orderItems.$inferSelect)[]) {
   return {
     id: o.id,
@@ -165,9 +178,9 @@ export async function logEvent(orderId: string, actor: string, action: string) {
 
 /** Anula un pedido y devuelve el stock reservado. Si ya estaba pagado, el reembolso es manual. */
 export async function cancelOrder(orderId: string) {
-  await db.transaction(async (tx) => {
-    const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId));
-    for (const i of items) await tx.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug));
-    await tx.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
-  });
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  await run([
+    ...items.map((i) => db.update(products).set({ stock: sql`${products.stock} + ${i.qty}` }).where(eq(products.slug, i.slug))),
+    db.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId)),
+  ]);
 }
