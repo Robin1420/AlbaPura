@@ -9,7 +9,7 @@ const csp = [
   // Next inyecta pequeños scripts en línea para hidratar; 'unsafe-eval' solo en desarrollo (recarga en caliente)
   `script-src 'self' 'unsafe-inline' ${culqi}${isDev ? " 'unsafe-eval'" : ""}`,
   `style-src 'self' 'unsafe-inline' ${culqi}`,
-  `img-src 'self' data: blob: ${culqi} https://*.pagoefectivo.pe https://lh3.googleusercontent.com`,
+  `img-src 'self' data: blob: ${culqi} https://lh3.googleusercontent.com`,
   `font-src 'self' data: ${culqi}`,
   `connect-src 'self' ${culqi}${isDev ? " ws: wss:" : ""}`,
   `frame-src ${culqi}`,
