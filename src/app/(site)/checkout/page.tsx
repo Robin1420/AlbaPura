@@ -145,7 +145,8 @@ function CheckoutForm() {
       return;
     }
 
-    if (pending) {
+    // Se reutiliza el pedido pendiente, salvo que se pida QR y ese pedido no tenga orden de Culqi: entonces se crea uno nuevo
+    if (pending && !(method === "qr" && !pending.culqiOrder)) {
       void go(pending);
       return;
     }
