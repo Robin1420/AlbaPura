@@ -3,7 +3,7 @@ import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { shippingCost, type ShippingMethod } from "@/checkout";
 import { changes } from "./http";
 import { stockEntry, unitCosts } from "./stock";
-import { db, orderEvents, orderItems, orders, products, type Address, type OrderStatus } from "./db";
+import { db, orderEvents, orderItems, orders, products, stockMovements, type Address, type OrderStatus } from "./db";
 
 type Batch = Parameters<typeof db.batch>[0];
 /** Aplica varias escrituras de golpe (D1 las ejecuta como una sola transacción). */
@@ -91,17 +91,18 @@ export async function createOrder(input: NewOrderInput, userId: string | null) {
             .set({ stock: sql`${products.stock} - ${l.qty}` })
             .where(and(eq(products.slug, l.p.slug), gte(products.stock, l.qty))),
         ),
+        ...lines.map((l) => stockEntry(l.p.slug, "sale_web", -l.qty, { ref: id, note: `Pedido web ${id}` })),
       ]);
       // Si algún producto no tenía stock su UPDATE no cambió nada: se deshace lo que sí se aplicó.
       const failed = lines.findIndex((_, i) => changes(results[2 + i]) === 0);
       if (failed >= 0) {
         await run([
           ...lines.flatMap((l, i) => (changes(results[2 + i]) > 0 ? [db.update(products).set({ stock: sql`${products.stock} + ${l.qty}` }).where(eq(products.slug, l.p.slug))] : [])),
+          db.delete(stockMovements).where(eq(stockMovements.ref, id)),
           db.delete(orders).where(eq(orders.id, id)),
         ]);
         throw new OrderError(`No hay stock suficiente de ${lines[failed].p.name}.`, 409);
       }
-      await run(lines.map((l) => stockEntry(l.p.slug, "sale_web", -l.qty, { ref: id, note: `Pedido web ${id}` }))).catch(() => undefined);
       return { id, publicToken, total, status, lines: lines.map((l) => ({ name: l.p.name, qty: l.qty, price: l.p.price })) };
     } catch (e) {
       if (e instanceof OrderError) throw e;
