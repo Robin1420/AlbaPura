@@ -34,7 +34,7 @@ export default function CartPage() {
           <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_420px]">
             <div>
               <p className="rounded-2xl bg-leaf-300/40 p-5 font-display text-[16px] font-medium text-ink-700">
-                Estamos en fase de prueba: entregamos en Lima Metropolitana y Callao.
+                Entregamos en Lima Metropolitana y Callao.
               </p>
 
               <ul className="mt-6 border-t border-line">
@@ -50,7 +50,7 @@ export default function CartPage() {
                       className="overflow-hidden border-b border-line"
                     >
                       <div className="flex flex-wrap items-center gap-5 py-6">
-                        <Link href={`/producto/${product.slug}`} className="relative block size-28 shrink-0 overflow-hidden rounded-t-[999px] rounded-b-lg bg-dew-100" aria-label={product.name}>
+                        <Link href={`/producto/${product.slug}`} className="relative block size-28 shrink-0 overflow-hidden rounded-2xl bg-dew-100" aria-label={product.name}>
                           <ProductArt product={product} sizes="112px" />
                         </Link>
                         <div className="min-w-48 flex-1">

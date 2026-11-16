@@ -127,9 +127,9 @@ export function Header() {
           }}
         />
         <div className="mx-auto grid h-[76px] max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Alba Pura, productos orgánicos. Ir al inicio">
-            <Image src="/img/logo.png" alt="" width={1000} height={704} priority className={`h-14 w-auto transition-opacity duration-300 ${overHero ? "hidden" : ""}`} />
-            <Image src="/img/logo-light.png" alt="" width={1000} height={704} priority className={`h-14 w-auto transition-opacity duration-300 ${overHero ? "" : "hidden"}`} />
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Alba Pura, productos naturales. Ir al inicio">
+            <Image src="/img/logo.png" alt="" width={500} height={500} priority className={`-my-4 h-[88px] w-auto transition-opacity duration-300 ${overHero ? "hidden" : ""}`} />
+            <Image src="/img/logo-light.png" alt="" width={500} height={500} priority className={`-my-4 h-[88px] w-auto transition-opacity duration-300 ${overHero ? "" : "hidden"}`} />
           </Link>
 
           <nav
@@ -248,7 +248,7 @@ export function Header() {
             transition={{ duration: 0.55, ease }}
           >
             <div className="flex h-16 shrink-0 items-center justify-between px-4">
-              <Link href="/" onClick={close} aria-label="Alba Pura, ir al inicio"><Image src="/img/logo.png" alt="" width={1000} height={704} className="h-10 w-auto" /></Link>
+              <Link href="/" onClick={close} aria-label="Alba Pura, ir al inicio"><Image src="/img/logo.png" alt="" width={500} height={500} className="h-14 w-auto" /></Link>
               <button onClick={close} aria-label="Cerrar menú" className="grid size-11 place-items-center rounded-full hover:bg-ink-800/8">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
               </button>

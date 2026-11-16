@@ -57,7 +57,7 @@ export function AddToCart({ slug, name, stock, price }: { slug: string; name: st
 
       <AnimatePresence>
         {away && !soldOut && (
-          <m.div initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-between gap-4 rounded-2xl border border-line bg-dew-50/90 p-3 pl-5 shadow-[0_20px_50px_-20px_rgb(8_24_15/0.45)] backdrop-blur-xl lg:left-auto lg:right-6 lg:max-w-md">
+          <m.div initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-between gap-4 rounded-2xl border border-line bg-dew-50/90 p-3 pl-5 shadow-[0_20px_50px_-20px_rgb(8_24_15/0.45)] backdrop-blur-xl sm:right-24 lg:left-auto lg:max-w-md">
             <div className="min-w-0">
               <p className="truncate font-display text-[15px] font-medium">{name}</p>
               <p className="font-display text-[17px] font-semibold">{money(price * qty)}</p>

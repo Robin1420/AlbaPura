@@ -22,6 +22,7 @@ const nav = [
   { href: "/admin/produccion", label: "Producción", icon: icon("M3 21V10l6 3V9l6 3V5h6v16H3Zm5 0v-4m4 4v-4m4 4v-4") },
   { href: "/admin/insumos", label: "Insumos", icon: icon("M4 8h16l-1.5 11a1 1 0 0 1-1 .9h-11a1 1 0 0 1-1-.9L4 8Zm2-4h12l2 4H4l2-4Zm4 7v4m4-4v4") },
   { href: "/admin/categorias", label: "Categorías", icon: icon("M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 3.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0Z") },
+  { href: "/admin/diario", label: "Diario", icon: icon("M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Zm3 4h8m-8 4h8m-8 4h5") },
   { href: "/admin/etiquetas", label: "Etiquetas", icon: icon("M3 12V4h8l9 9-8 8-9-9Zm5-4.5a.5.5 0 1 0 0-.01") },
   { href: "/admin/imagenes", label: "Imágenes", icon: icon("M4 5h16v14H4V5Zm0 11 4-4 3 3 4-5 5 6M9 9.5a1 1 0 1 0 0-.01") },
   { href: "/admin/mensajes", label: "Mensajes", icon: icon("M4 6h16v12H4V6Zm0 0 8 7 8-7") },

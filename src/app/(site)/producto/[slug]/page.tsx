@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps<"/producto/[slug]">
   const { slug } = await params;
   const p = (await getCatalog()).products.find((x) => x.slug === slug);
   if (!p) return {};
-  const description = snippet(p.description || `${p.name}, ${p.meta}. Producto orgánico y artesanal de ${p.category.toLowerCase()}, con entrega en Lima Metropolitana y Callao.`);
+  const description = snippet(p.description || `${p.name}, ${p.meta}. Producto natural y artesanal de ${p.category.toLowerCase()}, con entrega en Lima Metropolitana y Callao.`);
   return {
     title: `${p.name}, ${p.meta}`,
     description,
@@ -116,7 +116,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
             {[
               ["Envío y entrega", "Entregamos en Lima Metropolitana y Callao. Te confirmamos el día de entrega por correo."],
               ["Cambios", "Si tu pedido llega dañado, escríbenos dentro de las 48 horas siguientes con una foto y lo reponemos sin costo."],
-              ["Fase de prueba", "Este es uno de los primeros productos de Alba Pura. Cuéntanos cómo te fue: tu opinión nos ayuda a mejorar."],
+              ["Tu opinión","Este es uno de los primeros productos de Alba Pura. Cuéntanos cómo te fue: tu opinión nos ayuda a mejorar."],
             ].map(([t, d]) => (
               <details key={t} className="group py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-medium [&::-webkit-details-marker]:hidden">
@@ -130,12 +130,28 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
         </div>
       </section>
 
-      {(p.notes.length > 0 || p.provenance.length > 0) && (
+      {(p.ingredients.length > 0 || p.processDoc || p.usageDoc || p.provenance.length > 0 || p.notes.length > 0) && (
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20" aria-labelledby="specimen">
         <div className="grid gap-12 border-t border-ink-800 pt-10 lg:grid-cols-[1fr_1.4fr]">
           <Heading id="specimen" className="text-[clamp(32px,4vw,56px)] text-ink-800">Lámina del producto</Heading>
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="rounded-2xl bg-dew-100 p-7">
+            {p.ingredients.length > 0 && <div className="rounded-2xl bg-dew-100 p-7 sm:col-span-2">
+              <h3 className="text-[22px]">Ingredientes</h3>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {p.ingredients.map((name) => <li key={name} className="rounded-full bg-white px-4 py-1.5 font-display text-[15px]">{name}</li>)}
+              </ul>
+            </div>}
+            {p.processDoc && <div className="flex flex-col items-start rounded-2xl bg-peach-100 p-7">
+              <h3 className="text-[22px]">Elaboración</h3>
+              <p className="mt-3 text-[16px] text-muted">Conoce cómo se hace este producto.</p>
+              <a href={p.processDoc} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-12 items-center rounded-full bg-ink-800 px-6 font-display text-[13px] font-medium uppercase tracking-[0.08em] text-white transition-colors hover:bg-ink-700">Ver el proceso (PDF)</a>
+            </div>}
+            {p.usageDoc && <div className="flex flex-col items-start rounded-2xl bg-sky-100 p-7">
+              <h3 className="text-[22px]">Manual de uso</h3>
+              <p className="mt-3 text-[16px] text-muted">Cómo usar este producto.</p>
+              <a href={p.usageDoc} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-12 items-center rounded-full bg-ink-800 px-6 font-display text-[13px] font-medium uppercase tracking-[0.08em] text-white transition-colors hover:bg-ink-700">Ver el manual (PDF)</a>
+            </div>}
+            {p.notes.length > 0 && <div className="rounded-2xl bg-dew-100 p-7">
               <h3 className="text-[22px]">Notas de cata</h3>
               <ul className="mt-4 divide-y divide-ink-800/15">
                 {p.notes.map((n) => (
@@ -145,27 +161,27 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="rounded-2xl bg-sky-100 p-7">
+            </div>}
+            {p.provenance.length > 0 && <div className="rounded-2xl bg-sky-100 p-7 sm:col-span-2">
               <h3 className="text-[22px]">Procedencia</h3>
-              <dl className="mt-4 divide-y divide-ink-800/15">
+              <dl className="mt-4 grid gap-x-12 sm:grid-cols-2">
                 {p.provenance.map((x) => (
-                  <div key={x.label} className="flex items-baseline justify-between gap-4 py-3">
+                  <div key={x.label} className="flex items-baseline justify-between gap-4 border-b border-ink-800/15 py-3">
                     <dt className="text-[16px] italic text-faint">{x.label}</dt>
                     <dd className="font-display text-[17px] font-medium">{x.value}</dd>
                   </div>
                 ))}
               </dl>
-            </div>
+            </div>}
           </div>
         </div>
       </section>
       )}
 
       <section className="bg-meadow grain screen py-16 md:py-0">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
+        <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-20">
           <Heading className="text-[clamp(32px,min(4.4vw,6.5svh),60px)] text-ink-800">También te puede gustar</Heading>
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 md:mt-6 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:max-lg:[&>*:nth-child(3)]:hidden sm:grid-cols-2 sm:gap-8 md:mt-6 lg:grid-cols-3">
             {related.map((r) => <ProductCard key={r.slug} product={r} compact />)}
           </div>
         </div>

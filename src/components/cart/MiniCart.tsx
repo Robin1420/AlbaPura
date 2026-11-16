@@ -79,7 +79,7 @@ export function MiniCart() {
           ) : (
             <>
               <p className="mt-6 rounded-lg bg-leaf-300/40 p-4 font-display text-[14px] font-medium text-ink-700">
-                Fase de prueba: entregamos en Lima Metropolitana y Callao.
+                Entregamos en Lima Metropolitana y Callao.
               </p>
 
               <ul className="mt-6 flex-1 divide-y divide-line overflow-y-auto">

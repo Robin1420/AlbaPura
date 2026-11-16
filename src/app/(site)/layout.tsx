@@ -5,8 +5,11 @@ import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 
 /** Cáscara de la tienda pública: header, footer y carrito. El panel /admin no la usa. */
-/** Las páginas se regeneran cada minuto: así el catálogo editado en el panel llega a la tienda. */
-export const revalidate = 60;
+/**
+ * Las páginas se generan en cada visita: así lo que se edita en el panel (productos, categorías, diario)
+ * se ve al instante. La regeneración por tiempo (`revalidate`) no se actualizaba sola en Cloudflare.
+ */
+export const dynamic = "force-dynamic";
 
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (

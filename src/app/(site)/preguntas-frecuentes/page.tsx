@@ -7,7 +7,7 @@ import { Heading } from "@/components/ui/Mix";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
-  description: "Respuestas sobre entregas en Lima, pagos con tarjeta y Yape, cambios y sobre nuestros productos orgánicos.",
+  description: "Respuestas sobre entregas en Lima, pagos con tarjeta y Yape, cambios y sobre nuestros productos naturales.",
   alternates: { canonical: "/preguntas-frecuentes" },
 };
 

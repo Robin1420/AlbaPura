@@ -1,8 +1,8 @@
 /** Datos del sitio que usan los metadatos, el sitemap y los datos estructurados. */
 export const SITE = {
   name: "Alba Pura",
-  tagline: "Productos orgánicos",
-  description: "Productos orgánicos hechos en Lima para cuidar tu piel, tu salud y el medio ambiente.",
+  tagline: "Productos naturales",
+  description: "Productos naturales hechos en Lima para cuidar tu piel, tu salud y el medio ambiente.",
   locale: "es_PE",
   // En producción define APP_URL con el dominio real (https://tudominio.pe)
   url: (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, ""),

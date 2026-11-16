@@ -37,7 +37,7 @@ export function HeroFull() {
         </Line>
       </h1>
       <m.p className="mt-6 max-w-[44ch] font-display text-[clamp(14px,1.25vw,17px)] font-medium leading-snug" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.85, ease }}>
-        Productos orgánicos hechos en Lima, pensados para no dañar a quien los usa ni al medio ambiente. Estamos en fase de prueba.
+        Productos naturales hechos en Lima, pensados para no dañar a quien los usa ni al medio ambiente.
       </m.p>
 
       <m.div className="absolute inset-x-0 bottom-8 flex justify-center px-5 sm:bottom-12" initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 1.05, ease }}>

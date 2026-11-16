@@ -5,17 +5,18 @@ import { Suspense } from "react";
 import { ProductArt } from "@/components/product/ProductArt";
 import { ButtonLink } from "@/components/ui/Button";
 import { JsonLd, breadcrumbs } from "@/components/seo/JsonLd";
-import { formatDate, getPost, posts } from "@/lib/content";
+import { formatDate } from "@/lib/content";
 import { abs, SITE } from "@/lib/site";
 import { Heading } from "@/components/ui/Mix";
+import { getPost, getPosts } from "@/server/posts";
 
-export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await getPosts()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/diario/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const p = getPost(slug);
+  const p = await getPost(slug);
   if (!p) return {};
   return {
     title: p.title,
@@ -27,9 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/diario/[slug]">):
 
 async function Article({ params }: { params: PageProps<"/diario/[slug]">["params"] }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const all = await getPosts();
+  const post = all.find((p) => p.slug === slug);
   if (!post) notFound();
-  const next = posts.filter((p) => p.slug !== post.slug).slice(0, 2);
+  const next = all.filter((p) => p.slug !== post.slug).slice(0, 2);
 
   const articleData = {
     "@context": "https://schema.org",

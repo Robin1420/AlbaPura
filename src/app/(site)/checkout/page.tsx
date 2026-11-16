@@ -408,7 +408,7 @@ function CheckoutForm() {
           <ul className="mt-6 grid gap-4">
             {cart.items.map(({ product, qty }) => (
               <li key={product.slug} className="flex items-center gap-4">
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-t-[999px] rounded-b-md bg-dew-100"><ProductArt product={product} sizes="64px" /></div>
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-dew-100"><ProductArt product={product} sizes="64px" /></div>
                 <div className="min-w-0 flex-1">
                   <p className="font-display text-[16px] font-medium leading-tight">{product.name}</p>
                   <p className="text-[14px] italic text-dew-200/60">{product.meta}, × {qty}</p>

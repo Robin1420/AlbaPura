@@ -123,7 +123,7 @@ export function SearchOverlay({ open, onClose, catalog }: { open: boolean; onClo
                         onMouseEnter={() => setActive(i)}
                         className={`flex items-center gap-4 rounded-2xl p-2.5 transition-colors ${i === active ? "bg-dew-100" : ""}`}
                       >
-                        <span className="relative size-16 shrink-0 overflow-hidden rounded-t-full rounded-b-lg bg-dew-100">
+                        <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-dew-100">
                           {p.image && <Image src={p.image} alt="" fill sizes="64px" className="object-cover" />}
                         </span>
                         <span className="min-w-0 flex-1">

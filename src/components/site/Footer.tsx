@@ -15,11 +15,11 @@ export async function Footer() {
     ...staticCols,
   ];
   return (
-    <footer className="relative mt-20 overflow-hidden sm:mt-32 bg-ink-900 text-dew-100">
+    <footer className="relative overflow-hidden bg-ink-900 text-dew-100">
       <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-x-6 gap-y-9 px-5 pb-8 pt-14 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-12 sm:px-6 sm:pb-10 sm:pt-20 xl:grid-cols-[1.3fr_1fr_1fr_1fr_1.3fr] xl:gap-14 lg:px-20">
         <div className="col-span-2 max-w-sm sm:col-span-3 xl:col-span-1 xl:max-w-xs">
-          <Image src="/img/logo-light.png" alt="Alba Pura, productos orgánicos" width={1000} height={704} className="h-20 w-auto sm:h-28" />
-          <p className="mt-3 text-[16px] text-dew-200/80 sm:text-[17px]">Productos orgánicos hechos en Lima. Cuidamos tu piel y el medio ambiente.</p>
+          <Image src="/img/logo-light.png" alt="Alba Pura, productos naturales" width={500} height={500} className="h-28 w-auto sm:h-36" />
+          <p className="mt-3 text-[16px] text-dew-200/80 sm:text-[17px]">Productos naturales hechos en Lima. Cuidamos tu piel y el medio ambiente.</p>
         </div>
         {cols.map((c) => (
           <nav key={c.title} aria-label={c.title}>

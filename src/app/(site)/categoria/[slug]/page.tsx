@@ -17,9 +17,9 @@ export async function generateMetadata({ params }: PageProps<"/categoria/[slug]"
   const { slug } = await params;
   const c = (await getCatalog()).categories.find((x) => x.slug === slug);
   if (!c) return {};
-  const description = snippet(c.description ? `${c.description} Productos orgánicos de Alba Pura, con entrega en Lima Metropolitana y Callao.` : `${c.name} orgánicos de Alba Pura, creados en Lima, con entrega en Lima Metropolitana y Callao.`);
+  const description = snippet(c.description ? `${c.description} Productos naturales de Alba Pura, con entrega en Lima Metropolitana y Callao.` : `${c.name}: productos naturales de Alba Pura, creados en Lima, con entrega en Lima Metropolitana y Callao.`);
   return {
-    title: `${c.name} orgánicos en Lima, Perú`,
+    title: `${c.name}: productos naturales en Lima, Perú`,
     description,
     alternates: { canonical: `/categoria/${c.slug}` },
     openGraph: { title: `${c.name} | ${SITE.name}`, description, url: abs(`/categoria/${c.slug}`), type: "website", images: c.image ? [c.image] : undefined },

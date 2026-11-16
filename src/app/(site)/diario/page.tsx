@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductArt } from "@/components/product/ProductArt";
 import { PageHeader } from "@/components/site/PageHeader";
-import { formatDate, posts } from "@/lib/content";
+import { formatDate } from "@/lib/content";
+import { getPosts } from "@/server/posts";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/diario" },
@@ -10,8 +11,8 @@ export const metadata: Metadata = {
   description: "Artículos sobre cuidado de la piel, ingredientes y medio ambiente.",
 };
 
-export default function Diario() {
-  const [featured, ...rest] = posts;
+export default async function Diario() {
+  const [featured, ...rest] = await getPosts();
   return (
     <>
       <PageHeader title="Ciencia simple para cuidarte">

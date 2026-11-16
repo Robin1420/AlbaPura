@@ -8,13 +8,14 @@ import { Mix } from "@/components/ui/Mix";
 import { ProductArt } from "@/components/product/ProductArt";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
-import { formatDate, posts } from "@/lib/content";
+import { formatDate } from "@/lib/content";
+import { getPosts } from "@/server/posts";
 import { SITE } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 
 export const metadata: Metadata = {
-  title: { absolute: "Alba Pura | Productos orgánicos en Lima, Perú" },
-  description: "Productos orgánicos hechos en Lima: jabones, bálsamo, aceite, miel e infusiones para cuidar tu piel y el medio ambiente.",
+  title: { absolute: "Alba Pura | Productos naturales en Lima, Perú" },
+  description: "Productos naturales hechos en Lima: jabones, bálsamo, aceite, miel e infusiones para cuidar tu piel y el medio ambiente.",
   alternates: { canonical: "/" },
 };
 
@@ -40,7 +41,7 @@ const proof = [
 ];
 
 export default async function Home() {
-  const { products, categories } = await getCatalog();
+  const [{ products, categories }, posts] = await Promise.all([getCatalog(), getPosts()]);
   const lines = categories.filter((c) => c.count > 0);
   const rowProducts = (slug: string) =>
     products
@@ -90,12 +91,12 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-dawn grain relative mb-[-5rem] pb-24 sm:mb-[-8rem] sm:pb-36" aria-labelledby="pilot-title">
+      <section className="bg-dawn grain relative" aria-labelledby="pilot-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
           <Reveal className="mx-auto max-w-[900px] text-center">
             <Mix id="pilot-title" className="text-[clamp(32px,5vw,68px)] text-ink-800" parts={[{ t: "Sé de las primeras" }, { t: "personas en probarlo", italic: true, br: true }]} />
             <p className="mx-auto mt-5 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">
-              Estamos en fase de prueba de producto. Tu opinión nos ayuda a mejorar antes de ampliar la línea.
+              Tu opinión nos ayuda a mejorar antes de ampliar la línea.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/tienda" size="lg">Ver los productos</ButtonLink>

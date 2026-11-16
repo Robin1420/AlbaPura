@@ -32,7 +32,7 @@ export function ProductCard({ product, priority, as: Heading = "h3" }: { product
       <FavoriteButton slug={product.slug} name={product.name} />
 
       <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-        <Heading className="font-heading text-[clamp(26px,2.2vw,32px)] font-semibold leading-[0.95]">
+        <Heading className="line-clamp-3 font-heading text-[clamp(24px,2.2vw,32px)] font-semibold leading-[0.98]">
           <Link href={`/producto/${product.slug}`} className="after:absolute after:inset-0 after:content-['']">{product.name}</Link>
         </Heading>
         <p className="mt-1.5 text-[14px] italic text-white/80">{product.meta}</p>

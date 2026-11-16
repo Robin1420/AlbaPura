@@ -9,7 +9,7 @@ import { Heading } from "@/components/ui/Mix";
 export const metadata: Metadata = {
   alternates: { canonical: "/nosotros" },
   title: "Nosotros",
-  description: "Alba Pura es una línea de productos orgánicos creada en Lima por la bióloga Yuleisi Cucho, para cuidar la piel, la salud y el medio ambiente.",
+  description: "Alba Pura es una línea de productos naturales creada en Lima por la bióloga Yuleisi Cucho, para cuidar la piel, la salud y el medio ambiente.",
 };
 
 const values = [
@@ -37,17 +37,17 @@ export default function Nosotros() {
     <>
       <JsonLd data={aboutData} />
       <PageHeader screen title="Cuidarte sin dañar el planeta">
-        <p>Alba Pura es una línea de productos orgánicos creada en Lima por una bióloga que quiso ofrecer una alternativa más cuidadosa.</p>
+        <p>Alba Pura es una línea de productos naturales creada en Lima por una bióloga que quiso ofrecer una alternativa más cuidadosa.</p>
       </PageHeader>
 
       <section className="screen"><div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-6 py-16 md:py-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16 lg:px-20">
-        <div className="relative aspect-[4/5] w-full max-w-[560px] overflow-hidden rounded-t-[999px] rounded-b-xl lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
-          <Image src="/img/products/aceite-de-oliva-virgen-extra.jpg" alt="Botella de aceite de oliva Alba Pura con ramas de olivo" fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover" />
+        <div className="relative mx-auto aspect-square w-full max-w-[420px] lg:max-w-[min(500px,calc(100svh-var(--header-h)-4rem))]">
+          <Image src="/img/logo.png" alt="Logo de Alba Pura: un árbol y el lema Naturalmente Tú" fill sizes="(min-width:1024px) 40vw, 80vw" className="object-contain" />
         </div>
         <div className="max-w-[54ch] text-[clamp(16px,2.8svh,21px)] text-muted">
           <Heading className="mb-5 text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Por qué existe Alba Pura</Heading>
           <p>Hoy en día muchos productos de uso diario contienen químicos que afectan la piel y, al terminar en el desagüe, también dañan el medio ambiente. No siempre es fácil saber qué llevan ni cómo actúan.</p>
-          <p className="mt-5">Alba Pura nació para cambiar eso: una línea de productos orgánicos que no sean dañinos ni para el consumo humano ni para el medio ambiente, y que expliquen con claridad de qué están hechos.</p>
+          <p className="mt-5">Alba Pura nació para cambiar eso: una línea de productos naturales que no sean dañinos ni para el consumo humano ni para el medio ambiente, y que expliquen con claridad de qué están hechos.</p>
         </div>
         </div>
       </section>
@@ -81,7 +81,7 @@ export default function Nosotros() {
 
       <section className="bg-dawn grain screen" aria-labelledby="pilot">
         <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <Heading id="pilot" className="max-w-[18ch] text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Estamos en fase de prueba</Heading>
+          <Heading id="pilot" className="max-w-[18ch] text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Tu opinión nos importa</Heading>
           <p className="mt-5 max-w-[56ch] text-[clamp(16px,2.8svh,21px)] text-muted">
             Lanzamos una primera tanda pequeña en Lima para escuchar a las personas que prueben los productos y mejorar antes de ampliar la línea. Si los pruebas, tu opinión es muy valiosa para nosotros.
           </p>
