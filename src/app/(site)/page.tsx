@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroFull } from "@/components/hero/HeroFull";
 import { CollectionRow } from "@/components/home/CollectionRow";
-import { PhotoStrip } from "@/components/home/PhotoStrip";
+import { LinesCarousel } from "@/components/home/LinesCarousel";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Reveal } from "@/components/motion/Reveal";
 import { Mix } from "@/components/ui/Mix";
@@ -50,7 +50,7 @@ const principles = [
 export default async function Home() {
   const { products, categories } = await getCatalog();
   const lines = categories.filter((c) => c.count > 0);
-  const tiles = lines.map((c) => ({ slug: c.slug, name: c.name, image: c.image ?? products.find((p) => p.categorySlug === c.slug && p.image)?.image }));
+  const carouselLines = lines.map((c) => ({ slug: c.slug, name: c.name, count: c.count, description: c.description, image: c.image ?? products.find((p) => p.categorySlug === c.slug && p.image)?.image }));
   const rowProducts = (slug: string) =>
     products
       .filter((p) => p.categorySlug === slug)
@@ -60,12 +60,12 @@ export default async function Home() {
     <>
       <JsonLd data={siteData} />
       <HeroFull />
-      <PhotoStrip tiles={tiles} />
+      <LinesCarousel lines={carouselLines} />
       <Philosophy />
 
-      <section className="bg-dew-50 pt-4" aria-labelledby="lineas-title">
+      <section className="bg-dew-50 pt-4" aria-labelledby="productos-title">
         <Reveal className="mx-auto max-w-[1360px] px-5 pb-14 pt-10 text-center sm:px-6 lg:pb-20">
-          <Mix id="lineas-title" className="text-[clamp(38px,6vw,92px)] text-ink-800" parts={[{ t: "Explora" }, { t: "nuestras líneas", italic: true, br: true }]} />
+          <Mix id="productos-title" className="text-[clamp(38px,6vw,92px)] text-ink-800" parts={[{ t: "Nuestros" }, { t: "productos", italic: true, br: true }]} />
         </Reveal>
         {lines.map((c, i) => (
           <CollectionRow key={c.slug} category={c} products={rowProducts(c.slug)} flip={i % 2 === 1} tone={i} />
