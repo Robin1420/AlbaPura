@@ -111,7 +111,7 @@ export function Header() {
       <header
         onMouseLeave={closeMega}
         className={`site-header fixed inset-x-0 top-0 z-50 transition-[transform,background-color,color,border-color] duration-500 ease-[var(--ease-out-expo)] ${hidden && !mega ? "-translate-y-full" : ""} ${
-          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-white/50 bg-dew-50/65 text-ink-900 shadow-[0_10px_40px_-24px_rgb(8_24_15/0.35)] backdrop-blur-2xl backdrop-saturate-150"
+          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-ink-800/5 bg-dew-50/65 text-ink-900 backdrop-blur-2xl backdrop-saturate-150"
         }`}
       >
         <div className="mx-auto grid h-[76px] max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
@@ -149,7 +149,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center justify-end gap-2">
-            <div className={`flex items-center rounded-full px-1.5 py-1 shadow-[0_10px_30px_-18px_rgb(8_24_15/0.5)] transition-colors duration-500 ${overHero ? "bg-white text-ink-900" : "bg-ink-800 text-dew-50"}`}>
+            <div className={`flex items-center rounded-full px-1.5 py-1 transition-colors duration-500 ${overHero ? "bg-white text-ink-900" : "bg-ink-800 text-dew-50"}`}>
               <button onClick={() => setSearch(true)} className={`${ico} ${overHero ? "" : "hover:bg-white/15"}`} aria-label="Buscar productos">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               </button>
@@ -165,7 +165,7 @@ export function Header() {
                 </AnimatePresence>
               </button>
             </div>
-            <Link href="/cuenta" aria-label={user ? `Mi cuenta, ${user.name}` : "Ingresar"} className="hidden h-12 items-center gap-2 rounded-full bg-leaf-300 px-5 font-display text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-900 shadow-[0_10px_30px_-18px_rgb(8_24_15/0.5)] transition-colors hover:bg-leaf-400 min-[480px]:inline-flex">
+            <Link href="/cuenta" aria-label={user ? `Mi cuenta, ${user.name}` : "Ingresar"} className="hidden h-12 items-center gap-2 rounded-full bg-leaf-300 px-5 font-display text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-900 transition-colors hover:bg-leaf-400 min-[480px]:inline-flex">
               {user?.picture && <Image src={user.picture} alt="" width={24} height={24} className="size-6 rounded-full object-cover" unoptimized />}
               {user ? user.name.split(" ")[0] : "Ingresar"}
             </Link>
