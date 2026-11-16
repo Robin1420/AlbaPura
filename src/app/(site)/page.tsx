@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroFull } from "@/components/hero/HeroFull";
 import { CollectionRow } from "@/components/home/CollectionRow";
-import { LinesCarousel } from "@/components/home/LinesCarousel";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Reveal } from "@/components/motion/Reveal";
 import { Mix } from "@/components/ui/Mix";
@@ -50,7 +49,6 @@ const principles = [
 export default async function Home() {
   const { products, categories } = await getCatalog();
   const lines = categories.filter((c) => c.count > 0);
-  const carouselLines = lines.map((c) => ({ slug: c.slug, name: c.name, count: c.count, description: c.description, image: c.image ?? products.find((p) => p.categorySlug === c.slug && p.image)?.image }));
   const rowProducts = (slug: string) =>
     products
       .filter((p) => p.categorySlug === slug)
@@ -60,7 +58,6 @@ export default async function Home() {
     <>
       <JsonLd data={siteData} />
       <HeroFull />
-      <LinesCarousel lines={carouselLines} />
       <Philosophy />
 
       <section className="bg-dew-50 pt-4" aria-labelledby="productos-title">
