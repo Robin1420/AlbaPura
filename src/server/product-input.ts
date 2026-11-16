@@ -1,8 +1,10 @@
-import "server-only";
 import { z } from "zod";
 
 /** Solo se aceptan fotos subidas desde el panel o las que ya vienen en /public/img. */
 const imageUrl = z.string().regex(/^(\/api\/media\/[a-f0-9-]{36}\.(jpg|png|webp)|\/img\/(?:[A-Za-z0-9_-]+\/)?[A-Za-z0-9._-]+)$/, "Foto no válida.");
+
+/** Solo se aceptan PDF subidos desde el panel. */
+const docUrl = z.string().regex(/^\/api\/media\/[a-f0-9-]{36}\.pdf$/, "Documento no válido.");
 
 const note = z.object({ title: z.string().trim().min(1).max(60), text: z.string().trim().min(1).max(120) });
 const fact = z.object({ label: z.string().trim().min(1).max(60), value: z.string().trim().min(1).max(120) });
@@ -24,12 +26,27 @@ export const productInput = z.object({
   provenance: z.array(fact).max(8).default([]),
   art: z.enum(["oil", "honey", "soap", "tea"]).nullable().optional(),
   sortOrder: z.number().int().min(0).max(10_000).default(0),
+  processDoc: docUrl.nullable().optional(),
+  usageDoc: docUrl.nullable().optional(),
 });
 
 export const badgeInput = z.object({
   name: z.string().trim().min(2, "Escribe el nombre de la etiqueta.").max(30, "Máximo 30 caracteres."),
   tone: z.enum(["ink", "leaf", "peach", "sky"]).default("ink"),
   sortOrder: z.number().int().min(0).max(10_000).default(0),
+  active: z.boolean().default(true),
+});
+
+export const postInput = z.object({
+  title: z.string().trim().min(3, "Escribe el título.").max(140),
+  topic: z.enum(["Piel", "Ciencia", "Medio ambiente"], { message: "Elige un tema." }),
+  excerpt: z.string().trim().min(3, "Escribe un resumen corto.").max(220),
+  /** Párrafos separados por una línea en blanco. */
+  body: z.string().trim().min(10, "Escribe el artículo.").max(20_000),
+  image: imageUrl.nullable().optional(),
+  art: z.enum(["oil", "honey", "soap", "tea"]).default("soap"),
+  minutes: z.number().int().min(1).max(60).default(4),
+  publishedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha no válida."),
   active: z.boolean().default(true),
 });
 

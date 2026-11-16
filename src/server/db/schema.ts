@@ -7,8 +7,16 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
-  passwordHash: text("password_hash").notNull(),
+  /** Identificador estable de la cuenta de Google ("sub"): el inicio de sesión es solo con Google. */
+  googleSub: text("google_sub").unique(),
+  picture: text("picture"),
   role: text("role").$type<"customer" | "admin">().notNull().default("customer"),
+  /** Datos del cliente: se completan después del primer ingreso con Google. */
+  phone: text("phone"),
+  addressLine: text("address_line"),
+  district: text("district"),
+  region: text("region"),
+  profileCompletedAt: integer("profile_completed_at"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
 });
 
@@ -28,6 +36,21 @@ export const categories = sqliteTable("categories", {
   image: text("image"),
   sortOrder: integer("sort_order").notNull().default(0),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
+});
+
+/** Artículos del diario. `body` son los párrafos separados por una línea en blanco. */
+export const posts = sqliteTable("posts", {
+  slug: text("slug").primaryKey(),
+  title: text("title").notNull(),
+  topic: text("topic").notNull(),
+  excerpt: text("excerpt").notNull(),
+  body: text("body").notNull(),
+  image: text("image"),
+  art: text("art").notNull().default("soap"),
+  minutes: integer("minutes").notNull().default(4),
+  publishedAt: text("published_at").notNull(),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
 });
 
 export const products = sqliteTable("products", {
@@ -51,6 +74,10 @@ export const products = sqliteTable("products", {
   reviews: integer("reviews").notNull().default(0),
   art: text("art").$type<"oil" | "honey" | "soap" | "tea">(),
   sortOrder: integer("sort_order").notNull().default(0),
+  /** PDF del proceso de elaboración (/api/media/<uuid>.pdf). */
+  processDoc: text("process_doc"),
+  /** PDF del manual de uso (/api/media/<uuid>.pdf). */
+  usageDoc: text("usage_doc"),
 });
 
 export type OrderStatus = "pending_payment" | "awaiting_transfer" | "paid" | "preparing" | "shipped" | "delivered" | "cancelled" | "failed";
@@ -63,14 +90,18 @@ export const orders = sqliteTable("orders", {
   email: text("email").notNull(),
   status: text("status").$type<OrderStatus>().notNull(),
   shippingMethod: text("shipping_method").$type<"standard" | "express" | "pickup">().notNull(),
-  payment: text("payment").$type<"webpay" | "transfer">().notNull(),
+  payment: text("payment").$type<"culqi" | "transfer">().notNull(),
   subtotal: integer("subtotal").notNull(),
   shipping: integer("shipping").notNull(),
   gift: integer("gift").notNull().default(0),
   total: integer("total").notNull(),
   address: text("address", { mode: "json" }).$type<Address>().notNull(),
-  webpayToken: text("webpay_token"),
-  webpayAuthCode: text("webpay_auth_code"),
+  /** Id del cargo en Culqi (chr_…). */
+  paymentRef: text("payment_ref"),
+  /** Código de referencia/autorización del cargo. */
+  paymentAuth: text("payment_auth"),
+  /** Id de la orden en Culqi (ord_…): permite pagar con el QR de Yape, Plin y otras billeteras. */
+  culqiOrder: text("culqi_order"),
   createdAt: integer("created_at").notNull().$defaultFn(now),
   paidAt: integer("paid_at"),
   trackingCode: text("tracking_code"),
@@ -89,6 +120,8 @@ export const orderItems = sqliteTable("order_items", {
   meta: text("meta").notNull(),
   qty: integer("qty").notNull(),
   price: integer("price").notNull(),
+  /** Costo de producir una unidad al momento de la venta (para la utilidad real). Vacío si el producto no tenía receta. */
+  unitCost: real("unit_cost"),
 });
 
 export const favorites = sqliteTable(
@@ -151,4 +184,148 @@ export const badges = sqliteTable("badges", {
   tone: text("tone").notNull().default("ink"),
   sortOrder: integer("sort_order").notNull().default(0),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
+});
+
+/** Insumos: materias primas y empaques. El stock y el costo se guardan en la unidad base (g, ml o un). */
+export const supplies = sqliteTable("supplies", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  kind: text("kind").$type<"materia" | "empaque" | "otro">().notNull().default("materia"),
+  unit: text("unit").$type<"g" | "ml" | "un">().notNull(),
+  stock: real("stock").notNull().default(0),
+  minStock: real("min_stock").notNull().default(0),
+  /** Costo por unidad base: promedio ponderado de las compras. */
+  unitCost: real("unit_cost").notNull().default(0),
+  supplier: text("supplier"),
+  notes: text("notes"),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+});
+
+/** Historial del stock de un insumo: compras, consumo en producción y ajustes. qty es el cambio (+/-). */
+export const supplyMovements = sqliteTable("supply_movements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  supplyId: text("supply_id").notNull().references(() => supplies.id, { onDelete: "cascade" }),
+  type: text("type").$type<"purchase" | "production" | "adjustment" | "initial">().notNull(),
+  qty: real("qty").notNull(),
+  unitCost: real("unit_cost").notNull().default(0),
+  totalCost: real("total_cost").notNull().default(0),
+  ref: text("ref"),
+  note: text("note"),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+});
+
+/** Receta y datos de costeo de un producto: lo que lleva un lote y cuántas unidades salen. */
+export const recipes = sqliteTable("recipes", {
+  productSlug: text("product_slug").primaryKey().references(() => products.slug, { onDelete: "cascade" }),
+  yieldUnits: integer("yield_units").notNull().default(1),
+  laborHours: real("labor_hours").notNull().default(0),
+  /** S/ por hora. Vacío = usa el valor de Ajustes. */
+  laborRate: real("labor_rate"),
+  /** % de gastos indirectos sobre materiales + mano de obra. Vacío = usa Ajustes. */
+  overheadPct: real("overhead_pct"),
+  wastePct: real("waste_pct").notNull().default(0),
+  targetMargin: real("target_margin").notNull().default(50),
+  notes: text("notes"),
+  updatedAt: integer("updated_at").notNull().$defaultFn(now),
+});
+
+export const recipeItems = sqliteTable("recipe_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  productSlug: text("product_slug").notNull().references(() => recipes.productSlug, { onDelete: "cascade" }),
+  supplyId: text("supply_id").notNull().references(() => supplies.id),
+  /** Cantidad por lote, en la unidad base del insumo. */
+  qty: real("qty").notNull(),
+});
+
+export type BatchStatus = "planned" | "done" | "cancelled";
+
+export const productionBatches = sqliteTable("production_batches", {
+  id: text("id").primaryKey(),
+  productSlug: text("product_slug").notNull().references(() => products.slug),
+  /** Unidades terminadas que se producen. */
+  qty: integer("qty").notNull(),
+  status: text("status").$type<BatchStatus>().notNull().default("planned"),
+  notes: text("notes"),
+  expiresAt: integer("expires_at"),
+  costTotal: real("cost_total"),
+  costUnit: real("cost_unit"),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+  finishedAt: integer("finished_at"),
+});
+
+export const productionBatchItems = sqliteTable("production_batch_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  batchId: text("batch_id").notNull().references(() => productionBatches.id, { onDelete: "cascade" }),
+  supplyId: text("supply_id").notNull().references(() => supplies.id),
+  qty: real("qty").notNull(),
+  unitCost: real("unit_cost").notNull(),
+});
+
+export const settings = sqliteTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+});
+
+export type StockMovementType = "production" | "sale_web" | "sale_manual" | "return" | "adjust_in" | "adjust_out";
+
+/** Historial del stock de cada producto terminado: producción, ventas, devoluciones y ajustes manuales. */
+export const stockMovements = sqliteTable("stock_movements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  productSlug: text("product_slug").notNull().references(() => products.slug, { onDelete: "cascade" }),
+  type: text("type").$type<StockMovementType>().notNull(),
+  /** Cambio de unidades (+ entra, − sale). */
+  qty: integer("qty").notNull(),
+  ref: text("ref"),
+  note: text("note"),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+});
+
+export type Channel = "whatsapp" | "instagram" | "facebook" | "tiktok" | "tienda" | "feria" | "b2b" | "otro";
+
+/** Ventas registradas a mano, fuera de la web: por WhatsApp, redes sociales, en tienda o feria, o a empresas (B2B). */
+export const sales = sqliteTable("sales", {
+  id: text("id").primaryKey(),
+  channel: text("channel").$type<Channel>().notNull(),
+  /** Detalle del canal (qué feria, qué cuenta, qué empresa referida…). */
+  channelNote: text("channel_note"),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  /** DNI o RUC. */
+  customerDoc: text("customer_doc"),
+  customerCompany: text("customer_company"),
+  payment: text("payment").$type<"efectivo" | "yape" | "plin" | "transferencia" | "tarjeta" | "credito" | "otro">().notNull(),
+  paid: integer("paid", { mode: "boolean" }).notNull().default(true),
+  paidAt: integer("paid_at"),
+  status: text("status").$type<"completed" | "cancelled">().notNull().default("completed"),
+  subtotal: real("subtotal").notNull(),
+  discount: real("discount").notNull().default(0),
+  /** Envío cobrado al cliente (no cuenta como ganancia). */
+  shipping: real("shipping").notNull().default(0),
+  total: real("total").notNull(),
+  costTotal: real("cost_total").notNull().default(0),
+  /** Falso si algún producto no tenía receta: la utilidad queda incompleta. */
+  costComplete: integer("cost_complete", { mode: "boolean" }).notNull().default(true),
+  /** Otros costos de la venta: comisión, envío que pagaste, etc. */
+  fee: real("fee").notNull().default(0),
+  profit: real("profit").notNull().default(0),
+  notes: text("notes"),
+  soldAt: integer("sold_at").notNull(),
+  createdBy: text("created_by"),
+  createdAt: integer("created_at").notNull().$defaultFn(now),
+  cancelledAt: integer("cancelled_at"),
+});
+
+export const saleItems = sqliteTable("sale_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  saleId: text("sale_id").notNull().references(() => sales.id, { onDelete: "cascade" }),
+  productSlug: text("product_slug").notNull(),
+  name: text("name").notNull(),
+  qty: integer("qty").notNull(),
+  price: real("price").notNull(),
+  unitCost: real("unit_cost"),
 });

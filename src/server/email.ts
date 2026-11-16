@@ -1,9 +1,14 @@
-import "server-only";
+
+import { background } from "@/shims/context";
 
 type Mail = { to: string; subject: string; html: string; text: string; replyTo?: string };
 
 /** Envía con Resend si hay RESEND_API_KEY. Sin clave imprime el correo en la consola (desarrollo). */
-export async function sendEmail(mail: Mail) {
+export function sendEmail(mail: Mail) {
+  return background(deliver(mail));
+}
+
+async function deliver(mail: Mail) {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     console.log(`[correo no enviado: falta RESEND_API_KEY]\nPara: ${mail.to}\nAsunto: ${mail.subject}\n${mail.text}\n`);
