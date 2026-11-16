@@ -1,5 +1,5 @@
 /** Cinta lenta de orígenes. Solo CSS: se pausa al pasar el mouse y se detiene con "reducir movimiento". */
-export function Marquee({ items, dark }: { items: string[]; dark?: boolean }) {
+export function Marquee({ items }: { items: string[] }) {
   const row = (hidden: boolean) => (
     <ul aria-hidden={hidden || undefined} className="flex shrink-0 items-center gap-12 pr-12">
       {items.map((t) => (
@@ -11,7 +11,7 @@ export function Marquee({ items, dark }: { items: string[]; dark?: boolean }) {
     </ul>
   );
   return (
-    <div className={`marquee overflow-hidden py-6 ${dark ? "bg-ink-800 text-dew-100" : "border-y border-ink-800/15 bg-dew-100 text-ink-700"}`} aria-label={items.join(", ")} role="group">
+    <div className="marquee overflow-hidden border-y border-ink-800/15 bg-dew-100 py-6 text-ink-700" aria-label={items.join(", ")} role="group">
       <div className="marquee-track flex w-max">
         {row(false)}
         {row(true)}
