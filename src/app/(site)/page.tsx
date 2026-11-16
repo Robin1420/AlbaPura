@@ -3,14 +3,18 @@ import Link from "next/link";
 import { HeroFull } from "@/components/hero/HeroFull";
 import { CollectionRow } from "@/components/home/CollectionRow";
 import { PhotoStrip } from "@/components/home/PhotoStrip";
+import { FaqPreview } from "@/components/home/FaqPreview";
+import { Process } from "@/components/home/Process";
 import { Philosophy } from "@/components/home/Philosophy";
+import { Marquee } from "@/components/motion/Marquee";
 import { Reveal } from "@/components/motion/Reveal";
 import { Mix } from "@/components/ui/Mix";
+import { Wave } from "@/components/ui/Wave";
 import { ParallaxArch } from "@/components/motion/ParallaxArch";
 import { ProductArt } from "@/components/product/ProductArt";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
-import { formatDate, posts } from "@/lib/content";
+import { faqs, formatDate, posts } from "@/lib/content";
 import { SITE } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 
@@ -47,6 +51,11 @@ const principles = [
   ["Para el medio ambiente", "Procesos y empaques pensados para dejar la menor huella posible."],
 ];
 
+const values = ["Hecho en Lima", "Pensado para tu piel", "Pequeñas cantidades", "Respeto por el medio ambiente", "Atención cercana"];
+
+const faqPicks = ["¿Dónde entregan?", "¿Cuánto cuesta el delivery?", "¿Qué medios de pago aceptan?", "¿Los productos son orgánicos?", "Mi pedido llegó dañado, ¿qué hago?", "¿Por qué dicen que están en fase de prueba?"];
+const faqItems = faqPicks.flatMap((q) => faqs.flatMap((g) => g.items.filter((i) => i.q === q)));
+
 export default async function Home() {
   const { products, categories } = await getCatalog();
   const lines = categories.filter((c) => c.count > 0);
@@ -60,8 +69,15 @@ export default async function Home() {
     <>
       <JsonLd data={siteData} />
       <HeroFull />
-      <PhotoStrip tiles={tiles} />
+      <div className="relative z-10 -mt-8 overflow-hidden rounded-t-[32px] sm:-mt-12 sm:rounded-t-[48px]">
+        <PhotoStrip tiles={tiles} />
+      </div>
+      <Marquee items={values} dark />
+      <Wave bg="bg-ink-800" fill="text-dew-50" />
       <Philosophy />
+      <Wave bg="bg-dew-50" fill="text-dew-100" />
+      <Process />
+      <Wave bg="bg-dew-100" fill="text-dew-50" />
 
       <section className="bg-dew-50 pt-4" aria-labelledby="lineas-title">
         <Reveal className="mx-auto max-w-[1360px] px-5 pb-14 pt-10 text-center sm:px-6 lg:pb-20">
@@ -72,9 +88,10 @@ export default async function Home() {
         ))}
       </section>
 
-      <section className="screen" aria-labelledby="story-title">
-        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">
-          <div className="lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
+      <section className="relative overflow-hidden bg-dew-50" aria-labelledby="story-title">
+        <span className="pointer-events-none absolute -right-32 top-0 size-96 rounded-full bg-peach-100/70 blur-3xl" aria-hidden="true" />
+        <div className="relative mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20 lg:py-28">
+          <div className="lg:max-w-[520px]">
             <ParallaxArch src="/img/products/miel-de-abeja-pura.jpg" alt="Frasco de miel de Alba Pura con tapa de madera y cuchara" seal="Hecho en Lima" />
           </div>
           <Reveal>
@@ -97,6 +114,7 @@ export default async function Home() {
         </div>
       </section>
 
+      <Wave bg="bg-dew-50" fill="text-ink-800" />
       <section className="bg-ink-800 text-dew-50" aria-labelledby="diario-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
@@ -124,8 +142,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-dawn grain" aria-labelledby="pilot-title">
-        <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
+      <Wave bg="bg-ink-800" fill="text-dew-50" />
+      <FaqPreview items={faqItems} />
+      <Wave bg="bg-dew-50" fill="text-dew-100" />
+      <section className="relative mb-[-5rem] overflow-hidden bg-dew-100 pb-24 sm:mb-[-8rem] sm:pb-36" aria-labelledby="pilot-title">
+        <span className="pointer-events-none absolute -left-24 top-0 size-96 rounded-full bg-sky-300/50 blur-3xl" aria-hidden="true" />
+        <span className="pointer-events-none absolute -right-24 bottom-10 size-96 rounded-full bg-peach-300/40 blur-3xl" aria-hidden="true" />
+        <div className="relative mx-auto w-full max-w-[1440px] px-5 pb-8 pt-8 sm:px-6 lg:px-20">
           <Reveal className="mx-auto max-w-[900px] text-center">
             <Mix id="pilot-title" className="text-[clamp(32px,5vw,68px)] text-ink-800" parts={[{ t: "Sé de las primeras" }, { t: "personas en probarlo", italic: true, br: true }]} />
             <p className="mx-auto mt-5 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">

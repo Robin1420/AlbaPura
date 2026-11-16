@@ -15,7 +15,10 @@ export async function Footer() {
     ...staticCols,
   ];
   return (
-    <footer className="relative mt-20 overflow-hidden sm:mt-32 bg-ink-900 text-dew-100">
+    <footer className="relative mt-20 sm:mt-32 bg-ink-900 text-dew-100">
+      <svg aria-hidden="true" viewBox="0 0 1440 90" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-full block h-[34px] w-full text-ink-900 sm:h-[60px] lg:h-[80px]">
+        <path fill="currentColor" d="M0 90V48C170 10 340 2 540 28s430 56 650 28c100-13 170-32 250-52V90Z" />
+      </svg>
       <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-x-6 gap-y-9 px-5 pb-8 pt-14 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-12 sm:px-6 sm:pb-10 sm:pt-20 xl:grid-cols-[1.3fr_1fr_1fr_1fr_1.3fr] xl:gap-14 lg:px-20">
         <div className="col-span-2 max-w-sm sm:col-span-3 xl:col-span-1 xl:max-w-xs">
           <Image src="/img/logo-light.png" alt="Alba Pura, productos orgánicos" width={1000} height={704} className="h-20 w-auto sm:h-28" />
@@ -37,9 +40,9 @@ export async function Footer() {
         <span>© 2026 Alba Pura. Lima, Perú.</span>
         <span>Pago con tarjeta, Yape o QR</span>
       </div>
-      <p aria-hidden className="pointer-events-none select-none whitespace-nowrap text-center font-[family-name:var(--font-heading)] text-[min(14vw,240px)] font-medium uppercase leading-[0.8] tracking-[0.06em] text-white/[0.05] translate-y-[8%]">
+      <div className="overflow-hidden"><p aria-hidden className="pointer-events-none select-none whitespace-nowrap text-center font-[family-name:var(--font-heading)] text-[min(14vw,240px)] font-medium uppercase leading-[0.8] tracking-[0.06em] text-white/[0.05] translate-y-[8%]">
         ALBA PURA
-      </p>
+      </p></div>
     </footer>
   );
 }
