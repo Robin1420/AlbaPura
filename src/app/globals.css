@@ -43,11 +43,11 @@
 
 :root {
   /* Alto del header fijo (franja de aviso + barra): las secciones lo descuentan para no quedar tapadas */
-  --header-h: 120px;
+  --header-h: 76px;
 }
 @media (min-width: 640px) {
   :root {
-    --header-h: 129px;
+    --header-h: 76px;
   }
 }
 
