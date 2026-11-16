@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CinematicHero } from "@/components/hero/CinematicHero";
+import { DawnHero } from "@/components/hero/DawnHero";
+import { RitualPicker } from "@/components/home/RitualPicker";
+import { ProductRail } from "@/components/home/ProductRail";
+import { Marquee } from "@/components/motion/Marquee";
+import { Reveal } from "@/components/motion/Reveal";
 import { ParallaxArch } from "@/components/motion/ParallaxArch";
 import { ProductArt } from "@/components/product/ProductArt";
 import { ProductCard } from "@/components/product/ProductCard";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
+import { formatDate, posts } from "@/lib/content";
 import { SITE } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 
@@ -42,48 +47,43 @@ const principles = [
   ["Para el medio ambiente", "Procesos y empaques pensados para dejar la menor huella posible."],
 ];
 
+const values = ["Hecho en Lima", "Pensado para tu piel", "Pequeñas cantidades", "Respeto por el medio ambiente", "Atención cercana"];
+
 export default async function Home() {
   const { products, categories } = await getCatalog();
+  const heroProducts = products.filter((p) => !p.comingSoon && p.image).slice(0, 5).map((p) => ({ slug: p.slug, name: p.name, meta: p.meta, category: p.category, price: p.price, image: p.image! }));
+  const lines = categories.filter((c) => c.count > 0).map((c) => ({ slug: c.slug, name: c.name, count: c.count, description: c.description, image: c.image }));
+  const pickerProducts = products.map((p) => ({ slug: p.slug, name: p.name, meta: p.meta, price: p.price, categorySlug: p.categorySlug, image: p.image, comingSoon: p.comingSoon }));
   return (
     <>
       <JsonLd data={siteData} />
-      <CinematicHero />
+      <DawnHero products={heroProducts} />
+      <Marquee items={values} />
 
-      <section className="screen" aria-labelledby="cat-title">
+      <section id="lineas" className="screen scroll-mt-4" aria-labelledby="cat-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
-          <h2 id="cat-title" className="max-w-[16ch] text-[clamp(32px,min(5vw,8svh),64px)]">Cuatro líneas, una misma idea</h2>
-          <ul className="mt-7 grid grid-cols-2 gap-x-4 gap-y-7 sm:mt-10 sm:gap-x-8 sm:gap-y-10 md:mt-[clamp(1.5rem,5svh,3.5rem)] lg:grid-cols-4">
-            {categories.map((c, i) => (
-              <li key={c.name} className={i % 2 === 1 ? "[@media(min-height:860px)]:lg:mt-10" : ""}>
-                <Link href={`/categoria/${c.slug}`} className="group block">
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-t-[999px] rounded-b-lg bg-dew-100 transition-[border-radius,transform] duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-2 group-hover:rounded-t-[60px] md:max-h-[min(40svh,420px)] [&_img]:transition-transform [&_img]:duration-[900ms] [&_img]:ease-[var(--ease-out-expo)] group-hover:[&_img]:scale-[1.06]">
-                    <ProductArt product={{ image: c.image, name: c.name, art: c.slug.includes("infus") ? "tea" : c.slug.includes("piel") ? "soap" : undefined }} />
-                    <span className="absolute bottom-4 right-4 grid size-12 translate-y-3 place-items-center rounded-full bg-dew-50 text-ink-800 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" aria-hidden="true">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>
-                    </span>
-                  </div>
-                  <p className="mt-2.5 font-display text-[16px] font-medium leading-tight sm:text-[19px] md:text-[clamp(18px,3svh,22px)]">{c.name}</p>
-                  <p className="text-[13px] italic text-faint sm:text-[15px]">{c.count} producto{c.count === 1 ? "" : "s"}</p>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <Reveal>
+            <h2 id="cat-title" className="mb-7 max-w-[18ch] text-[clamp(32px,min(5vw,8svh),64px)] md:mb-[clamp(1rem,4svh,2.5rem)]">Elige tu línea</h2>
+          </Reveal>
+          <RitualPicker categories={lines} products={pickerProducts} />
         </div>
       </section>
 
       <section className="bg-meadow grain screen" aria-labelledby="feat-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 id="feat-title" className="max-w-[18ch] text-[clamp(28px,min(4.2vw,6.5svh),56px)]">Los primeros productos de Alba Pura</h2>
               <p className="mt-2 max-w-[52ch] text-[clamp(15px,2.4svh,20px)] text-muted">Estamos en fase de prueba. Sé de las primeras personas en conocerlos y cuéntanos qué te parecen.</p>
             </div>
             <ButtonLink href="/tienda" variant="primary">Ver toda la tienda</ButtonLink>
-          </div>
-          <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-9 sm:mt-10 sm:gap-x-8 sm:gap-y-12 md:mt-[clamp(1rem,3svh,2.5rem)] lg:grid-cols-4">
-            {products.slice(0, 4).map((p) => (
-              <ProductCard key={p.slug} product={p} compact />
-            ))}
+          </Reveal>
+          <div className="mt-7 md:mt-[clamp(1rem,3svh,2.5rem)]">
+            <ProductRail>
+              {products.map((p, n) => (
+                <ProductCard key={p.slug} product={p} priority={n < 3} />
+              ))}
+            </ProductRail>
           </div>
         </div>
       </section>
@@ -93,7 +93,7 @@ export default async function Home() {
           <div className="lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
             <ParallaxArch src="/img/products/miel-de-abeja-pura.jpg" alt="Frasco de miel de Alba Pura con tapa de madera y cuchara" seal="Hecho en Lima" />
           </div>
-          <div>
+          <Reveal>
             <h2 id="story-title" className="max-w-[16ch] text-[clamp(28px,min(4.2vw,6.4svh),56px)]">Por qué existe Alba Pura</h2>
             <p className="mt-3 max-w-[54ch] text-[clamp(15px,2.4svh,20px)] text-muted">
               Hoy muchos productos de uso diario contienen químicos que afectan la piel y dañan el medio ambiente. Alba Pura nació para ofrecer una alternativa orgánica que cuide a las personas y a su entorno.
@@ -109,13 +109,40 @@ export default async function Home() {
             <div className="mt-6 md:mt-[clamp(1rem,3svh,2rem)]">
               <ButtonLink href="/nosotros" variant="secondary">Conoce nuestra historia</ButtonLink>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="bg-dawn grain screen" aria-labelledby="pilot-title">
-        <div className="mx-auto w-full max-w-[1440px] px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:px-20">
-          <div className="mx-auto max-w-[900px] text-center">
+      <section className="bg-ink-800 text-dew-50" aria-labelledby="diario-title">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
+          <Reveal className="flex flex-wrap items-end justify-between gap-4">
+            <h2 id="diario-title" className="max-w-[16ch] text-[clamp(30px,4.4vw,56px)]">Ciencia simple para cuidarte</h2>
+            <Link href="/diario" className="font-display text-[16px] font-semibold underline decoration-1 underline-offset-[6px] hover:decoration-2">Leer el diario</Link>
+          </Reveal>
+          <ul className="mt-10 grid gap-5 md:grid-cols-3">
+            {posts.slice(0, 3).map((post, n) => (
+              <li key={post.slug}>
+                <Reveal delay={n * 90} className="h-full">
+                  <Link href={`/diario/${post.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-ink-700/70 ring-1 ring-white/10 transition-[transform,background-color] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1.5 hover:bg-ink-600/60">
+                    <span className="relative block aspect-[4/3] overflow-hidden bg-ink-600 [&_img]:transition-transform [&_img]:duration-[900ms] [&_img]:ease-[var(--ease-out-expo)] group-hover:[&_img]:scale-[1.06]">
+                      <ProductArt product={{ image: post.image, art: post.art, name: post.title }} sizes="(min-width:768px) 30vw, 100vw" />
+                    </span>
+                    <span className="flex flex-1 flex-col gap-2 p-6">
+                      <span className="text-[15px] italic text-leaf-400">{post.topic} · {formatDate(post.date)}</span>
+                      <span className="font-heading text-[26px] font-semibold leading-[1.05]">{post.title}</span>
+                      <span className="mt-auto pt-3 text-[14px] italic text-dew-200/70">{post.minutes} min de lectura</span>
+                    </span>
+                  </Link>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="bg-dawn grain" aria-labelledby="pilot-title">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
+          <Reveal className="mx-auto max-w-[900px] text-center">
             <h2 id="pilot-title" className="text-[clamp(30px,min(4.5vw,7.5svh),56px)]">Sé de las primeras personas en probar Alba Pura</h2>
             <p className="mx-auto mt-4 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">
               Estamos en fase de prueba de producto. Tu opinión nos ayuda a mejorar antes de ampliar la línea.
@@ -124,8 +151,8 @@ export default async function Home() {
               <ButtonLink href="/tienda" size="lg">Ver los productos</ButtonLink>
               <ButtonLink href="/contacto" size="lg" variant="secondary">Escríbenos</ButtonLink>
             </div>
-          </div>
-          <ul aria-label="Lo que nos define" className="mt-10 grid gap-6 border-t border-ink-800/20 pt-6 sm:grid-cols-2 md:mt-[clamp(1.5rem,6svh,4rem)] lg:grid-cols-4">
+          </Reveal>
+          <ul aria-label="Lo que nos define" className="mt-12 grid gap-6 border-t border-ink-800/20 pt-6 sm:grid-cols-2 lg:grid-cols-4">
             {proof.map(([t, d]) => (
               <li key={t}>
                 <p className="font-display text-[17px] font-medium">{t}</p>

@@ -95,17 +95,6 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em !important;
 }
 
-/* Logotipo del encabezado: versión oscura normal; versión clara cuando el header va sobre el video/foto del inicio */
-.hdr-logo-light {
-  display: none;
-}
-html[data-hero]:not([data-scrolled]) .site-header .hdr-logo-dark {
-  display: none;
-}
-html[data-hero]:not([data-scrolled]) .site-header .hdr-logo-light {
-  display: block;
-}
-
 ::selection {
   background: var(--color-leaf-300);
   color: var(--color-ink-900);
@@ -133,62 +122,20 @@ html[data-hero]:not([data-scrolled]) .site-header .hdr-logo-light {
   -webkit-backdrop-filter: blur(18px);
 }
 
-/* ===== Hero cinematográfico: el video corre solo y luego se revela la marca ===== */
-.hero-reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  filter: blur(10px);
-  transition:
-    opacity 0.9s var(--ease-out-expo),
-    transform 0.9s var(--ease-out-expo),
-    filter 0.9s var(--ease-out-expo);
-  transition-delay: var(--d, 0ms);
-}
-[data-state="revealed"] .hero-reveal {
-  opacity: 1;
-  transform: none;
-  filter: none;
-}
-.hero-controls {
-  transition: opacity 0.5s ease;
-}
-[data-state="revealed"] .hero-controls {
-  opacity: 0;
-  pointer-events: none;
-}
+/* ===== Hero "amanecer" y piezas animadas ===== */
+.sun-ring { animation: spin 90s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scroll-cue { animation: cue 2.2s var(--ease-out-expo) infinite; }
+@keyframes cue { 0% { transform: translateY(-100%); } 70%, 100% { transform: translateY(300%); } }
 
-/* Header: oculto mientras el video está solo */
-html[data-hero="playing"] .site-header {
-  opacity: 0;
-  transform: translateY(-32px);
-  pointer-events: none;
-}
-.site-header {
-  transition:
-    opacity 0.9s var(--ease-out-expo),
-    transform 0.9s var(--ease-out-expo),
-    background-color 0.3s ease;
-}
+/* Aparición al llegar a la sección (la activa Reveal) */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo); transition-delay: var(--d, 0ms); }
+.reveal[data-in] { opacity: 1; transform: none; }
 
-/* Header superpuesto al hero (solo mientras el hero está montado y no se ha hecho scroll) */
-html[data-hero]:not([data-scrolled]) .site-header {
-  background: transparent;
-  border-color: transparent;
-  color: var(--color-dew-50);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-html[data-hero]:not([data-scrolled]) .site-header .hdr-bar {
-  background: rgb(8 24 15 / 0.5);
-}
-html[data-hero]:not([data-scrolled]) .site-header .hdr-mark {
-  background: var(--color-dew-50);
-  color: var(--color-ink-800);
-}
-html[data-hero]:not([data-scrolled]) .site-header .hdr-cart {
-  background: var(--color-dew-100);
-  color: var(--color-ink-900);
-}
+/* Carril horizontal de productos: sin barra, con arrastre */
+.rail { scrollbar-width: none; scroll-snap-type: x mandatory; }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; }
 
 /* Cinta de orígenes */
 .marquee-track { animation: marquee 48s linear infinite; }
@@ -208,9 +155,7 @@ html[data-hero]:not([data-scrolled]) .site-header .hdr-cart {
   html {
     scroll-behavior: auto;
   }
-  .hero-reveal,
-  .site-header,
-  .hero-controls {
-    transition: none;
-  }
+  .sun-ring, .scroll-cue { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .site-header { transition: none; }
 }
