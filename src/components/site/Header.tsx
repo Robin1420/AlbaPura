@@ -71,7 +71,8 @@ export function Header() {
     let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 24);
+      // En el inicio el header se mantiene transparente mientras el hero sigue a la vista
+      setScrolled(y > (pathname === "/" ? window.innerHeight - 96 : 24));
       if (Math.abs(y - last) > 8) {
         setHidden(y > 240 && y > last);
         last = y;
@@ -79,8 +80,12 @@ export function Header() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [pathname]);
 
   // Atajos: “/” y Ctrl/Cmd+K abren el buscador; Escape cierra el menú desplegable
   useEffect(() => {
@@ -106,7 +111,7 @@ export function Header() {
       <header
         onMouseLeave={closeMega}
         className={`site-header fixed inset-x-0 top-0 z-50 transition-[transform,background-color,color,border-color] duration-500 ease-[var(--ease-out-expo)] ${hidden && !mega ? "-translate-y-full" : ""} ${
-          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-ink-800/10 bg-dew-50 text-ink-900 shadow-[0_14px_30px_-24px_rgb(8_24_15/0.45)]"
+          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-white/50 bg-dew-50/65 text-ink-900 shadow-[0_10px_40px_-24px_rgb(8_24_15/0.35)] backdrop-blur-2xl backdrop-saturate-150"
         }`}
       >
         <div className="mx-auto grid h-[76px] max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
@@ -116,7 +121,7 @@ export function Header() {
           </Link>
 
           <nav
-            className={`hidden items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-500 lg:flex ${overHero ? "border-white/35 bg-white/10" : "border-ink-800/15 bg-white"}`}
+            className={`hidden items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-500 lg:flex ${overHero ? "border-white/35 bg-white/10" : "border-ink-800/10 bg-white/55"}`}
             aria-label="Principal"
             onMouseLeave={() => setHover(null)}
           >
