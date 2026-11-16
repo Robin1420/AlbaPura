@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroFull } from "@/components/hero/HeroFull";
 import { CollectionRow } from "@/components/home/CollectionRow";
+import { Hotspots } from "@/components/home/Hotspots";
 import { PhotoStrip } from "@/components/home/PhotoStrip";
+import { Philosophy } from "@/components/home/Philosophy";
 import { Pillars } from "@/components/home/Pillars";
 import { Reveal } from "@/components/motion/Reveal";
 import { Mix } from "@/components/ui/Mix";
@@ -61,6 +63,7 @@ export default async function Home() {
       <JsonLd data={siteData} />
       <HeroFull />
       <PhotoStrip tiles={tiles} />
+      <Philosophy thumbs={products.filter((p) => p.image).map((p) => p.image!)} />
       <Pillars />
 
       <section className="bg-dew-50 pt-4" aria-labelledby="lineas-title">
@@ -71,6 +74,8 @@ export default async function Home() {
           <CollectionRow key={c.slug} category={c} products={rowProducts(c.slug)} flip={i % 2 === 1} tone={i} />
         ))}
       </section>
+
+      <Hotspots products={products.map((p) => ({ slug: p.slug, name: p.name, meta: p.meta, price: p.price, comingSoon: p.comingSoon }))} />
 
       <section className="screen" aria-labelledby="story-title">
         <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">

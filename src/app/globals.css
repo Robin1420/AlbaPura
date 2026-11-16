@@ -156,6 +156,7 @@ h1, h2, h3, h4 {
     scroll-behavior: auto;
   }
   .sun-ring, .scroll-cue { animation: none; }
+  .phil-word { opacity: 1 !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .site-header { transition: none; }
 }

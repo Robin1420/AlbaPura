@@ -31,6 +31,7 @@ export function Header() {
   const [search, setSearch] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hover, setHover] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const close = () => setMenu(false);
 
@@ -114,21 +115,32 @@ export function Header() {
             <Image src="/img/logo-light.png" alt="" width={1000} height={704} priority className={`h-14 w-auto transition-opacity duration-300 ${overHero ? "" : "hidden"}`} />
           </Link>
 
-          <nav className="hidden items-center gap-9 lg:flex" aria-label="Principal">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onMouseEnter={() => (l.mega ? openMega() : closeMega())}
-                onFocus={() => (l.mega ? openMega() : undefined)}
-                aria-expanded={l.mega ? mega : undefined}
-                aria-haspopup={l.mega ? "true" : undefined}
-                className="group relative py-2 font-display text-[13px] font-medium uppercase tracking-[0.08em]"
-              >
-                {l.label}
-                <span className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-current transition-transform duration-500 ease-[var(--ease-out-expo)] ${active(l.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} aria-hidden="true" />
-              </Link>
-            ))}
+          <nav
+            className={`hidden items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-500 lg:flex ${overHero ? "border-white/35 bg-white/10" : "border-ink-800/15 bg-white/50"}`}
+            aria-label="Principal"
+            onMouseLeave={() => setHover(null)}
+          >
+            {links.map((l) => {
+              const lit = hover === l.href || (hover === null && active(l.href));
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onMouseEnter={() => {
+                    setHover(l.href);
+                    if (l.mega) openMega();
+                    else closeMega();
+                  }}
+                  onFocus={() => (l.mega ? openMega() : undefined)}
+                  aria-expanded={l.mega ? mega : undefined}
+                  aria-haspopup={l.mega ? "true" : undefined}
+                  className={`relative rounded-full px-5 py-2 font-display text-[13px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 ${lit ? (overHero ? "text-ink-900" : "text-dew-50") : ""}`}
+                >
+                  {lit && <m.span layoutId="nav-pill" className={`absolute inset-0 -z-10 rounded-full ${overHero ? "bg-white" : "bg-ink-800"}`} transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
+                  {l.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center justify-end gap-2">
@@ -147,15 +159,11 @@ export function Header() {
                   )}
                 </AnimatePresence>
               </button>
-              <span className="hidden h-5 w-px bg-current opacity-20 min-[480px]:block" aria-hidden="true" />
-              <Link href="/cuenta" aria-label={user ? `Mi cuenta, ${user.name}` : "Ingresar"} className={`${ico} hidden min-[480px]:grid ${overHero ? "" : "hover:bg-white/15"}`}>
-                {user?.picture ? (
-                  <Image src={user.picture} alt="" width={26} height={26} className="size-[26px] rounded-full object-cover" unoptimized />
-                ) : (
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                )}
-              </Link>
             </div>
+            <Link href="/cuenta" aria-label={user ? `Mi cuenta, ${user.name}` : "Ingresar"} className="hidden h-12 items-center gap-2 rounded-full bg-leaf-300 px-5 font-display text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-900 shadow-[0_10px_30px_-18px_rgb(8_24_15/0.5)] transition-colors hover:bg-leaf-400 min-[480px]:inline-flex">
+              {user?.picture && <Image src={user.picture} alt="" width={24} height={24} className="size-6 rounded-full object-cover" unoptimized />}
+              {user ? user.name.split(" ")[0] : "Ingresar"}
+            </Link>
             <button onClick={() => setMenu(true)} aria-label="Abrir menú" aria-expanded={menu} className={`${ico} lg:hidden`}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16" /></svg>
             </button>
