@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { faqs } from "@/lib/content";
+import { Heading } from "@/components/ui/Mix";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
@@ -35,7 +36,7 @@ export default function Faq() {
         <div className="grid max-w-[820px] gap-14">
           {faqs.map((g) => (
             <section key={g.group} id={g.group} className="scroll-mt-36" aria-labelledby={`h-${g.group}`}>
-              <h2 id={`h-${g.group}`} className="text-[clamp(28px,3vw,40px)]">{g.group}</h2>
+              <Heading id={`h-${g.group}`} className="text-[clamp(30px,3.6vw,48px)] text-ink-800">{g.group}</Heading>
               <div className="mt-4 border-t border-line">
                 {g.items.map((i) => (
                   <details key={i.q} className="group border-b border-line">

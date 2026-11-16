@@ -11,6 +11,7 @@ import { abs, SITE, snippet } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 import { AddToCart } from "./AddToCart";
 import { Gallery } from "./Gallery";
+import { Heading } from "@/components/ui/Mix";
 
 export async function generateStaticParams() {
   const { products } = await getCatalog();
@@ -80,7 +81,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
 
         <div className="max-w-[560px]">
           {p.latin && <p className="text-[18px] italic text-leaf-600">{p.latin}</p>}
-          <h1 className="mt-2 text-[clamp(30px,5vw,68px)] font-semibold tracking-[-0.04em]">{p.name}</h1>
+          <Heading as="h1" caps={false} className="mt-2 text-[clamp(34px,5vw,68px)] text-ink-800">{p.name}</Heading>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {p.reviews > 0 && <Stars value={p.rating} count={p.reviews} />}
             <span className="text-[15px] italic text-faint">{p.meta}</span>
@@ -132,7 +133,7 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
       {(p.notes.length > 0 || p.provenance.length > 0) && (
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20" aria-labelledby="specimen">
         <div className="grid gap-12 border-t border-ink-800 pt-10 lg:grid-cols-[1fr_1.4fr]">
-          <h2 id="specimen" className="text-[clamp(32px,4vw,48px)]">Lámina del producto</h2>
+          <Heading id="specimen" className="text-[clamp(32px,4vw,56px)] text-ink-800">Lámina del producto</Heading>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="rounded-2xl bg-dew-100 p-7">
               <h3 className="text-[22px]">Notas de cata</h3>
@@ -163,8 +164,8 @@ async function ProductContent({ params }: { params: PageProps<"/producto/[slug]"
 
       <section className="bg-meadow grain screen py-16 md:py-0">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h2 className="text-[clamp(30px,min(4vw,6.5svh),52px)]">También te puede gustar</h2>
-          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-8 sm:gap-y-14 md:mt-6 lg:grid-cols-3">
+          <Heading className="text-[clamp(32px,min(4.4vw,6.5svh),60px)] text-ink-800">También te puede gustar</Heading>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 md:mt-6 lg:grid-cols-3">
             {related.map((r) => <ProductCard key={r.slug} product={r} compact />)}
           </div>
         </div>

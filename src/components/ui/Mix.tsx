@@ -8,7 +8,7 @@ export type MixPart = { t: string; italic?: boolean; underline?: boolean; br?: b
  */
 export function Mix({ parts, as: Tag = "h2", caps = true, className = "", id }: { parts: MixPart[]; as?: ElementType; caps?: boolean; className?: string; id?: string }) {
   return (
-    <Tag id={id} className={`leading-[0.98] ${className}`}>
+    <Tag id={id} className={`pb-[0.1em] leading-[0.98] ${className}`}>
       {parts.map((p, i) => (
         <span key={i}>
           {p.br && <br />}
@@ -22,4 +22,12 @@ export function Mix({ parts, as: Tag = "h2", caps = true, className = "", id }: 
       ))}
     </Tag>
   );
+}
+
+/** Titular simple: el texto va en sans y la última palabra en serif cursiva (si hay una sola palabra, toda en cursiva). */
+export function Heading({ children, as = "h2", caps = true, className = "", id }: { children: string; as?: ElementType; caps?: boolean; className?: string; id?: string }) {
+  const words = children.trim().split(" ");
+  const last = words.pop() ?? children;
+  const parts: MixPart[] = words.length ? [{ t: words.join(" ") }, { t: last, italic: true }] : [{ t: last, italic: true }];
+  return <Mix as={as} caps={caps} className={className} id={id} parts={parts} />;
 }

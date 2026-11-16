@@ -8,15 +8,16 @@ import { ProductArt } from "@/components/product/ProductArt";
 import { CheckoutSteps } from "@/components/site/CheckoutSteps";
 import { ButtonLink } from "@/components/ui/Button";
 import { money } from "@/lib/products";
+import { Heading } from "@/components/ui/Mix";
 
 export default function CartPage() {
   const cart = useCart();
 
   return (
     <>
-      <header className="bg-dawn grain pb-10 pt-36 sm:pb-12 sm:pt-44">
+      <header className="bg-dawn grain pb-10 pt-32 sm:pb-12 sm:pt-40">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h1 className="text-[clamp(34px,7vw,96px)] font-semibold tracking-[-0.04em]">Tu carrito</h1>
+          <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">Tu carrito</Heading>
           <p className="mt-3 text-[20px] italic text-muted">{cart.count === 0 ? "Aún no has elegido nada." : `${cart.count} producto${cart.count === 1 ? "" : "s"}`}</p>
           {cart.items.length > 0 && <CheckoutSteps current={0} />}
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
 import { SITE } from "@/lib/site";
 import { ContactForm } from "./ContactForm";
+import { Heading } from "@/components/ui/Mix";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/contacto" },
@@ -33,7 +34,7 @@ export default function Contacto() {
           ))}
         </dl>
         <section aria-labelledby="form-title">
-          <h2 id="form-title" className="mb-6 text-[clamp(28px,3vw,40px)]">Envíanos un mensaje</h2>
+          <Heading id="form-title" className="mb-6 text-[clamp(30px,3.6vw,48px)] text-ink-800">Envíanos un mensaje</Heading>
           <ContactForm />
         </section>
       </div>

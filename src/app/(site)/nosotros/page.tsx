@@ -4,6 +4,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
+import { Heading } from "@/components/ui/Mix";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/nosotros" },
@@ -44,7 +45,7 @@ export default function Nosotros() {
           <Image src="/img/products/aceite-de-oliva-virgen-extra.jpg" alt="Botella de aceite de oliva Alba Pura con ramas de olivo" fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover" />
         </div>
         <div className="max-w-[54ch] text-[clamp(16px,2.8svh,21px)] text-muted">
-          <h2 className="mb-5 text-[clamp(30px,min(4vw,7svh),52px)] text-ink-900">Por qué existe Alba Pura</h2>
+          <Heading className="mb-5 text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Por qué existe Alba Pura</Heading>
           <p>Hoy en día muchos productos de uso diario contienen químicos que afectan la piel y, al terminar en el desagüe, también dañan el medio ambiente. No siempre es fácil saber qué llevan ni cómo actúan.</p>
           <p className="mt-5">Alba Pura nació para cambiar eso: una línea de productos orgánicos que no sean dañinos ni para el consumo humano ni para el medio ambiente, y que expliquen con claridad de qué están hechos.</p>
         </div>
@@ -53,7 +54,7 @@ export default function Nosotros() {
 
       <section className="bg-meadow grain screen" aria-labelledby="values">
         <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <h2 id="values" className="text-[clamp(30px,min(4vw,7svh),52px)]">Lo que nos importa</h2>
+          <Heading id="values" className="text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Lo que nos importa</Heading>
           <dl className="mt-10 grid gap-8 md:mt-[clamp(1.5rem,5svh,3rem)] md:grid-cols-3">
             {values.map((v) => (
               <div key={v.t} className="border-t border-ink-800 pt-6">
@@ -67,7 +68,7 @@ export default function Nosotros() {
 
       <section className="screen" aria-labelledby="founder">
         <div className="mx-auto grid w-full max-w-[1440px] gap-10 px-6 py-16 md:py-0 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:px-20">
-          <h2 id="founder" className="max-w-[12ch] text-[clamp(30px,min(4vw,7svh),52px)]">La persona detrás de Alba Pura</h2>
+          <Heading id="founder" className="max-w-[14ch] text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">La persona detrás de Alba Pura</Heading>
           <div className="max-w-[60ch]">
             <p className="font-text text-[34px] italic leading-tight text-ink-700">{SITE.founder.name}</p>
             <p className="mt-1 text-[17px] italic text-faint">{SITE.founder.role}, {SITE.founder.university}. Lima, Perú</p>
@@ -80,7 +81,7 @@ export default function Nosotros() {
 
       <section className="bg-dawn grain screen" aria-labelledby="pilot">
         <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <h2 id="pilot" className="max-w-[18ch] text-[clamp(30px,min(4vw,7svh),52px)]">Estamos en fase de prueba</h2>
+          <Heading id="pilot" className="max-w-[18ch] text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800">Estamos en fase de prueba</Heading>
           <p className="mt-5 max-w-[56ch] text-[clamp(16px,2.8svh,21px)] text-muted">
             Lanzamos una primera tanda pequeña en Lima para escuchar a las personas que prueben los productos y mejorar antes de ampliar la línea. Si los pruebas, tu opinión es muy valiosa para nosotros.
           </p>

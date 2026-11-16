@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ButtonLink, Button } from "@/components/ui/Button";
 import { money } from "@/lib/products";
 import { useCatalog } from "@/lib/useCatalog";
+import { Heading } from "@/components/ui/Mix";
 
 type Tab = "pedidos" | "favoritos" | "datos";
 
@@ -34,8 +35,8 @@ function Account() {
   if (!user) {
     return (
       <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
-        <h1 className="text-[clamp(30px,6vw,80px)] font-semibold tracking-[-0.04em]">Tu cuenta</h1>
-        <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Ingresa con tu cuenta de Google para ver tus pedidos y favoritos.</p>
+        <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">Tu cuenta</Heading>
+        <p className="mt-6 max-w-[48ch] text-[20px] text-muted">Ingresa con tu cuenta de Google para ver tus pedidos y favoritos.</p>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/cuenta/ingresar" size="lg">Ingresar con Google</ButtonLink>
         </div>
@@ -48,10 +49,10 @@ function Account() {
 
   return (
     <>
-      <header className="bg-dawn pb-8 pt-36 sm:pb-10 sm:pt-44">
+      <header className="bg-dawn grain pb-8 pt-32 sm:pb-10 sm:pt-40">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-end justify-between gap-6 px-6 lg:px-20">
           <div>
-            <h1 className="text-[clamp(34px,6vw,88px)] font-semibold tracking-[-0.04em]">Hola, {user.name.split(" ")[0]}.</h1>
+            <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">{`Hola, ${user.name.split(" ")[0]}.`}</Heading>
             <p className="mt-2 text-[20px] italic text-muted">{user.email}</p>
           </div>
           {user.role === "admin" && <ButtonLink href="/admin" variant="accent" size="lg">Ir al panel de administración</ButtonLink>}

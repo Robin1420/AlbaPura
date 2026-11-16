@@ -1,44 +1,49 @@
+import Image from "next/image";
 import Link from "next/link";
-import { badgeClass, money, type Product } from "@/lib/products";
+import { badgeClass, type Product } from "@/lib/products";
 import { Stars } from "@/components/ui/Stars";
-import { ProductArt } from "./ProductArt";
-import { QuickAdd } from "./QuickAdd";
+import { CardAdd } from "./CardAdd";
 import { FavoriteButton } from "./FavoriteButton";
 
-/** Lámina abierta: foto en arco y datos debajo, sin caja. */
-export function ProductCard({ product, priority, compact, as: Heading = "h3" }: { product: Product; priority?: boolean; /** Imagen más baja, para que una fila de tarjetas quepa en una pantalla. */ compact?: boolean; /** Nivel del título: h3 bajo una sección con h2, h2 en listados. */ as?: "h2" | "h3" }) {
+const pill = "rounded-full px-3 py-1 font-display text-[10.5px] font-medium uppercase tracking-[0.08em]";
+
+/** Tarjeta de producto: foto grande con el nombre encima, favorito, "Añadir" y precio (igual que las filas del inicio). */
+export function ProductCard({ product, priority, as: Heading = "h3" }: { product: Product; priority?: boolean; /** Se mantiene por compatibilidad: ya no cambia la altura. */ compact?: boolean; /** Nivel del título: h3 bajo una sección con h2, h2 en listados. */ as?: "h2" | "h3" }) {
+  const soldOut = product.stock !== undefined && product.stock <= 0;
   return (
-    <article className="group relative flex min-w-0 flex-col gap-3 sm:gap-4">
-      <Link href={`/producto/${product.slug}`} className={`relative block aspect-[4/5] overflow-hidden rounded-t-[999px] rounded-b-lg bg-dew-100 [&_img]:transition-transform [&_img]:duration-[900ms] [&_img]:ease-[var(--ease-out-expo)] group-hover:[&_img]:scale-[1.05] ${compact ? "md:max-h-[min(26svh,280px)]" : ""}`}>
-        <ProductArt product={product} priority={priority} />
-      </Link>
-      <FavoriteButton slug={product.slug} name={product.name} />
-      {product.comingSoon ? (
-        <span className="absolute left-2 top-2 rounded-full bg-dew-50 px-2.5 py-0.5 font-display text-[11px] sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-[12px] font-medium text-ink-800 shadow-sm ring-1 ring-ink-800/15">Próximamente</span>
-      ) : product.stock !== undefined && product.stock <= 0 ? (
-        <span className="absolute left-2 top-2 rounded-full bg-danger px-2.5 py-0.5 font-display text-[11px] sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-[12px] font-medium text-white">Agotado</span>
-      ) : product.badge && (
-        <span className={`absolute left-2 top-2 rounded-full px-2.5 py-0.5 font-display text-[11px] sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-[12px] font-medium ${badgeClass(product.badgeTone)}`}>
-          {product.badge}
-        </span>
+    <article className="group relative isolate aspect-[3/4] overflow-hidden rounded-[24px] bg-dew-100">
+      {product.image ? (
+        <Image src={product.image} alt="" fill priority={priority} sizes="(min-width:1024px) 30vw, 50vw" className="-z-10 object-cover transition-transform duration-[1100ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06]" />
+      ) : (
+        <span className="absolute inset-0 -z-10 bg-gradient-to-br from-dew-100 to-leaf-300" />
       )}
-      <div className="flex flex-col gap-1">
-        <p className={`text-[13px] italic text-leaf-600 sm:text-[15px] ${compact ? "[@media(max-height:820px)]:md:hidden" : ""}`}>{product.category}</p>
-        <Heading className={compact ? "text-[17px] leading-tight sm:text-[22px] md:text-[clamp(17px,3.2svh,24px)]" : "text-[17px] leading-tight sm:text-[24px]"}>
-          <Link href={`/producto/${product.slug}`} className="hover:underline underline-offset-4 decoration-1">
-            {product.name}
-          </Link>
+      <span className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-900/80 via-ink-900/10 to-transparent" />
+
+      <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+        <span className={`${pill} bg-white/90 text-ink-900 backdrop-blur-sm`}>{product.category}</span>
+        {product.comingSoon ? (
+          <span className={`${pill} bg-ink-800 text-dew-50`}>Próximamente</span>
+        ) : soldOut ? (
+          <span className={`${pill} bg-danger text-white`}>Agotado</span>
+        ) : (
+          product.badge && <span className={`${pill} ${badgeClass(product.badgeTone)}`}>{product.badge}</span>
+        )}
+      </div>
+      <FavoriteButton slug={product.slug} name={product.name} />
+
+      <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+        <Heading className="font-heading text-[clamp(26px,2.2vw,32px)] font-semibold leading-[0.95]">
+          <Link href={`/producto/${product.slug}`} className="after:absolute after:inset-0 after:content-['']">{product.name}</Link>
         </Heading>
-        <p className="text-[13px] italic text-faint sm:text-[15px]">{product.meta}</p>
-        {product.reviews > 0 && <Stars value={product.rating} count={product.reviews} />}
-        <div className={`flex items-center justify-between ${compact ? "mt-1" : "mt-2"}`}>
+        <p className="mt-1.5 text-[14px] italic text-white/80">{product.meta}</p>
+        {product.reviews > 0 && <div className="mt-1.5 text-white"><Stars value={product.rating} count={product.reviews} /></div>}
+        <div className="relative z-10 mt-3 flex items-center gap-2">
           {product.comingSoon ? (
-            <p className="font-display text-[15px] font-medium italic text-muted sm:text-[18px]">Próximamente</p>
+            <span className="rounded-full bg-white/20 px-4 py-2 font-display text-[12px] font-medium uppercase tracking-[0.08em] backdrop-blur-sm">Próximamente</span>
+          ) : soldOut ? (
+            <span className="rounded-full bg-white/20 px-4 py-2 font-display text-[12px] font-medium uppercase tracking-[0.08em] backdrop-blur-sm">Sin stock</span>
           ) : (
-            <>
-              <p className="font-display text-[19px] font-medium tracking-tight sm:text-[24px]">{money(product.price)}</p>
-              <QuickAdd slug={product.slug} name={product.name} soldOut={product.stock !== undefined && product.stock <= 0} />
-            </>
+            <CardAdd slug={product.slug} name={product.name} price={product.price} />
           )}
         </div>
       </div>

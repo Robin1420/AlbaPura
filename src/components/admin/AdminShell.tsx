@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -48,6 +48,14 @@ function AdminNav() {
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const { ready, user, logout } = useAccount();
+
+  // Marca la página como panel: los botones del panel conservan su aspecto en minúsculas (ver globals.css)
+  useEffect(() => {
+    document.documentElement.dataset.admin = "";
+    return () => {
+      delete document.documentElement.dataset.admin;
+    };
+  }, []);
 
   if (!ready) return <div className="min-h-screen" aria-busy="true" />;
 

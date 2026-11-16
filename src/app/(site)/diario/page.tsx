@@ -20,7 +20,7 @@ export default function Diario() {
 
       <div className="mx-auto max-w-[1440px] px-6 py-20 lg:px-20">
         <article className="group grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]">
-          <Link href={`/diario/${featured.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-xl bg-dew-100" aria-label={featured.title}>
+          <Link href={`/diario/${featured.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-[24px] bg-dew-100" aria-label={featured.title}>
             <ProductArt product={{ image: featured.image, art: featured.art, name: featured.title }} sizes="(min-width:1024px) 55vw, 100vw" priority />
           </Link>
           <div>
@@ -34,7 +34,7 @@ export default function Diario() {
         <div className="mt-20 grid gap-x-8 gap-y-14 border-t border-line pt-14 md:grid-cols-3">
           {rest.map((p) => (
             <article key={p.slug} className="group">
-              <Link href={`/diario/${p.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-lg bg-dew-100" aria-label={p.title}>
+              <Link href={`/diario/${p.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-[24px] bg-dew-100" aria-label={p.title}>
                 <ProductArt product={{ image: p.image, art: p.art, name: p.title }} sizes="(min-width:768px) 30vw, 100vw" />
               </Link>
               <p className="mt-5 text-[16px] italic text-leaf-600">{p.topic}</p>

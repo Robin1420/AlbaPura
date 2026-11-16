@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 import { regions, shippingCost, shippingOptions, validateAddress, validateContact, type Errors, type ShippingMethod } from "@/lib/checkout";
 import { openCulqi } from "@/lib/culqi";
 import { money } from "@/lib/products";
+import { Heading } from "@/components/ui/Mix";
 
 type Pending = { id: string; token: string; publicKey: string; culqiOrder: string | null; total: number; sig: string };
 
@@ -266,8 +267,8 @@ function CheckoutForm() {
   if (cart.items.length === 0) {
     return (
       <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
-        <h1 className="text-[clamp(30px,6vw,80px)] font-semibold tracking-[-0.04em]">No hay nada que pagar</h1>
-        <p className="mt-4 max-w-[46ch] text-[20px] text-muted">Tu carrito está vacío. Añade un producto para continuar con el pago.</p>
+        <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">No hay nada que pagar</Heading>
+        <p className="mt-6 max-w-[46ch] text-[20px] text-muted">Tu carrito está vacío. Añade un producto para continuar con el pago.</p>
         <ButtonLink href="/tienda" size="lg" className="mt-8">Explorar la tienda</ButtonLink>
       </div>
     );
@@ -275,9 +276,9 @@ function CheckoutForm() {
 
   return (
     <>
-      <header className="bg-dawn grain pb-10 pt-36 sm:pb-12 sm:pt-44">
+      <header className="bg-dawn grain pb-10 pt-32 sm:pb-12 sm:pt-40">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h1 className="text-[clamp(34px,6vw,88px)] font-semibold tracking-[-0.04em]">Finalizar compra</h1>
+          <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">Finalizar compra</Heading>
           <p className="mt-3 text-[20px] italic text-muted">
             {account.user ? `Hola, ${account.user.name.split(" ")[0]}.` : <>¿Ya tienes cuenta? <Link href="/cuenta/ingresar" className="text-ink-900 underline underline-offset-4">Ingresa</Link> para llenar tus datos más rápido.</>}
           </p>

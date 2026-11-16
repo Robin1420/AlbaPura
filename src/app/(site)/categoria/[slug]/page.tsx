@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
+import { PageHeader } from "@/components/site/PageHeader";
 import { JsonLd, breadcrumbs } from "@/components/seo/JsonLd";
 import { abs, SITE, snippet } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
@@ -49,18 +50,15 @@ async function CategoryContent({ params }: { params: PageProps<"/categoria/[slug
   return (
     <>
       <JsonLd data={[collection, breadcrumbs([{ name: "Inicio", url: abs("/") }, { name: "Tienda", url: abs("/tienda") }, { name: c.name, url: abs(`/categoria/${c.slug}`) }])]} />
-      <header className="bg-dawn grain pb-10 pt-36 sm:pb-14 sm:pt-44">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <nav aria-label="Ruta" className="text-[15px] italic text-faint">
-            <Link href="/" className="hover:text-ink-900">Inicio</Link>, <Link href="/tienda" className="hover:text-ink-900">Tienda</Link>, <span className="text-ink-900 not-italic">{c.name}</span>
-          </nav>
-          <h1 className="mt-4 text-[clamp(34px,6.5vw,88px)] font-semibold tracking-[-0.04em]">{c.name}</h1>
-          {c.description && <p className="mt-4 max-w-[52ch] text-[21px] text-muted">{c.description}</p>}
-        </div>
-      </header>
+      <PageHeader
+        title={c.name}
+        crumbs={<><Link href="/" className="hover:text-ink-900">Inicio</Link>, <Link href="/tienda" className="hover:text-ink-900">Tienda</Link>, <span className="text-ink-900 not-italic">{c.name}</span></>}
+      >
+        {c.description && <p>{c.description}</p>}
+      </PageHeader>
 
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20" aria-label={`Productos de ${c.name}`}>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
           {list.map((p, i) => <ProductCard key={p.slug} product={p} priority={i < 3} as="h2" />)}
         </div>
       </section>

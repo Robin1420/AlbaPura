@@ -160,3 +160,9 @@ h1, h2, h3, h4 {
   .reveal { opacity: 1; transform: none; transition: none; }
   .site-header { transition: none; }
 }
+
+/* El panel de administración conserva los botones en minúsculas de siempre */
+[data-admin] .btn { text-transform: none; letter-spacing: -0.01em; }
+[data-admin] .btn-lg { font-size: 16px; }
+[data-admin] .btn-md { font-size: 15px; }
+[data-admin] .btn-sm { font-size: 13px; }

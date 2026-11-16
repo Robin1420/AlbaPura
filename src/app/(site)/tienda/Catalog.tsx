@@ -43,7 +43,7 @@ export function Catalog({ initialCategory, products, categories }: { initialCate
           <LayoutGroup id={group}>
             <div role="tablist" aria-label="Categorías" className="-mx-6 flex gap-1 overflow-x-auto px-6 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
               {cats.map((c) => (
-                <button key={c.slug} role="tab" aria-selected={cat === c.slug} onClick={() => setCat(c.slug)} className={`relative shrink-0 rounded-full px-4 py-2 font-display text-[15px] font-medium transition-colors ${cat === c.slug ? "text-dew-50" : "hover:bg-ink-800/8"}`}>
+                <button key={c.slug} role="tab" aria-selected={cat === c.slug} onClick={() => setCat(c.slug)} className={`relative shrink-0 rounded-full px-4 py-2.5 font-display text-[12.5px] font-medium uppercase tracking-[0.08em] transition-colors ${cat === c.slug ? "text-dew-50" : "hover:bg-ink-800/8"}`}>
                   {cat === c.slug && <m.span layoutId="cat-pill" className="absolute inset-0 rounded-full bg-ink-800" transition={{ type: "spring", stiffness: 420, damping: 36 }} />}
                   <span className="relative">{c.name}<span className={`ml-1.5 text-[12px] ${cat === c.slug ? "text-dew-200/70" : "text-faint"}`}>{c.count}</span></span>
                 </button>
@@ -56,7 +56,7 @@ export function Catalog({ initialCategory, products, categories }: { initialCate
               <svg className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar" className="h-10 w-full rounded-full border border-line bg-white/70 pl-10 pr-4 font-display text-[15px] outline-none transition-[width] duration-300 focus:ring-2 focus:ring-leaf-500/50 sm:w-40 sm:focus:w-56" />
             </label>
-            <button aria-pressed={onSale} onClick={() => setOnSale((v) => !v)} className={`h-10 rounded-full border px-4 font-display text-[15px] font-medium transition-colors ${onSale ? "border-ink-800 bg-ink-800 text-dew-50" : "border-line bg-white/70 hover:border-line-strong"}`}>En oferta</button>
+            <button aria-pressed={onSale} onClick={() => setOnSale((v) => !v)} className={`h-10 rounded-full border px-4 font-display text-[12.5px] font-medium uppercase tracking-[0.08em] transition-colors ${onSale ? "border-ink-800 bg-ink-800 text-dew-50" : "border-line bg-white/70 hover:border-line-strong"}`}>En oferta</button>
             <label className="sr-only" htmlFor="sort">Ordenar por</label>
             <select id="sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 min-w-0 flex-1 rounded-full border border-line bg-white/70 px-4 font-display text-[15px] text-ink-900 sm:flex-none">
               <option value="relevance">Más vendidos</option>
@@ -70,7 +70,7 @@ export function Catalog({ initialCategory, products, categories }: { initialCate
 
       <p className="mt-6 text-[15px] italic text-faint" aria-live="polite">Mostrando {list.length} de {products.length} productos</p>
 
-      <m.div layout className="mt-6 grid grid-cols-2 gap-x-4 gap-y-9 sm:mt-8 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3">
+      <m.div layout className="mt-6 grid grid-cols-1 gap-5 sm:mt-8 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
         <AnimatePresence mode="popLayout" initial={false}>
           {list.map((p, i) => (
             <m.div key={p.slug} layout="position" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
