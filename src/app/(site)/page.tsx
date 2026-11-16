@@ -5,7 +5,6 @@ import { CollectionRow } from "@/components/home/CollectionRow";
 import { Philosophy } from "@/components/home/Philosophy";
 import { Reveal } from "@/components/motion/Reveal";
 import { Mix } from "@/components/ui/Mix";
-import { ParallaxArch } from "@/components/motion/ParallaxArch";
 import { ProductArt } from "@/components/product/ProductArt";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
@@ -40,12 +39,6 @@ const proof = [
   ["Atención cercana", "Te respondemos antes y después de tu pedido"],
 ];
 
-const principles = [
-  ["Para tu piel", "Elegimos ingredientes de origen natural y evitamos los que más suelen afectarla."],
-  ["Para el consumo humano", "Lo que usas en tu piel o llevas a tu mesa no debería hacerte daño."],
-  ["Para el medio ambiente", "Procesos y empaques pensados para dejar la menor huella posible."],
-];
-
 export default async function Home() {
   const { products, categories } = await getCatalog();
   const lines = categories.filter((c) => c.count > 0);
@@ -69,31 +62,6 @@ export default async function Home() {
       </section>
 
       <Philosophy />
-
-      <section className="screen" aria-labelledby="story-title">
-        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">
-          <div className="lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
-            <ParallaxArch src="/img/products/miel-de-abeja-pura.jpg" alt="Frasco de miel de Alba Pura con tapa de madera y cuchara" seal="Hecho en Lima" />
-          </div>
-          <Reveal>
-            <Mix id="story-title" className="text-[clamp(32px,min(4.6vw,7svh),64px)] text-ink-800" parts={[{ t: "Por qué existe" }, { t: "Alba Pura", italic: true, br: true }]} />
-            <p className="mt-5 max-w-[54ch] text-[clamp(15px,2.4svh,20px)] text-muted">
-              Hoy muchos productos de uso diario contienen químicos que afectan la piel y dañan el medio ambiente. Alba Pura nació para ofrecer una alternativa orgánica que cuide a las personas y a su entorno.
-            </p>
-            <dl className="mt-6 grid max-w-2xl gap-5 border-t border-line pt-5 sm:grid-cols-3 md:mt-[clamp(1rem,3svh,2rem)]">
-              {principles.map(([t, d]) => (
-                <div key={t}>
-                  <dt className="font-display text-[clamp(14px,2.2svh,16px)] font-medium uppercase leading-tight tracking-[0.04em]">{t}</dt>
-                  <dd className="mt-1.5 text-[clamp(14px,2.1svh,16px)] text-muted">{d}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-6 md:mt-[clamp(1rem,3svh,2rem)]">
-              <ButtonLink href="/nosotros" variant="secondary">Conoce nuestra historia</ButtonLink>
-            </div>
-          </Reveal>
-        </div>
-      </section>
 
       <section className="bg-ink-800 text-dew-50" aria-labelledby="diario-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
@@ -122,7 +90,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-dawn grain" aria-labelledby="pilot-title">
+      <section className="bg-dawn grain relative mb-[-5rem] pb-24 sm:mb-[-8rem] sm:pb-36" aria-labelledby="pilot-title">
         <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
           <Reveal className="mx-auto max-w-[900px] text-center">
             <Mix id="pilot-title" className="text-[clamp(32px,5vw,68px)] text-ink-800" parts={[{ t: "Sé de las primeras" }, { t: "personas en probarlo", italic: true, br: true }]} />
