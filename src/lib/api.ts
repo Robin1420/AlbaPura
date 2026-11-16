@@ -9,7 +9,7 @@ export type ApiOrder = {
   gift: number;
   total: number;
   shippingMethod: "standard" | "express" | "pickup";
-  payment: "webpay" | "transfer";
+  payment: "culqi" | "transfer";
   email: string;
   address: Address;
   status: "pending_payment" | "awaiting_transfer" | "paid" | "preparing" | "shipped" | "delivered" | "cancelled" | "failed";

@@ -1,8 +1,8 @@
 /** Datos del sitio que usan los metadatos, el sitemap y los datos estructurados. */
 export const SITE = {
   name: "Alba Pura",
-  tagline: "Productos orgánicos",
-  description: "Productos orgánicos hechos en Lima para cuidar tu piel, tu salud y el medio ambiente.",
+  tagline: "Productos naturales",
+  description: "Productos naturales hechos en Lima para cuidar tu piel, tu salud y el medio ambiente.",
   locale: "es_PE",
   // En producción define APP_URL con el dominio real (https://tudominio.pe)
   url: (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, ""),
@@ -11,7 +11,7 @@ export const SITE = {
   founder: { name: "Yuleisi Cucho", role: "Bióloga", university: "Universidad Nacional Federico Villarreal" },
   // Datos de contacto reales: se definen por variable de entorno y solo se muestran si existen.
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || undefined,
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || undefined,
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "+51 931 320 429",
   instagram: process.env.NEXT_PUBLIC_INSTAGRAM || undefined,
 } as const;
 

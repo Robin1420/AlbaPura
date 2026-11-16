@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
+import { PageHeader } from "@/components/site/PageHeader";
 import { JsonLd, breadcrumbs } from "@/components/seo/JsonLd";
 import { abs, SITE, snippet } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
@@ -16,9 +17,9 @@ export async function generateMetadata({ params }: PageProps<"/categoria/[slug]"
   const { slug } = await params;
   const c = (await getCatalog()).categories.find((x) => x.slug === slug);
   if (!c) return {};
-  const description = snippet(c.description ? `${c.description} Productos orgánicos de Alba Pura, con entrega en Lima Metropolitana y Callao.` : `${c.name} orgánicos de Alba Pura, creados en Lima, con entrega en Lima Metropolitana y Callao.`);
+  const description = snippet(c.description ? `${c.description} Productos naturales de Alba Pura, con entrega en Lima Metropolitana y Callao.` : `${c.name}: productos naturales de Alba Pura, creados en Lima, con entrega en Lima Metropolitana y Callao.`);
   return {
-    title: `${c.name} orgánicos en Lima, Perú`,
+    title: `${c.name}: productos naturales en Lima, Perú`,
     description,
     alternates: { canonical: `/categoria/${c.slug}` },
     openGraph: { title: `${c.name} | ${SITE.name}`, description, url: abs(`/categoria/${c.slug}`), type: "website", images: c.image ? [c.image] : undefined },
@@ -49,18 +50,15 @@ async function CategoryContent({ params }: { params: PageProps<"/categoria/[slug
   return (
     <>
       <JsonLd data={[collection, breadcrumbs([{ name: "Inicio", url: abs("/") }, { name: "Tienda", url: abs("/tienda") }, { name: c.name, url: abs(`/categoria/${c.slug}`) }])]} />
-      <header className="bg-dawn grain pb-14 pt-44">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <nav aria-label="Ruta" className="text-[15px] italic text-faint">
-            <Link href="/" className="hover:text-ink-900">Inicio</Link>, <Link href="/tienda" className="hover:text-ink-900">Tienda</Link>, <span className="text-ink-900 not-italic">{c.name}</span>
-          </nav>
-          <h1 className="mt-4 text-[clamp(44px,6.5vw,88px)] font-semibold tracking-[-0.04em]">{c.name}</h1>
-          {c.description && <p className="mt-4 max-w-[52ch] text-[21px] text-muted">{c.description}</p>}
-        </div>
-      </header>
+      <PageHeader
+        title={c.name}
+        crumbs={<><Link href="/" className="hover:text-ink-900">Inicio</Link>, <Link href="/tienda" className="hover:text-ink-900">Tienda</Link>, <span className="text-ink-900 not-italic">{c.name}</span></>}
+      >
+        {c.description && <p>{c.description}</p>}
+      </PageHeader>
 
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20" aria-label={`Productos de ${c.name}`}>
-        <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
           {list.map((p, i) => <ProductCard key={p.slug} product={p} priority={i < 3} as="h2" />)}
         </div>
       </section>

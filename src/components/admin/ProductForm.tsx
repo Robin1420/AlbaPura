@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DocUploader } from "@/components/admin/DocUploader";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Button } from "@/components/ui/Button";
 import { ModalActions } from "@/components/ui/Modal";
@@ -26,6 +27,8 @@ export type ProductDraft = {
   images: string[];
   notes: Pair[];
   provenance: Pair[];
+  processDoc: string;
+  usageDoc: string;
 };
 
 export type ProductState = "available" | "soon" | "hidden";
@@ -36,6 +39,7 @@ export type ProductRow = {
   slug: string; name: string; categorySlug: string; meta: string; latin: string | null; description: string; price: number; oldPrice: number | null; stock: number;
   badge: string | null; active: boolean; comingSoon: boolean; art: string | null; sortOrder: number; images: string[];
   notes: { title: string; text: string }[]; provenance: { label: string; value: string }[];
+  processDoc: string | null; usageDoc: string | null;
 };
 
 export const draftOf = (p: ProductRow): ProductDraft => ({
@@ -56,10 +60,12 @@ export const draftOf = (p: ProductRow): ProductDraft => ({
   images: p.images,
   notes: p.notes.map((n) => ({ a: n.title, b: n.text })),
   provenance: p.provenance.map((n) => ({ a: n.label, b: n.value })),
+  processDoc: p.processDoc ?? "",
+  usageDoc: p.usageDoc ?? "",
 });
 
 export const emptyDraft = (categorySlug = ""): ProductDraft => ({
-  name: "", categorySlug, meta: "", latin: "", description: "", price: "", oldPrice: "", stock: "0", badge: "", active: true, comingSoon: false, art: "", sortOrder: "0", images: [], notes: [], provenance: [],
+  name: "", categorySlug, meta: "", latin: "", description: "", price: "", oldPrice: "", stock: "0", badge: "", active: true, comingSoon: false, art: "", sortOrder: "0", images: [], notes: [], provenance: [], processDoc: "", usageDoc: "",
 });
 
 const input = "h-11 w-full rounded-md border border-line-strong/60 bg-white px-3 text-[16px] outline-none focus:ring-2 focus:ring-leaf-500/50";
@@ -127,6 +133,8 @@ export function ProductForm({ initial, categories, badges, onSaved, onCancel }: 
       images: d.images,
       notes: d.notes.filter((p) => p.a.trim() && p.b.trim()).map((p) => ({ title: p.a, text: p.b })),
       provenance: d.provenance.filter((p) => p.a.trim() && p.b.trim()).map((p) => ({ label: p.a, value: p.b })),
+      processDoc: d.processDoc || null,
+      usageDoc: d.usageDoc || null,
     };
     const r = await api(editing ? `/api/admin/products/${initial.slug}` : "/api/admin/products", { method: editing ? "PUT" : "POST", body });
     setSaving(false);
@@ -185,6 +193,13 @@ export function ProductForm({ initial, categories, badges, onSaved, onCancel }: 
       <div className="grid gap-6 rounded-xl border border-line bg-white p-6">
         <Pairs title="Notas de cata o uso" aLabel="Título" bLabel="Texto" value={d.notes} onChange={(v) => set("notes", v)} />
         <Pairs title="Origen y elaboración" aLabel="Dato" bLabel="Valor" value={d.provenance} onChange={(v) => set("provenance", v)} />
+      </div>
+
+      <div className="grid gap-6 rounded-xl border border-line bg-white p-6 sm:grid-cols-2">
+        <p className="font-display text-[15px] text-muted sm:col-span-2">Los ingredientes de la ficha salen solos de la receta del producto (sección Producción). Aquí subes los documentos que el cliente puede abrir.</p>
+        <DocUploader label="Proceso de elaboración (PDF)" value={d.processDoc} onChange={(v) => set("processDoc", v)} />
+        <DocUploader label="Manual de uso (PDF)" value={d.usageDoc} onChange={(v) => set("usageDoc", v)} />
+        {(fields.processDoc || fields.usageDoc) && <p role="alert" className="text-[14px] text-danger sm:col-span-2">{fields.processDoc ?? fields.usageDoc}</p>}
       </div>
 
       <fieldset className="rounded-xl border border-line bg-white p-4">

@@ -5,16 +5,18 @@ import { Suspense } from "react";
 import { ProductArt } from "@/components/product/ProductArt";
 import { ButtonLink } from "@/components/ui/Button";
 import { JsonLd, breadcrumbs } from "@/components/seo/JsonLd";
-import { formatDate, getPost, posts } from "@/lib/content";
+import { formatDate } from "@/lib/content";
 import { abs, SITE } from "@/lib/site";
+import { Heading } from "@/components/ui/Mix";
+import { getPost, getPosts } from "@/server/posts";
 
-export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await getPosts()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/diario/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const p = getPost(slug);
+  const p = await getPost(slug);
   if (!p) return {};
   return {
     title: p.title,
@@ -26,9 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/diario/[slug]">):
 
 async function Article({ params }: { params: PageProps<"/diario/[slug]">["params"] }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const all = await getPosts();
+  const post = all.find((p) => p.slug === slug);
   if (!post) notFound();
-  const next = posts.filter((p) => p.slug !== post.slug).slice(0, 2);
+  const next = all.filter((p) => p.slug !== post.slug).slice(0, 2);
 
   const articleData = {
     "@context": "https://schema.org",
@@ -46,16 +49,16 @@ async function Article({ params }: { params: PageProps<"/diario/[slug]">["params
   return (
     <article>
       <JsonLd data={[articleData, breadcrumbs([{ name: "Inicio", url: abs("/") }, { name: "Diario", url: abs("/diario") }, { name: post.title, url: abs(`/diario/${post.slug}`) }])]} />
-      <header className="bg-dawn pb-14 pt-44">
+      <header className="bg-dawn grain pb-10 pt-32 sm:pb-14 sm:pt-40">
         <div className="mx-auto max-w-[900px] px-6">
           <Link href="/diario" className="text-[17px] italic text-muted underline-offset-4 hover:underline">Volver al diario</Link>
-          <h1 className="mt-6 text-[clamp(38px,6vw,76px)] font-semibold tracking-[-0.04em]">{post.title}</h1>
+          <h1 className="mt-6 text-[clamp(30px,6vw,76px)] font-semibold tracking-[-0.04em]">{post.title}</h1>
           <p className="mt-5 text-[18px] italic text-muted">{post.topic}, {formatDate(post.date)}, {post.minutes} min de lectura</p>
         </div>
       </header>
 
       <div className="mx-auto max-w-[900px] px-6 py-14">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-dew-100">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[28px] bg-dew-100">
           <ProductArt product={{ image: post.image, art: post.art, name: post.title }} sizes="900px" priority />
         </div>
         <div className="mx-auto mt-12 grid max-w-[64ch] gap-6 text-[21px] leading-[1.65]">
@@ -70,7 +73,7 @@ async function Article({ params }: { params: PageProps<"/diario/[slug]">["params
 
       <section className="border-t border-line">
         <div className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20">
-          <h2 className="text-[clamp(28px,3vw,40px)]">Sigue leyendo</h2>
+          <Heading className="text-[clamp(32px,4vw,56px)] text-ink-800">Sigue leyendo</Heading>
           <ul className="mt-8 grid gap-8 md:grid-cols-2">
             {next.map((p) => (
               <li key={p.slug} className="border-t border-ink-800 pt-5">

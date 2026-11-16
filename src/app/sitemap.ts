@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
-import { posts } from "@/lib/content";
 import { abs } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
+import { getPosts } from "@/server/posts";
+
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { products, categories } = await getCatalog();
+  const posts = await getPosts();
   const fixed: [string, number, MetadataRoute.Sitemap[number]["changeFrequency"]][] = [
     ["/", 1, "weekly"],
     ["/tienda", 0.9, "daily"],

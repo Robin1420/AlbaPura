@@ -13,9 +13,9 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  lg: "h-14 px-8 text-[16px]",
-  md: "h-11 px-6 text-[15px]",
-  sm: "h-9 px-4 text-[13px]",
+  lg: "h-14 px-8 text-[13.5px]",
+  md: "h-11 px-6 text-[12.5px]",
+  sm: "h-9 px-4 text-[11.5px]",
 };
 
 type Common = {
@@ -27,7 +27,7 @@ type Common = {
 
 export function buttonClass({ variant = "primary", size = "md", className = "" }: Omit<Common, "children">) {
   return [
-    "inline-flex items-center justify-center gap-2 rounded-full font-display font-semibold tracking-[-0.01em]",
+    `btn btn-${size} inline-flex items-center justify-center gap-2 rounded-full font-display font-semibold uppercase tracking-[0.08em]`,
     "transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none",
     variants[variant],
     sizes[size],

@@ -2,20 +2,22 @@
 
 import { AnimatePresence, m } from "motion/react";
 import Link from "next/link";
-import { useCart } from "@/components/cart/CartProvider";
+import { GIFT_PRICE, useCart } from "@/components/cart/CartProvider";
+import { WhatsAppOrderButton } from "@/components/cart/WhatsAppButtons";
 import { ProductArt } from "@/components/product/ProductArt";
 import { CheckoutSteps } from "@/components/site/CheckoutSteps";
 import { ButtonLink } from "@/components/ui/Button";
 import { money } from "@/lib/products";
+import { Heading } from "@/components/ui/Mix";
 
 export default function CartPage() {
   const cart = useCart();
 
   return (
     <>
-      <header className="bg-dawn grain pb-12 pt-44">
+      <header className="bg-dawn grain pb-10 pt-32 sm:pb-12 sm:pt-40">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
-          <h1 className="text-[clamp(48px,7vw,96px)] font-semibold tracking-[-0.04em]">Tu carrito</h1>
+          <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">Tu carrito</Heading>
           <p className="mt-3 text-[20px] italic text-muted">{cart.count === 0 ? "Aún no has elegido nada." : `${cart.count} producto${cart.count === 1 ? "" : "s"}`}</p>
           {cart.items.length > 0 && <CheckoutSteps current={0} />}
         </div>
@@ -32,7 +34,7 @@ export default function CartPage() {
           <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_420px]">
             <div>
               <p className="rounded-2xl bg-leaf-300/40 p-5 font-display text-[16px] font-medium text-ink-700">
-                Estamos en fase de prueba: entregamos en Lima Metropolitana y Callao.
+                Entregamos en Lima Metropolitana y Callao.
               </p>
 
               <ul className="mt-6 border-t border-line">
@@ -48,7 +50,7 @@ export default function CartPage() {
                       className="overflow-hidden border-b border-line"
                     >
                       <div className="flex flex-wrap items-center gap-5 py-6">
-                        <Link href={`/producto/${product.slug}`} className="relative block size-28 shrink-0 overflow-hidden rounded-t-[999px] rounded-b-lg bg-dew-100" aria-label={product.name}>
+                        <Link href={`/producto/${product.slug}`} className="relative block size-28 shrink-0 overflow-hidden rounded-2xl bg-dew-100" aria-label={product.name}>
                           <ProductArt product={product} sizes="112px" />
                         </Link>
                         <div className="min-w-48 flex-1">
@@ -79,7 +81,7 @@ export default function CartPage() {
                   <span className="block font-display text-[18px] font-medium">Envolver para regalo</span>
                   <span className="block text-[16px] text-muted">Caja magnética, papel de semillas y tarjeta escrita a mano.</span>
                 </span>
-                <span className="font-display text-[16px] font-medium">+{money(2500)}</span>
+                <span className="font-display text-[16px] font-medium">+{money(GIFT_PRICE)}</span>
               </label>
 
               <Link href="/tienda" className="mt-8 inline-block font-display text-[16px] font-medium underline underline-offset-4">Seguir comprando</Link>
@@ -97,8 +99,9 @@ export default function CartPage() {
                 <span className="font-display text-[38px] font-medium tracking-[-0.04em]">{money(cart.total)}</span>
               </div>
               <ButtonLink href="/checkout" variant="accent" size="lg" className="mt-6 w-full">Ir a pagar</ButtonLink>
+              <WhatsAppOrderButton className="mt-3 w-full" />
               <ul className="mt-6 grid gap-2 text-[15px] text-dew-200/80">
-                {["Pago por transferencia, Yape o Plin", "Entrega en Lima Metropolitana y Callao", "Te respondemos por correo ante cualquier duda"].map((t) => (
+                {["Pago seguro con tarjeta, Yape o QR", "Entrega en Lima Metropolitana y Callao", "Te respondemos por WhatsApp ante cualquier duda"].map((t) => (
                   <li key={t} className="flex items-center gap-2.5">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-leaf-400" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
                     {t}

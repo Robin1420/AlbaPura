@@ -4,7 +4,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer,
 import { api, type ApiOrder } from "@/lib/api";
 import { useHydrated } from "@/lib/useHydrated";
 
-export type User = { name: string; email: string; role?: "customer" | "admin" };
+export type User = {
+  name: string;
+  email: string;
+  role?: "customer" | "admin";
+  picture?: string | null;
+  phone?: string | null;
+  addressLine?: string | null;
+  district?: string | null;
+  region?: string | null;
+  /** Falso hasta que la persona llena su celular y dirección después de ingresar con Google. */
+  profileComplete?: boolean;
+};
+export type Profile = { name: string; phone: string; addressLine: string; district: string; region: string };
 export type { ApiOrder as Order };
 
 type State = { ready: boolean; user: User | null; orders: ApiOrder[]; favorites: string[] };
@@ -30,8 +42,7 @@ type Ctx = {
   user: User | null;
   orders: ApiOrder[];
   favorites: string[];
-  register: (name: string, email: string, password: string) => Promise<Result>;
-  login: (email: string, password: string) => Promise<Result>;
+  saveProfile: (p: Profile) => Promise<Result>;
   logout: () => Promise<void>;
   toggleFavorite: (slug: string) => void;
   refresh: () => Promise<void>;
@@ -59,7 +70,15 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { ready: false, user: null, orders: [], favorites: [] });
 
   const refresh = useCallback(async () => {
-    const r = await api<{ user: User | null; favorites: string[]; orders: ApiOrder[] }>("/api/me");
+    type Me = { user: User | null; favorites: string[]; orders: ApiOrder[] };
+    let r = await api<Me>("/api/me");
+    // Tras volver de Google, los favoritos guardados como invitado pasan a la cuenta
+    const guest = readGuest();
+    if (r.ok && r.data.user && guest.length) {
+      await api("/api/favorites", { method: "PUT", body: { slugs: guest } });
+      localStorage.removeItem(GUEST_KEY);
+      r = await api<Me>("/api/me");
+    }
     if (r.ok) dispatch({ type: "session", user: r.data.user, orders: r.data.orders, favorites: r.data.user ? r.data.favorites : readGuest() });
     else dispatch({ type: "session", user: null, orders: [], favorites: readGuest() });
   }, []);
@@ -68,30 +87,14 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     void refresh();
   }, [refresh]);
 
-  /** Tras ingresar, los favoritos guardados como invitado pasan a la cuenta. */
-  const mergeGuestFavorites = useCallback(async () => {
-    const guest = readGuest();
-    if (guest.length) {
-      await api("/api/favorites", { method: "PUT", body: { slugs: guest } });
-      localStorage.removeItem(GUEST_KEY);
-    }
-    await refresh();
-  }, [refresh]);
-
   const value = useMemo<Ctx>(
     () => ({
       ...state,
       refresh,
-      register: async (name, email, password) => {
-        const r = await api("/api/auth/register", { body: { name, email, password } });
+      saveProfile: async (p) => {
+        const r = await api("/api/me/profile", { method: "PUT", body: p });
         if (!r.ok) return r;
-        await mergeGuestFavorites();
-        return { ok: true };
-      },
-      login: async (email, password) => {
-        const r = await api("/api/auth/login", { body: { email, password } });
-        if (!r.ok) return r;
-        await mergeGuestFavorites();
+        await refresh();
         return { ok: true };
       },
       logout: async () => {
@@ -111,7 +114,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         }
       },
     }),
-    [state, refresh, mergeGuestFavorites],
+    [state, refresh],
   );
 
   return <C.Provider value={value}>{children}</C.Provider>;

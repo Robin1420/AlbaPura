@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CinematicHero } from "@/components/hero/CinematicHero";
-import { ParallaxArch } from "@/components/motion/ParallaxArch";
+import { HeroFull } from "@/components/hero/HeroFull";
+import { CollectionRow } from "@/components/home/CollectionRow";
+import { Philosophy } from "@/components/home/Philosophy";
+import { Reveal } from "@/components/motion/Reveal";
+import { Mix } from "@/components/ui/Mix";
 import { ProductArt } from "@/components/product/ProductArt";
-import { ProductCard } from "@/components/product/ProductCard";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
+import { formatDate } from "@/lib/content";
+import { getPosts } from "@/server/posts";
 import { SITE } from "@/lib/site";
 import { getCatalog } from "@/server/catalog";
 
 export const metadata: Metadata = {
-  title: { absolute: "Alba Pura | Productos orgánicos en Lima, Perú" },
-  description: "Productos orgánicos hechos en Lima: jabones, bálsamo, aceite, miel e infusiones para cuidar tu piel y el medio ambiente.",
+  title: { absolute: "Alba Pura | Productos naturales en Lima, Perú" },
+  description: "Productos naturales hechos en Lima: jabones, bálsamo, aceite, miel e infusiones para cuidar tu piel y el medio ambiente.",
   alternates: { canonical: "/" },
 };
 
@@ -36,100 +40,74 @@ const proof = [
   ["Atención cercana", "Te respondemos antes y después de tu pedido"],
 ];
 
-const principles = [
-  ["Para tu piel", "Elegimos ingredientes de origen natural y evitamos los que más suelen afectarla."],
-  ["Para el consumo humano", "Lo que usas en tu piel o llevas a tu mesa no debería hacerte daño."],
-  ["Para el medio ambiente", "Procesos y empaques pensados para dejar la menor huella posible."],
-];
-
 export default async function Home() {
-  const { products, categories } = await getCatalog();
+  const [{ products, categories }, posts] = await Promise.all([getCatalog(), getPosts()]);
+  const lines = categories.filter((c) => c.count > 0);
+  const rowProducts = (slug: string) =>
+    products
+      .filter((p) => p.categorySlug === slug)
+      .map((p) => ({ slug: p.slug, name: p.name, meta: p.meta, category: p.category, price: p.price, image: p.image, comingSoon: p.comingSoon, soldOut: p.stock !== undefined && p.stock <= 0 }));
+
   return (
     <>
       <JsonLd data={siteData} />
-      <CinematicHero />
+      <HeroFull />
 
-      <section className="screen" aria-labelledby="cat-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <h2 id="cat-title" className="max-w-[16ch] text-[clamp(32px,min(5vw,8svh),64px)]">Cuatro líneas, una misma idea</h2>
-          <ul className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 md:mt-[clamp(1.5rem,5svh,3.5rem)] lg:grid-cols-4">
-            {categories.map((c, i) => (
-              <li key={c.name} className={i % 2 === 1 ? "[@media(min-height:860px)]:lg:mt-10" : ""}>
-                <Link href={`/categoria/${c.slug}`} className="group block">
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-t-[999px] rounded-b-lg bg-dew-100 transition-[border-radius,transform] duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-2 group-hover:rounded-t-[60px] md:max-h-[min(40svh,420px)] [&_img]:transition-transform [&_img]:duration-[900ms] [&_img]:ease-[var(--ease-out-expo)] group-hover:[&_img]:scale-[1.06]">
-                    <ProductArt product={{ image: c.image, name: c.name, art: c.slug.includes("infus") ? "tea" : c.slug.includes("piel") ? "soap" : undefined }} />
-                    <span className="absolute bottom-4 right-4 grid size-12 translate-y-3 place-items-center rounded-full bg-dew-50 text-ink-800 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" aria-hidden="true">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>
+      <section className="bg-dew-50 pt-4" aria-labelledby="productos-title">
+        <Reveal className="mx-auto max-w-[1360px] px-5 pb-14 pt-10 text-center sm:px-6 lg:pb-20">
+          <Mix id="productos-title" className="text-[clamp(38px,6vw,92px)] text-ink-800" parts={[{ t: "Nuestros" }, { t: "productos", italic: true, br: true }]} />
+        </Reveal>
+        {lines.map((c, i) => (
+          <CollectionRow key={c.slug} category={c} products={rowProducts(c.slug)} flip={i % 2 === 1} tone={i} />
+        ))}
+      </section>
+
+      <Philosophy />
+
+      <section className="bg-ink-800 text-dew-50" aria-labelledby="diario-title">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
+          <Reveal className="flex flex-wrap items-end justify-between gap-4">
+            <Mix id="diario-title" className="text-[clamp(34px,5vw,72px)]" parts={[{ t: "Ciencia simple" }, { t: "para cuidarte", italic: true, br: true }]} />
+            <Link href="/diario" className="font-display text-[13px] font-medium uppercase tracking-[0.1em] underline decoration-1 underline-offset-[6px] hover:decoration-2">Leer el diario</Link>
+          </Reveal>
+          <ul className="mt-10 grid gap-5 md:grid-cols-3">
+            {posts.slice(0, 3).map((post, n) => (
+              <li key={post.slug}>
+                <Reveal delay={n * 90} className="h-full">
+                  <Link href={`/diario/${post.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-ink-700/70 ring-1 ring-white/10 transition-[transform,background-color] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1.5 hover:bg-ink-600/60">
+                    <span className="relative block aspect-[4/3] overflow-hidden bg-ink-600 [&_img]:transition-transform [&_img]:duration-[900ms] [&_img]:ease-[var(--ease-out-expo)] group-hover:[&_img]:scale-[1.06]">
+                      <ProductArt product={{ image: post.image, art: post.art, name: post.title }} sizes="(min-width:768px) 30vw, 100vw" />
                     </span>
-                  </div>
-                  <p className="mt-3 font-display text-[clamp(18px,3svh,22px)] font-medium">{c.name}</p>
-                  <p className="text-[15px] italic text-faint">{c.count} producto{c.count === 1 ? "" : "s"}</p>
-                </Link>
+                    <span className="flex flex-1 flex-col gap-2 p-6">
+                      <span className="text-[15px] italic text-leaf-400">{post.topic} · {formatDate(post.date)}</span>
+                      <span className="font-heading text-[26px] font-semibold leading-[1.05]">{post.title}</span>
+                      <span className="mt-auto pt-3 text-[14px] italic text-dew-200/70">{post.minutes} min de lectura</span>
+                    </span>
+                  </Link>
+                </Reveal>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section className="bg-meadow grain screen" aria-labelledby="feat-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 id="feat-title" className="max-w-[18ch] text-[clamp(28px,min(4.2vw,6.5svh),56px)]">Los primeros productos de Alba Pura</h2>
-              <p className="mt-2 max-w-[52ch] text-[clamp(15px,2.4svh,20px)] text-muted">Estamos en fase de prueba. Sé de las primeras personas en conocerlos y cuéntanos qué te parecen.</p>
-            </div>
-            <ButtonLink href="/tienda" variant="primary">Ver toda la tienda</ButtonLink>
-          </div>
-          <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-[clamp(1rem,3svh,2.5rem)] lg:grid-cols-4">
-            {products.slice(0, 4).map((p) => (
-              <ProductCard key={p.slug} product={p} compact />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="screen" aria-labelledby="story-title">
-        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-6 py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">
-          <div className="lg:max-w-[min(520px,calc((100svh-var(--header-h)-4rem)*4/5))]">
-            <ParallaxArch src="/img/products/miel-de-abeja-pura.jpg" alt="Frasco de miel de Alba Pura con tapa de madera y cuchara" seal="Hecho en Lima" />
-          </div>
-          <div>
-            <h2 id="story-title" className="max-w-[16ch] text-[clamp(28px,min(4.2vw,6.4svh),56px)]">Por qué existe Alba Pura</h2>
-            <p className="mt-3 max-w-[54ch] text-[clamp(15px,2.4svh,20px)] text-muted">
-              Hoy muchos productos de uso diario contienen químicos que afectan la piel y dañan el medio ambiente. Alba Pura nació para ofrecer una alternativa orgánica que cuide a las personas y a su entorno.
-            </p>
-            <dl className="mt-6 grid max-w-2xl gap-5 border-t border-line pt-5 sm:grid-cols-3 md:mt-[clamp(1rem,3svh,2rem)]">
-              {principles.map(([t, d]) => (
-                <div key={t}>
-                  <dt className="font-display text-[clamp(16px,2.6svh,20px)] font-medium leading-tight tracking-[-0.02em]">{t}</dt>
-                  <dd className="mt-1.5 text-[clamp(14px,2.1svh,16px)] text-muted">{d}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-6 md:mt-[clamp(1rem,3svh,2rem)]">
-              <ButtonLink href="/nosotros" variant="secondary">Conoce nuestra historia</ButtonLink>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-dawn grain screen" aria-labelledby="pilot-title">
-        <div className="mx-auto w-full max-w-[1440px] px-6 py-16 md:py-0 lg:px-20">
-          <div className="mx-auto max-w-[900px] text-center">
-            <h2 id="pilot-title" className="text-[clamp(30px,min(4.5vw,7.5svh),56px)]">Sé de las primeras personas en probar Alba Pura</h2>
-            <p className="mx-auto mt-4 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">
-              Estamos en fase de prueba de producto. Tu opinión nos ayuda a mejorar antes de ampliar la línea.
+      <section className="bg-dawn grain relative" aria-labelledby="pilot-title">
+        <div className="mx-auto w-full max-w-[1440px] px-5 py-16 sm:px-6 lg:px-20 lg:py-24">
+          <Reveal className="mx-auto max-w-[900px] text-center">
+            <Mix id="pilot-title" className="text-[clamp(32px,5vw,68px)] text-ink-800" parts={[{ t: "Sé de las primeras" }, { t: "personas en probarlo", italic: true, br: true }]} />
+            <p className="mx-auto mt-5 max-w-[52ch] text-[clamp(16px,2.6svh,20px)] text-muted">
+              Tu opinión nos ayuda a mejorar antes de ampliar la línea.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/tienda" size="lg">Ver los productos</ButtonLink>
               <ButtonLink href="/contacto" size="lg" variant="secondary">Escríbenos</ButtonLink>
             </div>
-          </div>
-          <ul aria-label="Lo que nos define" className="mt-10 grid gap-6 border-t border-ink-800/20 pt-6 sm:grid-cols-2 md:mt-[clamp(1.5rem,6svh,4rem)] lg:grid-cols-4">
+          </Reveal>
+          <ul aria-label="Lo que nos define" className="mt-12 grid gap-6 border-t border-ink-800/20 pt-6 sm:grid-cols-2 lg:grid-cols-4">
             {proof.map(([t, d]) => (
               <li key={t}>
-                <p className="font-display text-[17px] font-medium">{t}</p>
-                <p className="text-[15px] text-muted">{d}</p>
+                <p className="font-display text-[14px] font-medium uppercase tracking-[0.05em]">{t}</p>
+                <p className="mt-1 text-[15px] text-muted">{d}</p>
               </li>
             ))}
           </ul>

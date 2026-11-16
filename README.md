@@ -8,6 +8,25 @@ npm run dev     # http://localhost:3000
 npm run build
 ```
 
+## Arquitectura (dos ramas, dos despliegues en Cloudflare)
+
+| Rama | Qué es | Dónde corre |
+| --- | --- | --- |
+| `frontend` (esta) | Tienda y panel de administración en Next.js 16 | Worker `alba-pura-web` (OpenNext) |
+| `backend` | API (pedidos, cuentas, pagos, administración) | Worker `alba-pura-api` + D1 `alba-pura-db` |
+
+La tienda llama a la API por un *service binding* (`API`): `src/app/api/[...path]/route.ts` reenvía todo `/api/*`, así las cookies de sesión son del mismo sitio y no hace falta CORS. Las páginas del servidor piden el catálogo con `src/server/catalog.ts` (caché de 30 s).
+
+```bash
+npm install
+npm run dev        # Next en :3000; la API sale de API_URL (por defecto la desplegada)
+npm run deploy     # build de OpenNext + despliegue a Cloudflare
+```
+
+`API_URL` solo se usa en desarrollo y durante el build. La caché de páginas vive en el KV `alba-pura-cache` (binding `NEXT_INC_CACHE_KV`).
+
+El resto de este archivo describe el proyecto original (todo en uno): las partes de base de datos, API y scripts ahora están en la rama `backend`.
+
 ## Estructura
 
 - `src/app/globals.css` tokens del diseño (paleta rocío / tinta de hoja / clorofila, radios, easing)

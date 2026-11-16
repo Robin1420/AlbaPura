@@ -7,14 +7,15 @@ import { ButtonLink } from "@/components/ui/Button";
 import { api, type ApiOrder } from "@/lib/api";
 import { estimateDelivery, shippingLabel } from "@/lib/checkout";
 import { money } from "@/lib/products";
+import { Heading } from "@/components/ui/Mix";
 
 const stages = ["Confirmado", "Preparando", "En camino", "Entregado"] as const;
 const stageOf: Record<ApiOrder["status"], number> = { pending_payment: 0, awaiting_transfer: 0, failed: 0, cancelled: 0, paid: 1, preparing: 1, shipped: 2, delivered: 3 };
-const paymentLabel = { webpay: "Tarjeta (Webpay)", transfer: "Transferencia, Yape o Plin" } as const;
+const paymentLabel = { culqi: "Tarjeta, Yape o QR", transfer: "Transferencia, Yape o Plin" } as const;
 
 type Loaded = { order: ApiOrder; bankInfo: string | null } | "missing";
 
-export function OrderView({ id, token, pago }: { id: string; token: string; pago: string }) {
+export function OrderView({ id, token }: { id: string; token: string; pago?: string }) {
   const cart = useCart();
   const [data, setData] = useState<Loaded | null>(null);
   const cleared = useRef(false);
@@ -42,9 +43,9 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
 
   if (data === "missing") {
     return (
-      <div className="mx-auto max-w-[1440px] px-6 pb-24 pt-48 lg:px-20">
-        <h1 className="text-[clamp(40px,6vw,80px)] font-semibold tracking-[-0.04em]">No encontramos este pedido</h1>
-        <p className="mt-4 max-w-[48ch] text-[20px] text-muted">Revisa que el enlace esté completo o ingresa a tu cuenta para ver tus pedidos.</p>
+      <div className="mx-auto max-w-[1440px] px-6 pb-16 pt-36 sm:pb-24 sm:pt-48 lg:px-20">
+        <Heading as="h1" className="text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">No encontramos este pedido</Heading>
+        <p className="mt-6 max-w-[48ch] text-[20px] text-muted">Revisa que el enlace esté completo o ingresa a tu cuenta para ver tus pedidos.</p>
         <ButtonLink href="/cuenta" size="lg" className="mt-8">Ir a mi cuenta</ButtonLink>
       </div>
     );
@@ -58,16 +59,14 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
 
   const heading = failed ? "No se completó el pago." : transfer ? `Casi listo, ${first}.` : `Gracias por tu compra, ${first}.`;
   const lead = failed
-    ? pago === "anulado"
-      ? "Anulaste el pago en Webpay. No se hizo ningún cargo."
-      : "Webpay no pudo procesar el pago y no se hizo ningún cargo. Puedes intentarlo de nuevo."
+    ? "No se hizo ningún cargo. Puedes volver a la tienda e intentarlo de nuevo."
     : transfer
       ? "Para confirmar tu pedido, transfiere el total con los datos de abajo. Te los enviamos también a tu correo."
       : `Te enviamos la confirmación a ${order.email}. Te escribiremos para coordinar la entrega.`;
 
   return (
     <>
-      <header className="bg-dawn pb-16 pt-44">
+      <header className="bg-dawn grain pb-10 pt-32 sm:pb-16 sm:pt-40">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-20">
           <p className={`inline-flex items-center gap-3 rounded-full py-1.5 pl-2 pr-4 font-display text-[14px] font-medium ${failed ? "bg-danger text-white" : "bg-ink-800 text-dew-50"}`}>
             <span className={`grid size-6 place-items-center rounded-full ${failed ? "bg-white text-danger" : "bg-leaf-500 text-ink-900"}`} aria-hidden>
@@ -75,7 +74,7 @@ export function OrderView({ id, token, pago }: { id: string; token: string; pago
             </span>
             Pedido {order.id}: {order.statusLabel.toLowerCase()}
           </p>
-          <h1 className="mt-6 max-w-[16ch] text-[clamp(44px,6.5vw,96px)] font-semibold tracking-[-0.04em]">{heading}</h1>
+          <Heading as="h1" className="mt-6 max-w-[18ch] text-[clamp(38px,min(7vw,12svh),96px)] text-ink-800">{heading}</Heading>
           <p className="mt-4 max-w-[52ch] text-[20px] text-muted">{lead}</p>
         </div>
       </header>
