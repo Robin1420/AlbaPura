@@ -1,6 +1,6 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { Catalog, Product } from "@/types";
-import { badges as badgesTable, categories as categoriesTable, db, products as productsTable } from "./db";
+import { badges as badgesTable, categories as categoriesTable, db, products as productsTable, recipeItems, supplies as suppliesTable } from "./db";
 
 /**
  * Catálogo público completo (productos activos con su categoría) desde la base de datos.
@@ -12,6 +12,16 @@ export async function getCatalog(): Promise<Catalog> {
   const badgeRows = await db.select().from(badgesTable).where(eq(badgesTable.active, true));
   const badgeBySlug = new Map(badgeRows.map((b) => [b.slug, b]));
   const bySlug = new Map(cats.map((c) => [c.slug, c]));
+
+  // Ingredientes = materias primas de la receta (sin empaques). Solo se publica el nombre, nunca cantidades ni costos.
+  const used = await db
+    .select({ productSlug: recipeItems.productSlug, name: suppliesTable.name, qty: recipeItems.qty })
+    .from(recipeItems)
+    .innerJoin(suppliesTable, eq(recipeItems.supplyId, suppliesTable.id))
+    .where(and(eq(suppliesTable.kind, "materia"), eq(suppliesTable.active, true)))
+    .orderBy(desc(recipeItems.qty));
+  const ingredientsBySlug = new Map<string, string[]>();
+  for (const u of used) ingredientsBySlug.set(u.productSlug, [...(ingredientsBySlug.get(u.productSlug) ?? []), u.name]);
 
   const products: Product[] = rows
     .filter((p) => bySlug.has(p.categorySlug))
@@ -37,6 +47,9 @@ export async function getCatalog(): Promise<Catalog> {
       description: p.description,
       notes: p.notes,
       provenance: p.provenance,
+      ingredients: ingredientsBySlug.get(p.slug) ?? [],
+      processDoc: p.processDoc ?? undefined,
+      usageDoc: p.usageDoc ?? undefined,
     }));
 
   return {

@@ -58,6 +58,8 @@ export async function POST(req: Request) {
     provenance: d.provenance,
     art: d.art ?? null,
     sortOrder: d.sortOrder,
+    processDoc: d.processDoc ?? null,
+    usageDoc: d.usageDoc ?? null,
   });
   if (d.stock > 0) await logManualAdjust(slug, 0, d.stock, auth.user.email, "Stock inicial");
   revalidateTag("catalog", { expire: 0 });

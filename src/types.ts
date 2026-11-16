@@ -25,6 +25,12 @@ export type Product = {
   description: string;
   notes: { title: string; text: string }[];
   provenance: { label: string; value: string }[];
+  /** Ingredientes: los insumos de la receta (solo materias primas), de mayor a menor cantidad. */
+  ingredients: string[];
+  /** PDF del proceso de elaboración. */
+  processDoc?: string;
+  /** PDF del manual de uso. */
+  usageDoc?: string;
 };
 
 export type Category = {

@@ -38,6 +38,21 @@ export const categories = sqliteTable("categories", {
   active: integer("active", { mode: "boolean" }).notNull().default(true),
 });
 
+/** Artículos del diario. `body` son los párrafos separados por una línea en blanco. */
+export const posts = sqliteTable("posts", {
+  slug: text("slug").primaryKey(),
+  title: text("title").notNull(),
+  topic: text("topic").notNull(),
+  excerpt: text("excerpt").notNull(),
+  body: text("body").notNull(),
+  image: text("image"),
+  art: text("art").notNull().default("soap"),
+  minutes: integer("minutes").notNull().default(4),
+  publishedAt: text("published_at").notNull(),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
 export const products = sqliteTable("products", {
   slug: text("slug").primaryKey(),
   name: text("name").notNull(),
@@ -59,6 +74,10 @@ export const products = sqliteTable("products", {
   reviews: integer("reviews").notNull().default(0),
   art: text("art").$type<"oil" | "honey" | "soap" | "tea">(),
   sortOrder: integer("sort_order").notNull().default(0),
+  /** PDF del proceso de elaboración (/api/media/<uuid>.pdf). */
+  processDoc: text("process_doc"),
+  /** PDF del manual de uso (/api/media/<uuid>.pdf). */
+  usageDoc: text("usage_doc"),
 });
 
 export type OrderStatus = "pending_payment" | "awaiting_transfer" | "paid" | "preparing" | "shipped" | "delivered" | "cancelled" | "failed";

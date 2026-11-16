@@ -1,5 +1,6 @@
 import { changes } from "@/server/http";
 import type { RouteCtx } from "@/shims/route";
+import { store } from "@/shims/context";
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "@/shims/cache";
 import { requireAdmin } from "@/server/auth";
@@ -39,7 +40,7 @@ export async function PUT(req: Request, ctx: RouteCtx) {
   const [cat] = await db.select({ slug: categories.slug }).from(categories).where(eq(categories.slug, d.categorySlug));
   if (!cat) return fail("La categoría elegida no existe.", 422, { categorySlug: "La categoría elegida no existe." });
 
-  const [prev] = await db.select({ stock: products.stock }).from(products).where(eq(products.slug, slug));
+  const [prev] = await db.select({ stock: products.stock, processDoc: products.processDoc, usageDoc: products.usageDoc }).from(products).where(eq(products.slug, slug));
   const r = await db
     .update(products)
     .set({
@@ -59,10 +60,16 @@ export async function PUT(req: Request, ctx: RouteCtx) {
       provenance: d.provenance,
       art: d.art ?? null,
       sortOrder: d.sortOrder,
+      processDoc: d.processDoc ?? null,
+      usageDoc: d.usageDoc ?? null,
     })
     .where(eq(products.slug, slug));
   if (changes(r) === 0) return fail("Producto no encontrado.", 404);
   if (prev) await logManualAdjust(slug, prev.stock, d.stock, auth.user.email);
+  // Un PDF reemplazado o quitado ya no lo usa nadie: se borra de R2 para no acumular archivos
+  for (const [old, now] of [[prev?.processDoc, d.processDoc ?? null], [prev?.usageDoc, d.usageDoc ?? null]] as const) {
+    if (old && old !== now) await store().env.MEDIA?.delete(old.replace("/api/media/", "")).catch(() => {});
+  }
   revalidateTag("catalog", { expire: 0 });
   return json({ slug });
 }

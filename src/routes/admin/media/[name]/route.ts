@@ -4,7 +4,7 @@ import { store } from "@/shims/context";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { requireAdmin } from "@/server/auth";
-import { categories, db, media, products } from "@/server/db";
+import { categories, db, media, posts, products } from "@/server/db";
 import { fail, json, parseBody, sameOrigin } from "@/server/http";
 
 const NAME = /^[a-f0-9-]{36}\.(jpg|png|webp)$/;
@@ -22,7 +22,7 @@ export async function PATCH(req: Request, ctx: RouteCtx) {
   return json({ name });
 }
 
-/** Solo se puede borrar una foto que ningún producto ni categoría use. */
+/** Solo se puede borrar una foto que ningún producto, categoría ni artículo use. */
 export async function DELETE(req: Request, ctx: RouteCtx) {
   if (!sameOrigin(req)) return fail("Origen no permitido.", 403);
   const auth = await requireAdmin();
@@ -33,7 +33,8 @@ export async function DELETE(req: Request, ctx: RouteCtx) {
   const url = `/api/media/${name}`;
   const prods = await db.select({ name: products.name, images: products.images }).from(products);
   const cats = await db.select({ name: categories.name, image: categories.image }).from(categories);
-  const user = prods.find((p) => p.images.includes(url))?.name ?? cats.find((c) => c.image === url)?.name;
+  const arts = await db.select({ title: posts.title, image: posts.image }).from(posts);
+  const user = prods.find((p) => p.images.includes(url))?.name ?? cats.find((c) => c.image === url)?.name ?? arts.find((a) => a.image === url)?.title;
   if (user) return fail(`Esta foto se usa en “${user}”. Quítala de ahí antes de borrarla.`, 409);
 
   const r = await db.delete(media).where(eq(media.name, name));
