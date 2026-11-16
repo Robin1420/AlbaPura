@@ -61,7 +61,7 @@ export default async function Home() {
       <JsonLd data={siteData} />
       <HeroFull />
       <PhotoStrip tiles={tiles} />
-      <Philosophy thumbs={products.filter((p) => p.image).map((p) => p.image!)} />
+      <Philosophy />
 
       <section className="bg-dew-50 pt-4" aria-labelledby="lineas-title">
         <Reveal className="mx-auto max-w-[1360px] px-5 pb-14 pt-10 text-center sm:px-6 lg:pb-20">
