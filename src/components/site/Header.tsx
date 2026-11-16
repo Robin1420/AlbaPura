@@ -106,7 +106,7 @@ export function Header() {
       <header
         onMouseLeave={closeMega}
         className={`site-header fixed inset-x-0 top-0 z-50 transition-[transform,background-color,color,border-color] duration-500 ease-[var(--ease-out-expo)] ${hidden && !mega ? "-translate-y-full" : ""} ${
-          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-ink-800/10 bg-dew-50/90 text-ink-900 backdrop-blur-xl"
+          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-ink-800/10 bg-dew-50 text-ink-900 shadow-[0_14px_30px_-24px_rgb(8_24_15/0.45)]"
         }`}
       >
         <div className="mx-auto grid h-[76px] max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
@@ -116,7 +116,7 @@ export function Header() {
           </Link>
 
           <nav
-            className={`hidden items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-500 lg:flex ${overHero ? "border-white/35 bg-white/10" : "border-ink-800/15 bg-white/50"}`}
+            className={`hidden items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-500 lg:flex ${overHero ? "border-white/35 bg-white/10" : "border-ink-800/15 bg-white"}`}
             aria-label="Principal"
             onMouseLeave={() => setHover(null)}
           >

@@ -44,8 +44,8 @@ export function CollectionRow({ category, products, flip, tone }: { category: Ro
   const image = category.image ?? products.find((p) => p.image)?.image;
 
   return (
-    <article className="grid overflow-hidden bg-dew-50 lg:min-h-[min(100svh,860px)] lg:grid-cols-2" aria-label={category.name}>
-      <Link href={`/categoria/${category.slug}`} className={`group relative block min-h-[56svh] overflow-hidden bg-dew-100 lg:min-h-0 ${flip ? "lg:order-2" : ""}`} aria-label={`Ver ${category.name}`}>
+    <article className="grid overflow-hidden bg-dew-50 lg:min-h-[min(82svh,700px)] lg:grid-cols-2" aria-label={category.name}>
+      <Link href={`/categoria/${category.slug}`} className={`group relative block min-h-[48svh] overflow-hidden bg-dew-100 lg:min-h-0 ${flip ? "lg:order-2" : ""}`} aria-label={`Ver ${category.name}`}>
         {image && <Image src={image} alt="" fill sizes="(min-width:1024px) 50vw, 100vw" className="object-cover transition-transform duration-[1400ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]" />}
       </Link>
 
