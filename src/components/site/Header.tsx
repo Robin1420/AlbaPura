@@ -111,9 +111,21 @@ export function Header() {
       <header
         onMouseLeave={closeMega}
         className={`site-header fixed inset-x-0 top-0 z-50 transition-[transform,background-color,color,border-color] duration-500 ease-[var(--ease-out-expo)] ${hidden && !mega ? "-translate-y-full" : ""} ${
-          overHero ? "border-b border-transparent bg-transparent text-white" : "border-b border-ink-800/5 bg-dew-50/65 text-ink-900 backdrop-blur-2xl backdrop-saturate-150"
+          overHero ? "bg-transparent text-white" : "bg-transparent text-ink-900"
         }`}
       >
+        {/* Fondo difuminado: el desenfoque y el color se desvanecen hacia abajo, sin borde ni sombra */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-[calc(100%+36px)] transition-opacity duration-700 ${overHero ? "opacity-0" : "opacity-100"}`}
+          style={{
+            background: "linear-gradient(to bottom, rgb(247 250 241 / 0.82) 0%, rgb(247 250 241 / 0.55) 55%, rgb(247 250 241 / 0) 100%)",
+            backdropFilter: "blur(16px) saturate(1.4)",
+            WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+            maskImage: "linear-gradient(to bottom, #000 52%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, #000 52%, transparent 100%)",
+          }}
+        />
         <div className="mx-auto grid h-[76px] max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
           <Link href="/" className="flex shrink-0 items-center" aria-label="Alba Pura, productos orgánicos. Ir al inicio">
             <Image src="/img/logo.png" alt="" width={1000} height={704} priority className={`h-14 w-auto transition-opacity duration-300 ${overHero ? "hidden" : ""}`} />
