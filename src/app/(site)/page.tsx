@@ -58,7 +58,6 @@ export default async function Home() {
     <>
       <JsonLd data={siteData} />
       <HeroFull />
-      <Philosophy />
 
       <section className="bg-dew-50 pt-4" aria-labelledby="productos-title">
         <Reveal className="mx-auto max-w-[1360px] px-5 pb-14 pt-10 text-center sm:px-6 lg:pb-20">
@@ -68,6 +67,8 @@ export default async function Home() {
           <CollectionRow key={c.slug} category={c} products={rowProducts(c.slug)} flip={i % 2 === 1} tone={i} />
         ))}
       </section>
+
+      <Philosophy />
 
       <section className="screen" aria-labelledby="story-title">
         <div className="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 md:py-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-20">

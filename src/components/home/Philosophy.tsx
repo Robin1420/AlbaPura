@@ -22,8 +22,8 @@ export function Philosophy() {
   const words = TEXT.split(" ");
 
   return (
-    <section className="bg-dew-50 px-5 py-24 sm:px-6 lg:px-12 lg:py-36" aria-labelledby="filosofia-title">
-      <div ref={ref} className="mx-auto max-w-[1080px] text-center">
+    <section className="flex min-h-[92svh] items-center bg-dew-50 px-5 py-24 sm:px-6 lg:px-12 lg:py-36" aria-labelledby="filosofia-title">
+      <div ref={ref} className="mx-auto w-full max-w-[1080px] text-center">
         <p id="filosofia-title" className="font-display text-[14px] font-medium uppercase tracking-[0.12em] text-leaf-600">Nuestra filosofía</p>
         <p className="mt-8 font-display text-[clamp(26px,3.5vw,54px)] font-normal leading-[1.16] tracking-[-0.025em] text-ink-800" aria-label={TEXT}>
           <span aria-hidden="true">
